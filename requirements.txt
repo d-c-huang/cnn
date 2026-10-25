@@ -1,0 +1,6 @@
+# API runtime (Python 3.11+). Phase 3 uses CPU PyTorch and torchvision MNIST.
+fastapi>=0.115.12,<1.0
+uvicorn>=0.34.3,<1.0
+numpy>=2.3.0,<3.0
+torch>=2.7.1,<3.0
+torchvision>=0.22.1,<1.0

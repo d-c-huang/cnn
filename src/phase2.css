@@ -1,0 +1,72 @@
+.phase-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  background: #edf1e6;
+  border-radius: 7px;
+  margin: 0 8px 22px;
+}
+.phase-switcher button {
+  flex: 1;
+  background: transparent;
+  color: #849373;
+  padding: 9px 5px;
+  border-radius: 5px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.phase-switcher button[aria-pressed="true"] {
+  background: #fff;
+  color: #435c2b;
+  box-shadow: 0 1px 4px #3a4c2510;
+}
+.phase-switcher button:hover {
+  background: #f6faed;
+}
+.sidebar .course-label {
+  margin-bottom: 22px;
+}
+.sidebar .future-phases {
+  margin-top: 24px;
+}
+.sidebar .lesson-link {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+@media (max-width: 760px) {
+  .phase-switcher {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 18px 0 0;
+    padding: 3px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .phase-switcher button {
+    font-size: 11px;
+    padding: 9px;
+  }
+  .lesson-nav {
+    margin-top: 10px;
+  }
+  .phase-two-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .phase-four-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sidebar .lesson-link {
+    padding-top: 10px;
+    padding-bottom: 11px;
+  }
+  .phase-two-nav .lesson-link {
+    flex-direction: row;
+    gap: 10px;
+  }
+}
+@media (max-width: 430px) {
+  .phase-two-nav .lesson-link {
+    flex-direction: column;
+    gap: 7px;
+  }
+}

@@ -1,0 +1,282 @@
+.iv-drawing,
+.iv-prediction {
+  min-width: 0;
+  width: 100%;
+}
+.iv-canvas-surface {
+  position: relative;
+  width: min(100%, 280px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border: 1px solid #35452d;
+  border-radius: 9px;
+  overflow: hidden;
+  background: #000;
+}
+.iv-canvas-surface > canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  touch-action: none;
+  cursor: crosshair;
+  background: #000;
+}
+.iv-canvas-hint {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #6b7860;
+}
+.iv-canvas-hint > strong {
+  font-size: 53px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  color: #87967a;
+}
+.iv-canvas-hint > span {
+  font-size: 12px;
+  color: #748465;
+}
+.iv-canvas-status {
+  font-size: 11px;
+  line-height: 1.9;
+  text-align: center;
+  color: #8b9b7a;
+  min-height: 23px;
+  margin: 13px 0 20px;
+}
+.iv-canvas-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+.iv-brush-control {
+  min-width: 130px;
+  flex: 1;
+  max-width: 220px;
+}
+.iv-canvas-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.iv-canvas-actions > button {
+  font-size: 11px;
+}
+.iv-canvas-note {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #94a284;
+  margin-top: 15px;
+}
+.iv-brush-control input[type="range"] {
+  min-height: 20px;
+}
+.iv-brush-control .slider-limits {
+  font-size: 11px;
+}
+.iv-prediction {
+  padding: 22px;
+  border: 1px solid #dfe7d4;
+  background: #fbfcf8;
+  border-radius: 9px;
+}
+.iv-prediction-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.iv-prediction-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.iv-architecture {
+  font-size: 17px;
+  font-weight: 550;
+  color: #4c6835;
+  letter-spacing: 0.8px;
+}
+.iv-checkpoint {
+  font-size: 11px;
+  color: #96a588;
+  line-height: 1.7;
+}
+.iv-forward-latency {
+  font-size: 11px;
+  color: #91a17f;
+  white-space: nowrap;
+}
+.iv-predicted-digit {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 20px 0 24px;
+  padding-bottom: 19px;
+  border-bottom: 1px solid #e4eadc;
+}
+.iv-predicted-digit > strong {
+  font-size: 67px;
+  font-weight: 450;
+  line-height: 1;
+  color: #4c6635;
+  min-width: 55px;
+  text-align: center;
+}
+.iv-predicted-digit > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.iv-predicted-digit span {
+  font-size: 11px;
+  color: #8b9d79;
+}
+.iv-predicted-digit b {
+  font-size: 24px;
+  font-weight: 450;
+  letter-spacing: -0.7px;
+  color: #657f48;
+  font-variant-numeric: tabular-nums;
+}
+.iv-predicted-digit small {
+  font-size: 11px;
+  color: #a1ae92;
+}
+.iv-class-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.iv-score-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) 59px 24px;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+.iv-score-label {
+  font-size: 12px;
+  color: #8a9e77;
+  text-align: center;
+}
+.iv-score-track {
+  height: 8px;
+  background: #edf1e6;
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 0;
+}
+.iv-score-track > i {
+  display: block;
+  height: 100%;
+  background: #a8b996;
+}
+.iv-is-predicted .iv-score-track > i {
+  background: #b4cf7d;
+}
+.iv-score-row > strong {
+  font-size: 11px;
+  font-weight: 500;
+  text-align: right;
+  color: #8b9d79;
+}
+.iv-is-predicted .iv-score-label,
+.iv-is-predicted > strong {
+  color: #506f31;
+}
+.iv-score-winner {
+  font-size: 11px;
+  color: #779551;
+  white-space: nowrap;
+}
+.iv-top-three {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex-wrap: wrap;
+  padding-top: 17px;
+  border-top: 1px solid #e5ebdd;
+  margin-top: 21px;
+  font-size: 11px;
+  color: #7e9469;
+  line-height: 1.8;
+}
+.iv-top-three > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+}
+.iv-top-three b {
+  font-size: 11px;
+  font-weight: 400;
+  color: #a3b194;
+}
+.iv-top-three small {
+  font-size: 11px;
+  color: #a1ae92;
+}
+.iv-prediction-note {
+  margin-top: 15px;
+  font-size: 11px;
+  line-height: 1.9;
+  color: #9ba98d;
+}
+@media (max-width: 600px) {
+  .iv-canvas-controls {
+    gap: 16px;
+  }
+  .iv-brush-control {
+    max-width: none;
+    width: 100%;
+    flex: auto;
+  }
+  .iv-canvas-actions {
+    justify-content: center;
+    width: 100%;
+  }
+  .iv-prediction {
+    padding: 17px 14px;
+  }
+  .iv-score-row {
+    gap: 7px;
+    grid-template-columns: 13px minmax(0, 1fr) 53px 22px;
+  }
+  .iv-predicted-digit {
+    gap: 17px;
+  }
+  .iv-predicted-digit > strong {
+    font-size: 58px;
+  }
+  .iv-predicted-digit b {
+    font-size: 22px;
+  }
+  .iv-forward-latency {
+    font-size: 11px;
+  }
+  .iv-top-three {
+    gap: 10px;
+  }
+}
+@media (pointer: coarse) {
+  .iv-canvas-actions > button {
+    min-height: 44px;
+  }
+  .iv-brush-control input[type="range"] {
+    min-height: 44px;
+  }
+}

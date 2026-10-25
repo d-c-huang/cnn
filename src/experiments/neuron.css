@@ -1,0 +1,131 @@
+.neuron-diagram .neuron-compact,
+.neuron-mobile-note {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .neuron-diagram svg.neuron-desktop,
+  .neuron-desktop-note {
+    display: none;
+  }
+
+  .neuron-mobile-note {
+    display: inline;
+  }
+
+  .neuron-diagram .neuron-compact {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    gap: 7px;
+    color: #434e37;
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .neuron-compact-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .neuron-compact-input {
+    min-width: 0;
+    padding: 11px 12px;
+    background: #f1f3eb;
+    border-radius: 6px;
+  }
+
+  .neuron-compact-label {
+    display: block;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #6c795b;
+  }
+
+  .neuron-compact-product {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 3px 12px;
+    margin-top: 4px;
+  }
+
+  .neuron-compact-product strong {
+    font-size: 14px;
+    font-weight: 550;
+    color: #435d28;
+  }
+
+  .neuron-diagram .neuron-compact svg.neuron-flow-arrow {
+    align-self: center;
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    min-height: 0;
+    color: #84986c;
+  }
+
+  .neuron-compact-stage {
+    min-width: 0;
+    padding: 12px 14px;
+    border-radius: 6px;
+  }
+
+  .neuron-compact-stage strong {
+    display: block;
+    margin-top: 3px;
+    font-size: 17px;
+    font-weight: 550;
+    line-height: 1.6;
+  }
+
+  .neuron-compact-sum {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    background: #edf2e2;
+  }
+
+  .neuron-compact-sum > div {
+    min-width: 0;
+  }
+
+  .neuron-compact-sum p {
+    margin: 4px 0 0;
+    font-size: 12px;
+  }
+
+  .neuron-compact-symbol {
+    flex: 0 0 auto;
+    color: #4f682d;
+    font-size: 28px;
+  }
+
+  .neuron-compact-activation {
+    background: #252a23;
+    color: #e6eddc;
+  }
+
+  .neuron-compact-activation .neuron-compact-label {
+    color: #b3bea5;
+  }
+
+  .neuron-compact-activation strong {
+    font-size: 15px;
+  }
+
+  .neuron-compact-output {
+    background: #c9ef6b;
+    color: #2f4120;
+  }
+
+  .neuron-compact-output .neuron-compact-label {
+    color: #48622c;
+  }
+}

@@ -1,0 +1,311 @@
+.if-experiment {
+  display: flex;
+  flex-direction: column;
+  gap: 21px;
+  min-width: 0;
+}
+.if-model-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.if-model {
+  padding: 17px 19px;
+  border: 1px solid #e0e6d7;
+  border-radius: 8px;
+  background: #f8faf4;
+  min-width: 0;
+}
+.if-model.selected {
+  border-color: #abc683;
+  background: #edf4e2;
+}
+.if-model-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: transparent;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+}
+.if-model-toggle > span:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.if-model-toggle strong {
+  font-size: 24px;
+  font-weight: 500;
+  color: #4d6936;
+}
+.if-model-toggle small {
+  font-size: 12px;
+  color: #82966e;
+}
+.if-check {
+  font-size: 10px;
+  color: #8c9f78;
+  white-space: nowrap;
+}
+.if-model.selected .if-check {
+  color: #668b3d;
+}
+.if-model > p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #6f8758;
+  margin-top: 13px;
+}
+.if-model > p > span {
+  color: #96a58b;
+}
+.if-model > code {
+  display: block;
+  margin-top: 11px;
+  font:
+    10px "Cascadia Code",
+    Consolas,
+    monospace;
+  color: #a0ad93;
+  overflow-wrap: anywhere;
+}
+.if-model > label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 16px;
+  font-size: 11px;
+  color: #81966b;
+}
+.if-model select {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 11px;
+  border: 1px solid #dce6cf;
+  background: #fff;
+  border-radius: 4px;
+  padding: 8px;
+  color: #5e7945;
+}
+.if-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 21px;
+  align-items: start;
+}
+.if-example-loader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 13px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+.if-example-loader label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 11px;
+  color: #8c9d7c;
+}
+.if-example-loader select {
+  padding: 9px 11px;
+  border: 1px solid #dce5d1;
+  border-radius: 5px;
+  background: #fbfdf6;
+  font-size: 12px;
+  color: #5f7b43;
+}
+.if-identify-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 23px;
+}
+.if-identify-row > span {
+  font-size: 11px;
+  color: #91a080;
+  line-height: 1.8;
+  text-align: center;
+}
+.if-input-placeholder {
+  min-height: 238px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  color: #9cac8d;
+}
+.if-input-placeholder > span {
+  font-size: 35px;
+  letter-spacing: -1px;
+  color: #c0ccb1;
+  font-weight: 400;
+}
+.if-input-placeholder > p {
+  font-size: 12px;
+  line-height: 1.9;
+  text-align: center;
+}
+.if-processed-image {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin: 12px 0 22px;
+}
+.if-processed-image > div {
+  flex: 1;
+  min-width: 150px;
+}
+.if-processed-image strong {
+  display: block;
+  font-size: 15px;
+  color: #617c46;
+  font-weight: 500;
+  line-height: 1.8;
+  margin-top: 10px;
+}
+.if-processed-image p {
+  font-size: 11px;
+  line-height: 2;
+  color: #91a57b;
+  margin-top: 12px;
+}
+.if-prediction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+}
+.if-prediction-grid > div {
+  min-width: 0;
+}
+.if-example-check {
+  font-size: 12px;
+  color: #bc9167;
+  line-height: 1.9;
+  margin-top: 16px;
+}
+.if-example-check.correct {
+  color: #7d9d56;
+}
+.if-results-empty {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  color: #a3b191;
+}
+.if-results-empty p {
+  font-size: 12px;
+  line-height: 1.9;
+  text-align: center;
+}
+.if-serving-flow {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  flex-wrap: wrap;
+  margin: 12px 0 22px;
+  color: #95a381;
+}
+.if-serving-flow > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: #67804c;
+}
+.if-code {
+  font:
+    12px/1.9 "Cascadia Code",
+    Consolas,
+    monospace;
+  color: #d9e5c8;
+  background: #2c3525;
+  border-radius: 7px;
+  padding: 19px;
+  margin: 19px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.if-deploy-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 24px 0;
+  color: #8b9f77;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.if-deploy-steps p {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.if-deploy-steps strong {
+  font-weight: 500;
+  min-width: 32px;
+  color: #5d7a42;
+}
+.if-deploy-steps code {
+  overflow-wrap: anywhere;
+}
+.if-experiment .text-button + a.text-button {
+  margin-left: 20px;
+}
+@media (max-width: 1150px) {
+  .if-workbench {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 650px) {
+  .if-model-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px;
+  }
+  .if-model {
+    padding: 15px;
+  }
+  .if-model-toggle strong {
+    font-size: 22px;
+  }
+  .if-workbench {
+    gap: 18px;
+  }
+  .if-prediction-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .if-processed-image {
+    gap: 18px;
+  }
+  .if-serving-flow {
+    gap: 12px;
+  }
+  .if-serving-flow > span {
+    font-size: 12px;
+  }
+  .if-code {
+    font-size: 11px;
+    padding: 15px;
+  }
+  .if-experiment .three-results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .if-experiment .three-results > .result:last-child {
+    grid-column: 1/-1;
+  }
+  .if-experiment .text-button + a.text-button {
+    margin-left: 0;
+    display: flex;
+  }
+}

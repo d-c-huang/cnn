@@ -1,0 +1,192 @@
+.me-experiment {
+  display: flex;
+  flex-direction: column;
+  gap: 21px;
+  min-width: 0;
+}
+.me-select-run {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: #839572;
+  font-size: 11px;
+}
+.me-select-run select {
+  min-width: 0;
+  flex: 1;
+  max-width: 650px;
+  padding: 11px 10px;
+  border: 1px solid #dce5d0;
+  background: #f9fbf4;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 12px;
+  color: #58703e;
+}
+.me-select-run a {
+  text-decoration: none;
+  margin-left: auto;
+}
+.me-results {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.me-results > .result > strong {
+  font-size: 25px;
+}
+.me-report-actions {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 23px;
+}
+.me-report-actions a {
+  text-decoration: none;
+}
+.me-empty {
+  font-size: 12px;
+  color: #99a98a;
+  line-height: 2;
+  padding: 23px 0;
+}
+.me-pending-evaluation {
+  background: #f0f5e7;
+  border-radius: 7px;
+  color: #859974;
+  padding: 20px;
+  margin-top: 23px;
+}
+.me-pending-evaluation strong {
+  font-size: 15px;
+  font-weight: 500;
+  color: #69874c;
+}
+.me-pending-evaluation p {
+  font-size: 12px;
+  line-height: 1.9;
+  margin-top: 10px;
+}
+.me-class-table th,
+.me-class-table td {
+  white-space: nowrap;
+}
+.me-error-dialog {
+  border: 1px solid #dce5d1;
+  background: #fcfdf9;
+  border-radius: 12px;
+  padding: 25px;
+  color: var(--ink);
+  width: calc(100% - 34px);
+  max-width: 540px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  box-shadow: 0 20px 90px #26371c33;
+}
+.me-error-dialog::backdrop {
+  background: #25311b66;
+  backdrop-filter: blur(3px);
+}
+.me-error-overview {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 22px;
+}
+.me-error-overview > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-width: 0;
+}
+.me-error-overview strong {
+  font-size: 20px;
+  font-weight: 500;
+  color: #5a753f;
+}
+.me-error-overview p {
+  font-size: 12px;
+  color: #91a47b;
+  line-height: 1.9;
+}
+.me-probabilities {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: 25px;
+}
+.me-probabilities > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.me-probabilities > div > span {
+  width: 14px;
+  color: #7d9368;
+}
+.me-probabilities > div > div {
+  flex: 1;
+  height: 7px;
+  border-radius: 3px;
+  background: #edf2e5;
+  overflow: hidden;
+}
+.me-probabilities i {
+  display: block;
+  height: 100%;
+  background: #b6c6a0;
+}
+.me-probabilities i.predicted {
+  background: #b8d480;
+}
+.me-probabilities i.truth {
+  background: #7ca99e;
+}
+.me-probabilities strong {
+  font-size: 11px;
+  font-weight: 500;
+  min-width: 53px;
+  text-align: right;
+  color: #879c73;
+}
+@media (max-width: 1000px) {
+  .me-results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .me-select-run {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .me-select-run select {
+    width: 100%;
+    max-width: 100%;
+  }
+  .me-select-run a {
+    margin-left: 0;
+  }
+  .me-results > .result > strong {
+    font-size: 22px;
+  }
+  .me-error-dialog {
+    padding: 20px;
+  }
+  .me-error-overview {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .me-error-overview strong {
+    font-size: 19px;
+  }
+  .me-report-actions {
+    gap: 14px;
+  }
+  .me-class-table {
+    font-size: 11px;
+  }
+}
