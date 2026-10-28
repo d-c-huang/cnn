@@ -20,7 +20,7 @@ export const phase3Lessons = [
     en: "TRAIN ON REAL IMAGES",
     title: "把训练，交给真实的数据。",
     description:
-      "训练全连接与卷积网络，观察每一轮训练和验证的真实指标，并保存最佳权重。",
+      "训练全连接、卷积与自定义网络，观察每一轮训练和验证的真实指标，并保存最佳权重。",
     task: "保持划分与随机种子一致，分别训练 MLP 和 CNN，再比较验证曲线与最终测试结果。",
     concept: "PyTorch · Epoch · 验证集选模",
     component: MnistTrainingExperiment,

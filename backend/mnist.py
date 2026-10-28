@@ -4,9 +4,10 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from backend.mnist_engine import service
+from backend.network_architecture import validate_architecture
 
 
 class Request(BaseModel):
@@ -24,10 +25,19 @@ class SplitRequest(Request):
 
 
 class RunConfig(SplitRequest):
-    model: Literal["mlp", "cnn"] = "mlp"
+    model: Literal["mlp", "cnn", "custom"] = "mlp"
+    architecture: list[dict] | None = Field(default=None, min_length=1, max_length=16)
     epochs: Annotated[int, Field(strict=True, ge=1, le=20)] = 3
     batch_size: Literal[32, 64, 128, 256] = 128
     learning_rate: Annotated[float, Field(strict=True, ge=0.00001, le=0.1, allow_inf_nan=False)] = 0.001
+
+    @model_validator(mode="after")
+    def validate_custom_model(self):
+        if self.model == "custom":
+            self.architecture = validate_architecture(self.architecture)
+        elif self.architecture is not None:
+            raise ValueError("只有 custom 模型可以附带 architecture。")
+        return self
 
 
 router = APIRouter(prefix="/api/mnist", tags=["第三期：MNIST 真实训练"])

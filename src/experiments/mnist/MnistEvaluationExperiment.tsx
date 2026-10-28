@@ -4,6 +4,7 @@ import { ErrorMessage, ExperimentPanel, Result } from "../../components/ui";
 import { format } from "../../lib/api";
 import {
   mnistRequest,
+  modelLabel,
   selectRunId,
   selectedRunId,
   statusLabels,
@@ -151,14 +152,14 @@ export default function MnistEvaluationExperiment({
             </option>
             {runs.map((item) => (
               <option key={item.id} value={item.id}>
-                {item.config.model.toUpperCase()} · {item.id.slice(0, 8)} ·{" "}
+                {modelLabel(item.config.model)} · {item.id.slice(0, 8)} ·{" "}
                 {statusLabels[item.status]} ·{" "}
                 {item.train_samples.toLocaleString()} 张训练图像
               </option>
             ))}
           </select>
           <a className="text-button" href="#mnist-train">
-            训练 MLP 或 CNN <ArrowRight size={14} />
+            训练 MLP、CNN 或自定义网络 <ArrowRight size={14} />
           </a>
         </div>
         <p className="panel-note">
@@ -202,7 +203,7 @@ export default function MnistEvaluationExperiment({
               <Result
                 label="本次评估的权重"
                 value={`Epoch ${evaluation.checkpoint_epoch}`}
-                hint={`由最低验证损失选择 · ${run.config.model.toUpperCase()}`}
+                hint={`由最低验证损失选择 · ${modelLabel(run.config.model)}`}
               />
             </div>
             <div className="me-report-actions">

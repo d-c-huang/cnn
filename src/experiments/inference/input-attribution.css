@@ -1,0 +1,30 @@
+.input-attribution { min-width: 0; margin-top: 23px; padding: 20px 17px; border: 1px solid #315a4b; border-radius: 9px; background: radial-gradient(ellipse at 80% 0%,#205c4422,transparent 65%),#0c211c; }
+.ia-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.ia-heading h3 { display: flex; align-items: center; gap: 7px; color: #c6e2bc; font-size: calc(15px * var(--reading-scale,1)); font-weight: 500; }
+.ia-heading h3 svg { color: #83cead; }
+.ia-heading > span { color: #6f9c85; font: calc(10px * var(--reading-scale,1)) var(--mono); letter-spacing: .6px; }
+.ia-description { margin-top: 12px; color: #9cbeaa; font-size: calc(14px * var(--reading-scale,1)); line-height: 1.85; }
+.ia-description strong { color: #dcf3bb; }
+.ia-images { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 17px; margin: 19px 0; }
+.ia-images figure { margin: 0; min-width: 0; }
+.ia-images svg { display: block; width: 100%; max-width: 240px; aspect-ratio: 1; margin: 0 auto; background: #000; border: 1px solid #466953; border-radius: 7px; padding: 6px; }
+.ia-images figcaption { color: #7ea78f; font-size: calc(12px * var(--reading-scale,1)); line-height: 1.75; text-align: center; margin-top: 10px; }
+.ia-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+.ia-controls label { display: flex; align-items: center; flex-wrap: wrap; flex: 1; min-width: 150px; gap: 8px; color: #9fc1a8; font-size: calc(13px * var(--reading-scale,1)); }
+.ia-controls output { margin-left: auto; color: #bde5ac; font: calc(13px * var(--reading-scale,1)) var(--mono); }
+.ia-controls input { display: block; width: 100%; accent-color: #87d4a9; height: 5px; margin-top: 8px; }
+.ia-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 7px; color: #bad8ac; border: 1px solid #3c6046; background: #193627; padding: 9px 11px; border-radius: 5px; font-size: calc(13px * var(--reading-scale,1)); }
+.ia-toggle:hover { color: #d6edb7; background: #2c4b2c; }
+.ia-legend { display: flex; align-items: center; gap: 8px; font-size: calc(11px * var(--reading-scale,1)); color: #759d85; margin-top: 21px; }
+.ia-legend i { flex: 1; height: 5px; background: linear-gradient(90deg,#102b23,#5bd2bb,#baca79,#ff7341); border-radius: 4px; }
+.ia-legend > span:last-child { margin-left: 3px; font-size: calc(10px * var(--reading-scale,1)); }
+.ia-method { display: flex; flex-direction: column; gap: 7px; padding: 12px; border: 1px solid #2d4d3a; border-radius: 5px; background: #061910; margin-top: 15px; overflow-wrap: anywhere; }
+.ia-method code { color: #b3d997; font: calc(12px * var(--reading-scale,1))/1.8 var(--mono); }
+.ia-method span { color: #71997d; font-size: calc(12px * var(--reading-scale,1)); line-height: 1.8; }
+.ia-caution, .ia-zero { color: #9dba9b; font-size: calc(13px * var(--reading-scale,1)); line-height: 1.85; margin-top: 13px; }
+.ia-zero { color: #d2bd8b; padding: 11px; border: 1px solid #675a34; background: #342b1b; border-radius: 5px; }
+.ia-invalid { padding: 12px; border: 1px solid #76553a; color: #e2bd8d; background: #36291c; }
+.if-explain-option { display: flex; align-items: flex-start; gap: 9px; color: #a4c0a6; font-size: calc(14px * var(--reading-scale,1)); line-height: 1.8; max-width: 100%; }
+.if-explain-option input { accent-color: #a8dc84; margin-top: 6px; flex-shrink: 0; width: 16px; height: 16px; }
+.if-explain-option small { display: block; color: #709782; font-size: calc(12px * var(--reading-scale,1)); margin-top: 4px; }
+@media(max-width:600px) { .input-attribution { padding: 16px 12px; } .ia-heading h3 { font-size: calc(14px * var(--reading-scale,1)); } .ia-images { gap: 10px; } .ia-images svg { padding: 4px; } .ia-images figcaption { font-size: calc(11px * var(--reading-scale,1)); } .ia-controls { gap: 13px; } .ia-controls label { flex-basis: 100%; } .ia-legend { flex-wrap: wrap; } .ia-legend > span:last-child { flex-basis: 100%; margin: 4px 0 0; } .ia-description, .ia-caution, .ia-zero { font-size: calc(13px * var(--reading-scale,1)); } }

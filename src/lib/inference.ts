@@ -1,6 +1,11 @@
+import type { NetworkLayer } from "./networkBuilder";
+import type { ModelType } from "./mnist";
+
 export type InferenceModel = {
   id: string;
-  architecture: "mlp" | "cnn";
+  architecture: ModelType;
+  display_name?: string;
+  structure?: NetworkLayer[];
   run_id: string;
   checkpoint_epoch: number;
   validation_loss: number;
@@ -26,14 +31,33 @@ export type DigitExample = {
 };
 export type ModelPrediction = {
   model_id: string;
-  architecture: "mlp" | "cnn";
+  architecture: ModelType;
   run_id: string;
   checkpoint_epoch: number;
   predicted_label: number;
   probabilities: number[];
   top_k: { label: number; score: number }[];
   latency_ms: number;
+  attribution?: InputAttributionData;
 };
+
+export type InputAttributionData = {
+  method: "input_gradient";
+  target_label: number;
+  heatmap: number[][];
+  maximum_gradient: number;
+};
+
+const preferredRunKey = "zhiwei-inference-preferred-run-v1";
+export function preferInferenceRun(runId: string) {
+  try { if (/^[0-9a-f]{32}$/.test(runId)) localStorage.setItem(preferredRunKey, runId); } catch { /* Navigation still opens the model catalog. */ }
+}
+export function preferredInferenceRun(): string | null {
+  try { const value = localStorage.getItem(preferredRunKey); return value && /^[0-9a-f]{32}$/.test(value) ? value : null; } catch { return null; }
+}
+export function clearPreferredInferenceRun() {
+  try { localStorage.removeItem(preferredRunKey); } catch { /* Preference is optional. */ }
+}
 export type PredictionResponse = {
   request_id: string;
   preprocessing: {

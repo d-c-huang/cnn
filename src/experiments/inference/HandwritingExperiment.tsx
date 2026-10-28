@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Download, RefreshCw, ScanLine } from "lucide-react";
 import { ErrorMessage, ExperimentPanel, Result } from "../../components/ui";
 import { format } from "../../lib/api";
-import { inferenceRequest } from "../../lib/inference";
+import { clearPreferredInferenceRun, inferenceRequest, preferredInferenceRun } from "../../lib/inference";
+import { modelLabel } from "../../lib/mnist";
+import type { ModelType } from "../../lib/mnist";
 import type {
   CanvasInput,
   DigitExample,
@@ -13,9 +15,12 @@ import { downloadText } from "../../lib/useMnist";
 import DigitImage from "../mnist/DigitImage";
 import DigitCanvas from "./DigitCanvas";
 import PredictionBars from "./PredictionBars";
+import InputAttribution from "./InputAttribution";
 import "./inference.css";
+import "../custom-models.css";
 
-type Architecture = "mlp" | "cnn";
+type Architecture = ModelType;
+const architectures = ["mlp", "cnn", "custom"] as const;
 export default function HandwritingExperiment({
   onInteract,
 }: {
@@ -27,10 +32,12 @@ export default function HandwritingExperiment({
   const [chosen, setChosen] = useState<Record<Architecture, string | null>>({
     mlp: null,
     cnn: null,
+    custom: null,
   });
   const [enabled, setEnabled] = useState<Record<Architecture, boolean>>({
     mlp: true,
     cnn: true,
+    custom: false,
   });
   const [input, setInput] = useState<CanvasInput | null>(null);
   const [drawing, setDrawing] = useState(false);
@@ -40,11 +47,13 @@ export default function HandwritingExperiment({
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [explain, setExplain] = useState(false);
   const revision = useRef(0);
   const request = useRef<AbortController | null>(null);
   const exampleRequest = useRef<AbortController | null>(null);
   const catalogRequest = useRef<AbortController | null>(null);
   const catalogVersion = useRef(0);
+  const desiredRun = useRef(preferredInferenceRun());
 
   const invalidate = useCallback(() => {
     revision.current++;
@@ -83,6 +92,7 @@ export default function HandwritingExperiment({
       });
       if (token !== catalogVersion.current) return;
       setCatalog(result);
+      const desired = result.models.find(model => model.run_id === desiredRun.current);
       setChosen((previous) => ({
         mlp: result.models.some(
           (model) => model.id === previous.mlp && model.architecture === "mlp",
@@ -94,7 +104,14 @@ export default function HandwritingExperiment({
         )
           ? previous.cnn
           : result.defaults.cnn,
+        custom: result.models.some(model => model.id === previous.custom && model.architecture === "custom") ? previous.custom : result.models.find(model => model.architecture === "custom")?.id ?? null,
+        ...(desired ? { [desired.architecture]: desired.id } : {}),
       }));
+      if (desired) {
+        setEnabled({ mlp: desired.architecture === "mlp", cnn: desired.architecture === "cnn", custom: desired.architecture === "custom" });
+        desiredRun.current = null;
+        clearPreferredInferenceRun();
+      }
     } catch (cause) {
       if (token === catalogVersion.current && !controller.signal.aborted)
         setCatalogError(
@@ -147,7 +164,7 @@ export default function HandwritingExperiment({
     }
   }
 
-  const modelIds = (["mlp", "cnn"] as const).flatMap((architecture) =>
+  const modelIds = architectures.flatMap((architecture) =>
     enabled[architecture] && chosen[architecture]
       ? [chosen[architecture]!]
       : [],
@@ -160,7 +177,7 @@ export default function HandwritingExperiment({
     !examplePending &&
     !catalogPending &&
     !!catalog?.runtime.available &&
-    !!modelIds.length;
+    modelIds.length > 0 && modelIds.length <= 2;
   async function predict() {
     if (!canPredict || !input) return;
     const token = ++revision.current;
@@ -171,7 +188,7 @@ export default function HandwritingExperiment({
     setError(null);
     try {
       const result = await inferenceRequest<PredictionResponse>("/predict", {
-        body: { model_ids: modelIds, pixels: input.pixels, mode: input.mode },
+        body: { model_ids: modelIds, pixels: input.pixels, mode: input.mode, explain },
         signal: controller.signal,
       });
       if (token === revision.current && !controller.signal.aborted) {
@@ -190,7 +207,7 @@ export default function HandwritingExperiment({
   return (
     <div className="if-experiment">
       <ExperimentPanel
-        title="使用第三期真正训练过的模型"
+        title="选择真正训练过的最佳权重"
         eyebrow="BEST CHECKPOINTS · NO RETRAINING"
         action={
           <button
@@ -208,7 +225,7 @@ export default function HandwritingExperiment({
         }
       >
         <div className="if-model-grid">
-          {(["mlp", "cnn"] as const).map((architecture) => {
+          {architectures.map((architecture) => {
             const models =
               catalog?.models.filter(
                 (model) => model.architecture === architecture,
@@ -224,7 +241,7 @@ export default function HandwritingExperiment({
                 <button
                   className="if-model-toggle"
                   aria-pressed={!!descriptor && enabled[architecture]}
-                  disabled={!descriptor}
+                  disabled={!descriptor || !enabled[architecture] && modelIds.length >= 2}
                   onClick={() => {
                     invalidate();
                     setEnabled((previous) => ({
@@ -235,9 +252,9 @@ export default function HandwritingExperiment({
                   }}
                 >
                   <span>
-                    <strong>{architecture.toUpperCase()}</strong>
+                    <strong>{modelLabel(architecture)}</strong>
                     <small>
-                      {architecture === "mlp" ? "全连接网络" : "卷积神经网络"}
+                      {architecture === "custom" ? "你设计并训练的网络" : architecture === "mlp" ? "全连接网络" : "卷积神经网络"}
                     </small>
                   </span>
                   <span className="if-check">
@@ -251,10 +268,11 @@ export default function HandwritingExperiment({
                       <span>
                         ·{" "}
                         {descriptor.source === "run"
-                          ? "第三期训练记录"
+                          ? architecture === "custom" ? "自定义结构训练记录" : "训练记录"
                           : "第三期导出模型包"}
                       </span>
                     </p>
+                    {descriptor.structure && <p>{descriptor.display_name ?? `自定义网络 · ${descriptor.structure.length} 层`} · 结构来自该次训练快照</p>}
                     <p>
                       独立测试参考{" "}
                       {descriptor.test_accuracy === null
@@ -296,7 +314,7 @@ export default function HandwritingExperiment({
                   <p>
                     {catalogPending
                       ? "正在查找已训练权重…"
-                      : "没有可用权重，请先完成第三期训练或导出模型包。"}
+                      : architecture === "custom" ? "还没有已完成的自定义训练。到搭建器训练并保存最佳权重。" : "没有可用权重，请先完成训练或导出模型包。"}
                   </p>
                 )}
               </div>
@@ -304,8 +322,7 @@ export default function HandwritingExperiment({
           })}
         </div>
         <p className="panel-note">
-          选择一个模型识别，或同时选择 MLP 与 CNN
-          对比。模型来自验证集选出的最佳权重；测试集参考准确率不代表你当前笔迹的正确概率。
+          一次可选择最多两个模型对比。若已有两个模型被选中，先取消其中一个，再选择自定义网络。所有模型使用验证集最佳权重；测试准确率不代表当前笔迹的正确概率。
         </p>
         <ErrorMessage
           error={
@@ -352,6 +369,7 @@ export default function HandwritingExperiment({
             </button>
           </div>
           <div className="if-identify-row">
+            <label className="if-explain-option"><input type="checkbox" checked={explain} onChange={event => { invalidate(); setExplain(event.target.checked); onInteract(); }} /><span>计算输入敏感度热力图<small>识别时计算预测类别对输入的真实梯度；改变此选项后需要重新识别。</small></span></label>
             <button
               className="primary-button"
               disabled={!canPredict}
@@ -466,6 +484,7 @@ export default function HandwritingExperiment({
               {prediction.predictions.map((item) => (
                 <div key={item.model_id}>
                   <PredictionBars prediction={item} />
+                  {item.attribution && <InputAttribution key={`${prediction.request_id}-${item.model_id}`} attribution={item.attribution} pixels={prediction.preprocessing.processed_pixels} />}
                   {input?.mode === "mnist" && example && (
                     <p
                       className={`if-example-check ${item.predicted_label === example.label ? "correct" : ""}`}
@@ -489,7 +508,7 @@ export default function HandwritingExperiment({
             <p>
               {pending
                 ? "正在运行真实模型，等待十个类别的输出…"
-                : "点击识别，查看 MLP 与 CNN 的真实预测。"}
+                : "点击识别，查看所选模型的真实预测。"}
             </p>
           </div>
         )}

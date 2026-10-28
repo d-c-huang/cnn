@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowDownRight,
   ArrowLeft,
@@ -12,6 +12,16 @@ import {
   CircleHelp,
   Lightbulb,
   Network,
+  Sparkles,
+  Focus,
+  Layers3,
+  Cpu,
+  ScanLine,
+  ArrowUpRight,
+  Play,
+  Grid3X3,
+  Trophy,
+  Type,
   X,
 } from "lucide-react";
 import DataExperiment from "./experiments/DataExperiment";
@@ -22,6 +32,36 @@ import GradientExperiment from "./experiments/GradientExperiment";
 import { phase2Lessons } from "./lib/phase2Lessons";
 import { phase3Lessons } from "./lib/phase3Lessons";
 import { phase4Lessons } from "./lib/phase4Lessons";
+import NeuralScene from "./components/NeuralScene";
+import LessonInsights from "./components/LessonInsights";
+const ConvolutionLab = lazy(() => import("./experiments/playground/ConvolutionLab"));
+const NetworkBuilder = lazy(() => import("./experiments/playground/NetworkBuilder"));
+const ChallengeHub = lazy(() => import("./experiments/playground/ChallengeHub"));
+
+type Workspace = "lessons" | "convolution" | "network-builder" | "challenges";
+type ReadingSize = "standard" | "comfortable" | "large";
+const explorationTools = [
+  { id: "convolution" as const, name: "卷积可视化", en: "CONVOLUTION EXPLORER", description: "逐格扫描图像，让卷积、激活与池化的每一次计算都看得见。", icon: Grid3X3 },
+  { id: "network-builder" as const, name: "神经网络搭建器", en: "NEURAL NETWORK BUILDER", description: "探索立体网络结构，亲手搭建、训练、评估，并用自己的模型识别数字。", icon: Layers3 },
+  { id: "challenges" as const, name: "实验挑战关卡", en: "HANDS-ON CHALLENGES", description: "用真正的计算结果过关，把理解变成可以验证的能力。", icon: Trophy },
+];
+function workspaceFromHash(): Workspace {
+  const hash = window.location.hash.slice(1);
+  return explorationTools.some(tool => tool.id === hash) ? hash as Workspace : "lessons";
+}
+function readReadingSize(): ReadingSize {
+  try {
+    const value = localStorage.getItem("zhiwei-reading-size-v1");
+    return value === "standard" || value === "large" ? value : "comfortable";
+  } catch { return "comfortable"; }
+}
+
+const learningPhases = [
+  { name: "理解基础", en: "FOUNDATIONS", detail: "从像素、神经元到梯度下降", start: 0, end: 5, icon: Layers3 },
+  { name: "连接网络", en: "NEURAL NETWORKS", detail: "计算图、反向传播与 XOR", start: 5, end: 8, icon: Network },
+  { name: "训练模型", en: "MODEL TRAINING", detail: "真实数据，让 MLP 与 CNN 学习", start: 8, end: 11, icon: Cpu },
+  { name: "创造应用", en: "REAL-WORLD AI", detail: "手写识别、模型推理与部署", start: 11, end: 13, icon: ScanLine },
+];
 
 const lessons = [
   {
@@ -123,10 +163,19 @@ export default function App() {
   );
   const [allDone, setAllDone] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
+  const [effects, setEffects] = useState(true);
+  const [focusMode, setFocusMode] = useState(false);
+  const [workspace, setWorkspace] = useState<Workspace>(workspaceFromHash);
+  const [readingSize, setReadingSize] = useState<ReadingSize>(readReadingSize);
   const about = useRef<HTMLDialogElement>(null);
+  const displaySettings = useRef<HTMLDetailsElement>(null);
   const content = useRef<HTMLElement>(null);
+  const workbench = useRef<HTMLElement>(null);
+  const roadmap = useRef<HTMLElement>(null);
   const lesson = lessons[active];
   const Experiment = lesson.component;
+  const selectedTool = explorationTools.find(tool => tool.id === workspace);
+  const localCompute = workspace === "convolution";
   const phase = active < 5 ? 1 : active < 8 ? 2 : active < 11 ? 3 : 4;
   const phaseIndices =
     phase === 1
@@ -141,6 +190,11 @@ export default function App() {
   );
   const phaseEnd =
     active === 4 || active === 7 || active === 10 || active === 12;
+
+  useEffect(() => {
+    document.documentElement.dataset.readingSize = readingSize;
+    try { localStorage.setItem("zhiwei-reading-size-v1", readingSize); } catch { /* Reading preferences also work without storage. */ }
+  }, [readingSize]);
 
   useEffect(() => {
     try {
@@ -189,10 +243,16 @@ export default function App() {
 
   useEffect(() => {
     const handleHash = () => {
+      const currentWorkspace = workspaceFromHash();
+      if (currentWorkspace !== "lessons") {
+        setWorkspace(currentWorkspace);
+        return;
+      }
       const index = lessons.findIndex(
         (l) => l.id === window.location.hash.slice(1),
       );
       if (index >= 0) {
+        setWorkspace("lessons");
         setActive(index);
         setExplored(false);
         setShowCode(false);
@@ -204,11 +264,18 @@ export default function App() {
   }, []);
 
   function navigate(index: number) {
+    setWorkspace("lessons");
     setActive(index);
     setExplored(false);
     setShowCode(false);
     setAllDone(false);
     window.history.replaceState(null, "", `#${lessons[index].id}`);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  function openTool(tool: Exclude<Workspace, "lessons">) {
+    setWorkspace(tool);
+    window.history.replaceState(null, "", `#${tool}`);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
 
@@ -219,7 +286,8 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${effects ? "effects-on" : "effects-off"} ${focusMode ? "focus-mode" : ""}`}>
+      <a className="skip-link" href="#experiment-workbench">跳转到交互实验</a>
       <aside className="sidebar">
         <a
           className="brand"
@@ -238,24 +306,24 @@ export default function App() {
               知微<span className="brand-divider">/</span>
               <span className="brand-english">AI LAB</span>
             </strong>
-            <small>从零训练一个 AI</small>
+            <small>EXPLORE · BUILD · UNDERSTAND</small>
           </span>
         </a>
         <div className="course-label">
-          <span className="eyebrow">YOUR LEARNING PATH</span>
-          <p>从理解，到创造。</p>
+          <span className="eyebrow">WORKSPACE / 学习工作台</span>
+          <p>开启你的 AI 探索之旅</p>
         </div>
         <div className="phase-switcher" role="group" aria-label="选择学习阶段">
-          <button aria-pressed={phase === 1} onClick={() => navigate(0)}>
+          <button aria-pressed={workspace === "lessons" && phase === 1} onClick={() => navigate(0)}>
             01 基础
           </button>
-          <button aria-pressed={phase === 2} onClick={() => navigate(5)}>
+          <button aria-pressed={workspace === "lessons" && phase === 2} onClick={() => navigate(5)}>
             02 网络
           </button>
-          <button aria-pressed={phase === 3} onClick={() => navigate(8)}>
+          <button aria-pressed={workspace === "lessons" && phase === 3} onClick={() => navigate(8)}>
             03 MNIST
           </button>
-          <button aria-pressed={phase === 4} onClick={() => navigate(11)}>
+          <button aria-pressed={workspace === "lessons" && phase === 4} onClick={() => navigate(11)}>
             04 应用
           </button>
         </div>
@@ -283,8 +351,8 @@ export default function App() {
             return (
               <button
                 key={item.id}
-                className={`lesson-link ${active === i ? "active" : ""}`}
-                aria-current={active === i ? "step" : undefined}
+                className={`lesson-link ${workspace === "lessons" && active === i ? "active" : ""}`}
+              aria-current={workspace === "lessons" && active === i ? "step" : undefined}
                 onClick={() => navigate(i)}
               >
                 <span
@@ -297,21 +365,29 @@ export default function App() {
                   )}
                 </span>
                 <span>{item.name}</span>
-                {active === i && (
+                {workspace === "lessons" && active === i && (
                   <ChevronRight className="nav-chevron" size={15} />
                 )}
               </button>
             );
           })}
         </nav>
+        <nav className="playground-nav" aria-label="探索工坊">
+          <div className="playground-nav-heading"><span>探索工坊</span><span>NEW</span></div>
+          {explorationTools.map(tool => {
+            const Icon = tool.icon;
+            return <button key={tool.id} className={`playground-link ${workspace === tool.id ? "active" : ""}`} aria-current={workspace === tool.id ? "page" : undefined} onClick={() => openTool(tool.id)}><Icon size={17} /><span>{tool.name}</span><ChevronRight size={14} /></button>;
+          })}
+        </nav>
         <div className="future-phases">
-          <span className="eyebrow">THE COMPLETE LEARNING LOOP</span>
+          <span className="eyebrow">BUILD YOUR FIRST AI</span>
+          <div className="sidebar-network" aria-hidden="true"><Network size={34} strokeWidth={1} /><span className="sidebar-network-line" /><Cpu size={24} strokeWidth={1} /></div>
           <div>
             <span>↗</span>
             <p>数据 → 训练 → 评估 → 推理</p>
             <CheckCheck size={13} />
           </div>
-          <small>四个阶段 · 从理解到应用</small>
+          <small>看见每一次计算，理解每一次学习。</small>
         </div>
         <div className="sidebar-bottom">
           <div className="progress-heading">
@@ -354,7 +430,7 @@ export default function App() {
           <div className="breadcrumb">
             <FlaskConical size={16} />
             <span>
-              {phase === 1
+              {selectedTool ? "探索工坊" : phase === 1
                 ? "基础实验"
                 : phase === 2
                   ? "神经网络"
@@ -363,14 +439,28 @@ export default function App() {
                     : "模型应用"}
             </span>
             <ChevronRight size={13} />
-            <strong>{lesson.name}</strong>
+            <strong>{selectedTool?.name ?? lesson.name}</strong>
           </div>
           <div className="topbar-actions">
-            <div className={`engine-status ${engine}`} role="status">
+            <details className="display-settings" ref={displaySettings}>
+              <summary aria-label="调整阅读字号" title="调整阅读字号"><Type size={16} /><span>字号</span></summary>
+              <div className="reading-popover" role="group" aria-label="阅读字号设置">
+                <strong>阅读字号</strong><p>高分辨率屏幕建议使用舒适或大字</p>
+                <div>{([{id:"standard",name:"标准"},{id:"comfortable",name:"舒适"},{id:"large",name:"大字"}] as const).map(option => <button key={option.id} aria-pressed={readingSize === option.id} onClick={() => { setReadingSize(option.id); displaySettings.current?.removeAttribute("open"); }}>{option.name}</button>)}</div>
+                <small>自动保存到当前浏览器</small>
+              </div>
+            </details>
+            {workspace === "lessons" && <button className="topbar-button focus-toggle" onClick={() => setFocusMode(!focusMode)} aria-pressed={focusMode} title={focusMode ? "显示学习概览" : "收起概览，专注当前实验"}>
+              <Focus size={15} /><span>{focusMode ? "学习概览" : "专注实验"}</span>
+            </button>}
+            <button className="effects-toggle" onClick={() => setEffects(!effects)} aria-pressed={effects} aria-label={effects ? "关闭动态特效" : "开启动态特效"} title={effects ? "关闭动态特效" : "开启动态特效"}>
+              <Sparkles size={15} /><span>特效{effects ? "开" : "关"}</span>
+            </button>
+            <div className={`engine-status ${localCompute ? "online" : engine}`} role="status">
               <i />
               <span>
-                {engine === "online"
-                  ? phase >= 3
+                {localCompute ? "浏览器本地计算" : engine === "online"
+                  ? phase >= 3 || workspace !== "lessons"
                     ? "API 已连接"
                     : "NumPy 引擎已连接"
                   : engine === "offline"
@@ -388,10 +478,40 @@ export default function App() {
           </div>
         </header>
         <main className="main-content" ref={content} id="main-content">
+          {workspace === "lessons" ? <>
+          {!focusMode && <>
+            <section className="lab-hero" aria-label="AI 实验室概览">
+              <div className="hero-copy">
+                <div className="hero-eyebrow"><span /><span>THE INTERACTIVE AI LAB</span><span className="hero-version">从零开始 · 亲手构建</span></div>
+                <h2>让 AI 的思考，<br />变得<span>触手可及。</span><span className="hero-cursor" aria-hidden="true">_</span></h2>
+                <p>从一个像素到一个神经网络。用可交互的实验，<br className="desktop-break" />拆解黑盒，亲眼见证模型如何学习。</p>
+                <div className="hero-actions">
+                  <button className="primary-button" onClick={() => workbench.current?.scrollIntoView({ behavior: effects && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "instant", block: "start" })}><Play size={13} fill="currentColor" />{completed.includes(lesson.id) ? "再次探索本节" : "进入当前实验"}<ArrowUpRight size={15} /></button>
+                  <button className="hero-secondary" onClick={() => roadmap.current?.scrollIntoView({ behavior: effects && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "instant", block: "start" })}>探索学习路径<ArrowRight size={14} /></button>
+                </div>
+                <div className="hero-facts"><span><strong>13</strong> 交互实验</span><i /><span><strong>04</strong> 进阶阶段</span><i /><span><strong>Python</strong> 真实计算</span></div>
+              </div>
+              <div className="hero-visual"><NeuralScene phase={phase} effects={effects} /><div className="hero-visual-caption"><span className="signal-dot" />NEURAL NETWORK VISUALIZATION<span>INPUT → LEARN → OUTPUT</span></div></div>
+              <span className="hero-corner corner-tl" aria-hidden="true" /><span className="hero-corner corner-br" aria-hidden="true" />
+            </section>
+            <section className="learning-roadmap" ref={roadmap} aria-labelledby="roadmap-title">
+              <div className="roadmap-heading"><h2 id="roadmap-title">一条路径，连接你的 AI 知识</h2><span>LEARNING JOURNEY <span>/ 04 STAGES</span></span></div>
+              <div className="roadmap-grid">{learningPhases.map((item, i) => {
+                const Icon = item.icon;
+                const done = lessons.slice(item.start, item.end).filter(l => completed.includes(l.id)).length;
+                return <button key={item.en} className={`roadmap-card ${phase === i + 1 ? "is-active" : ""}`} aria-pressed={phase === i + 1} onClick={() => navigate(item.start)}>
+                  <div className="roadmap-card-top"><span className="roadmap-icon"><Icon size={17} /></span><span className="roadmap-index">0{i + 1}</span>{phase === i + 1 ? <span className="roadmap-current">当前阶段</span> : <ArrowUpRight size={14} className="roadmap-arrow" />}</div>
+                  <h3>{item.name}<span>{done}/{item.end - item.start}</span></h3><p>{item.detail}</p><div className="roadmap-track" aria-hidden="true"><span style={{ width: `${done / (item.end - item.start) * 100}%` }} /></div>
+                </button>;
+              })}</div>
+            </section>
+            <section className="exploration-entry" aria-label="探索工坊新功能"><div><Sparkles size={17} /><strong>把好奇心，变成动手实验。</strong></div><div>{explorationTools.map(tool => <button key={tool.id} onClick={() => openTool(tool.id)}>{tool.name}<ArrowUpRight size={14} /></button>)}</div></section>
+          </>}
+          <section className="lesson-workspace" ref={workbench} id="experiment-workbench" tabIndex={-1} aria-label={`当前实验：${lesson.name}`}>
           <div className="lesson-header">
             <div>
               <div className="lesson-kicker">
-                <span>EXPERIMENT {String(active + 1).padStart(2, "0")}</span>
+                <span><span className="signal-dot" />EXPERIMENT {String(active + 1).padStart(2, "0")}</span>
                 <i />
                 {lesson.en}
               </div>
@@ -463,7 +583,8 @@ export default function App() {
               ，启动前端与 Python 服务。
             </div>
           )}
-          <Experiment key={lesson.id} onInteract={() => setExplored(true)} />
+          <Experiment key={`experiment-${lesson.id}`} onInteract={() => setExplored(true)} />
+          <LessonInsights key={`insights-${lesson.id}`} lessonId={lesson.id} />
           {allDone && (
             <div className="completion-message" role="status">
               <span>
@@ -542,14 +663,27 @@ export default function App() {
               <ArrowRight size={16} />
             </button>
           </footer>
+          </section>
           <div className="page-caption">
-            知微 AI LAB <span>·</span> 从一个数字开始，理解模型如何学习。
+            <span className="caption-brand"><Network size={12} />知微 AI LAB</span><span>MADE FOR CURIOUS MINDS</span><span>从一个数字开始，理解模型如何学习。</span>
           </div>
+          </> : <section className="playground-workspace" id="experiment-workbench" tabIndex={-1} aria-label={selectedTool?.name}>
+            <div className="playground-page-heading">
+              <div><span className="playground-eyebrow"><span className="signal-dot" />EXPLORATION STUDIO / {selectedTool?.en}</span><h1>{selectedTool?.name}</h1><p>{selectedTool?.description}</p></div>
+              <button className="secondary-button" onClick={() => navigate(active)}><ArrowLeft size={15} />返回课程</button>
+            </div>
+            <nav className="playground-tabs" aria-label="切换探索工具">{explorationTools.map(tool => <button key={tool.id} aria-pressed={workspace === tool.id} onClick={() => openTool(tool.id)}>{tool.name}</button>)}</nav>
+            <Suspense fallback={<div className="tool-loading" role="status"><span className="signal-dot" />正在加载交互实验…</div>}>
+            {workspace === "convolution" && <ConvolutionLab />}
+            {workspace === "network-builder" && <NetworkBuilder onOpenLesson={id => { const index = lessons.findIndex(item => item.id === id); if (index >= 0) navigate(index); }} />}
+            {workspace === "challenges" && <ChallengeHub onOpenTool={openTool} />}
+            </Suspense>
+          </section>}
         </main>
       </div>
-      <dialog ref={about} className="about-dialog">
+      <dialog ref={about} className="about-dialog" aria-labelledby="about-title">
         <div className="dialog-heading">
-          <h2>关于知微</h2>
+          <h2 id="about-title">关于知微</h2>
           <button
             className="icon-button"
             onClick={() => about.current?.close()}
@@ -565,10 +699,13 @@ export default function App() {
           CNN，第四期使用最佳权重完成手写识别与应用部署。
         </p>
         <p>
-          实验结果由本机 Python、NumPy 与 PyTorch 真实计算。MNIST
+          课程中的数值实验和模型训练由本机 Python、NumPy 与 PyTorch 真实计算。MNIST
           的训练、验证和测试数据严格分开，后台任务、训练记录与最佳权重保存在本机
           runs/mnist。第四期可直接使用 models/ 中导出的两份最佳权重，并提供
           Docker Compose 配置。XOR 模型保留在当前实验页面，可导出 JSON 或 CSV。
+        </p>
+        <p>
+          探索工坊提供卷积实验、立体网络结构图与自动判定的挑战关卡。搭建器支持将自定义结构交给本机 PyTorch 真实训练，并接入独立测试评估与手写识别。
         </p>
         <p>
           点击「完成并继续」记录学习进度。进度只保存在当前浏览器中，清除网站数据后会重置。

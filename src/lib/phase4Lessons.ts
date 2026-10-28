@@ -8,8 +8,8 @@ export const phase4Lessons = [
     en: "FROM CHECKPOINT TO PREDICTION",
     title: "写下一个数字，让模型来读。",
     description:
-      "加载第三期的最佳权重，用自己的笔迹检验 MLP 与 CNN，并看见每个类别的真实输出。",
-    task: "先载入一个官方样本对比两种模型，再手写相同数字，观察预处理后的图像与十类预测分数。",
+      "加载训练得到的最佳权重，用自己的笔迹检验 MLP、CNN 或自定义网络，并看见每个类别的真实输出。",
+    task: "先载入一个官方样本检验所选模型，再手写相同数字，观察预处理后的图像与十类预测分数。",
     concept: "最佳权重 · 图像预处理 · Softmax · 模型推理",
     component: HandwritingExperiment,
     code: 'import torch\nfrom backend.mnist_engine import build_model\n\ncheckpoint = torch.load("models/cnn-best.pt", map_location="cpu", weights_only=True)\nmodel = build_model("cnn")\nmodel.load_state_dict(checkpoint["state_dict"])\nmodel.eval()\n\n# pixels: 后端预处理后的 28×28 灰度图\nx = torch.tensor(pixels, dtype=torch.float32).reshape(1, 1, 28, 28) / 255\nnorm = checkpoint["normalization"]\nx = (x - norm["mean"]) / norm["std"]\nwith torch.inference_mode():\n    scores = model(x).softmax(dim=1)[0]\nprint(scores.argmax().item(), scores.tolist())\n# 手绘先裁剪、缩放与居中；MNIST 原图保持原始像素。',

@@ -1,3 +1,9 @@
+import { parseNetwork } from "./networkBuilder";
+import type { NetworkLayer } from "./networkBuilder";
+
+export type ModelType = "mlp" | "cnn" | "custom";
+export const modelLabel = (model: ModelType) => model === "custom" ? "自定义网络" : model.toUpperCase();
+
 export type MnistStatus = {
   runtime: {
     available: boolean;
@@ -21,7 +27,8 @@ export type SplitConfig = {
   train_limit: number | null;
 };
 export type RunConfig = SplitConfig & {
-  model: "mlp" | "cnn";
+  model: ModelType;
+  architecture?: NetworkLayer[];
   epochs: number;
   batch_size: number;
   learning_rate: number;
@@ -146,8 +153,10 @@ export const selectedRunStorageKey = "zhiwei-mnist-selected-run-v1";
 export function loadMnistConfig(): RunConfig {
   try {
     const raw = JSON.parse(localStorage.getItem(splitStorageKey) || "{}");
+    const architecture = parseNetwork(raw.architecture);
     return {
-      model: raw.model === "cnn" ? "cnn" : "mlp",
+      model: raw.model === "custom" && architecture ? "custom" : raw.model === "cnn" ? "cnn" : "mlp",
+      ...(raw.model === "custom" && architecture ? { architecture } : {}),
       seed:
         Number.isInteger(raw.seed) && raw.seed >= 0 && raw.seed <= 9999
           ? raw.seed

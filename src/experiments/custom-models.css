@@ -1,0 +1,6 @@
+.mt-model-options { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.if-model-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.if-model-toggle:disabled { opacity: .7; }
+.if-model-toggle:disabled .if-check { color: #73897c; }
+@media (min-width: 1600px) { .if-model-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .mt-model-options { grid-template-columns: 1fr; } .if-model-grid { grid-template-columns: 1fr; } }

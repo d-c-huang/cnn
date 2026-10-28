@@ -24,6 +24,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from backend.mnist_engine import ROOT, build_model, runtime_status, torch_runtime
+from backend.network_architecture import validate_architecture
 
 
 Pixel = Annotated[float, Field(strict=True, ge=0, le=255, allow_inf_nan=False)]
@@ -35,6 +36,7 @@ class PredictRequest(BaseModel):
     model_ids: list[ModelId] = Field(min_length=1, max_length=2)
     pixels: list[list[Pixel]] = Field(min_length=8, max_length=320)
     mode: Literal["canvas", "mnist"] = "canvas"
+    explain: Annotated[bool, Field(strict=True)] = False
 
     @model_validator(mode="after")
     def image_shape(self):
@@ -139,8 +141,9 @@ class InferenceService:
         architecture = raw["architecture"]
         if not isinstance(model_id, str) or not re.fullmatch(r"[0-9a-f]{32}", model_id):
             raise ValueError("invalid model ID")
-        if architecture not in {"mlp", "cnn"} or raw.get("run_id", model_id) != model_id:
+        if architecture not in {"mlp", "cnn", "custom"} or raw.get("run_id", model_id) != model_id:
             raise ValueError("invalid model architecture")
+        structure = validate_architecture(raw.get("structure")) if architecture == "custom" else None
         epoch = raw["checkpoint_epoch"]
         if isinstance(epoch, bool) or not isinstance(epoch, int) or epoch < 1:
             raise ValueError("invalid checkpoint epoch")
@@ -149,10 +152,13 @@ class InferenceService:
         if accuracy is not None:
             accuracy = _finite_number(accuracy, 0, 1)
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        return {"id": model_id, "architecture": architecture, "run_id": model_id,
+        entry = {"id": model_id, "architecture": architecture, "run_id": model_id,
                 "checkpoint_epoch": epoch, "validation_loss": validation_loss,
                 "test_accuracy": accuracy, "source": source, "sha256": digest,
                 "_path": path, "_created_at": str(created_at), "_expected_sha": expected_sha}
+        if structure is not None:
+            entry.update(structure=structure, display_name=f"自定义网络 · {len(structure)} 层")
+        return entry
 
     def _entries(self) -> list[dict]:
         entries = {}
@@ -167,7 +173,7 @@ class InferenceService:
                     try:
                         # Filenames are relative leaf names in the model bundle.
                         filename = raw["filename"]
-                        if filename not in {"mlp-best.pt", "cnn-best.pt"}:
+                        if filename not in {"mlp-best.pt", "cnn-best.pt", "custom-best.pt"}:
                             raise ValueError("unknown checkpoint filename")
                         path = self._owned_file(models_root, models_root / filename)
                         entry = self._descriptor(raw, "bundle", path, raw.get("created_at", ""), raw.get("sha256"))
@@ -189,6 +195,8 @@ class InferenceService:
                     raw = {"id": record["id"], "architecture": record["config"]["model"],
                            "checkpoint_epoch": record["best_epoch"], "validation_loss": record["best_validation_loss"],
                            "test_accuracy": (record.get("evaluation") or {}).get("accuracy")}
+                    if raw["architecture"] == "custom":
+                        raw["structure"] = record["config"].get("architecture")
                     entry = self._descriptor(raw, "run", path, record.get("created_at", ""))
                     entries[entry["id"]] = entry
                 except (OSError, ValueError, KeyError, TypeError, AttributeError):
@@ -208,7 +216,8 @@ class InferenceService:
         path = entry["_path"]
         try:
             stat = path.stat()
-            signature = (str(path), stat.st_mtime_ns, stat.st_size, entry["sha256"], entry["architecture"], entry["checkpoint_epoch"])
+            signature = (str(path), stat.st_mtime_ns, stat.st_size, entry["sha256"], entry["architecture"],
+                         entry["checkpoint_epoch"], json.dumps(entry.get("structure"), sort_keys=True))
             with self.lock:
                 if entry["_expected_sha"] and entry["_expected_sha"] != entry["sha256"]:
                     raise ValueError("checkpoint checksum mismatch")
@@ -220,6 +229,11 @@ class InferenceService:
                 checkpoint = torch.load(path, map_location="cpu", weights_only=True)
                 if checkpoint.get("config", {}).get("model") != entry["architecture"]:
                     raise ValueError("checkpoint architecture mismatch")
+                structure = None
+                if entry["architecture"] == "custom":
+                    structure = validate_architecture(checkpoint["config"].get("architecture"))
+                    if structure != entry["structure"]:
+                        raise ValueError("checkpoint layer structure mismatch")
                 if checkpoint.get("epoch") != entry["checkpoint_epoch"]:
                     raise ValueError("checkpoint epoch mismatch")
                 checkpoint_loss = _finite_number(checkpoint["validation_loss"], 0)
@@ -234,7 +248,7 @@ class InferenceService:
                 # CPU parameters. Loading a model must not perturb the RNG of a
                 # concurrently initialized training experiment.
                 with torch.device("meta"):
-                    model = build_model(entry["architecture"])
+                    model = build_model("custom", structure) if entry["architecture"] == "custom" else build_model(entry["architecture"])
                 model.load_state_dict(checkpoint["state_dict"], strict=True, assign=True)
                 model.to(device="cpu", dtype=torch.float32)
                 if any(not torch.isfinite(value).all().item() for value in model.state_dict().values()):
@@ -248,6 +262,32 @@ class InferenceService:
                 return cached
         except Exception as exc:
             raise HTTPException(503, "模型权重无法安全加载，请重新导出第三期的最佳权重。") from exc
+
+    @staticmethod
+    def _input_attribution(model, inputs, target_label: int) -> dict:
+        """Local logit sensitivity to normalized pixels, not a causal explanation.
+
+        Clone outside inference mode so even an inference tensor can become an
+        autograd input. autograd.grad requests only this input and never writes
+        model parameter .grad or changes evaluation/RNG state.
+        """
+        torch = torch_runtime()
+        try:
+            with torch.inference_mode(False), torch.enable_grad():
+                variable = inputs.detach().clone().requires_grad_(True)
+                logits = model(variable)
+                if tuple(logits.shape) != (1, 10) or not torch.isfinite(logits).all().item():
+                    raise HTTPException(503, "模型未产生有效的十分类输出，无法计算输入敏感度。")
+                gradient, = torch.autograd.grad(logits[0, target_label], variable)
+                if tuple(gradient.shape) != (1, 1, 28, 28) or not torch.isfinite(gradient).all().item():
+                    raise HTTPException(503, "模型产生了非有限输入梯度，无法生成敏感度热力图。")
+                magnitude = gradient.detach().abs()[0, 0]
+                maximum = float(magnitude.max().item())
+                heatmap = magnitude.div(maximum).clamp(0, 1) if maximum > 0 else torch.zeros_like(magnitude)
+                return {"method": "input_gradient", "target_label": target_label,
+                        "heatmap": heatmap.cpu().tolist(), "maximum_gradient": maximum}
+        except RuntimeError as exc:
+            raise HTTPException(503, "无法计算模型的输入敏感度，请检查模型权重后重试。") from exc
 
     def predict(self, request: PredictRequest):
         started = time.perf_counter()
@@ -283,7 +323,11 @@ class InferenceService:
                     "probabilities": scores.tolist(),
                     "top_k": [{"label": int(label), "score": float(scores[label])} for label in ranking[:3]],
                     "latency_ms": elapsed,
+                    **({"display_name": entry["display_name"]} if entry["architecture"] == "custom" else {}),
                 })
+        if request.explain:
+            for prediction, cached in zip(predictions, loaded):
+                prediction["attribution"] = self._input_attribution(cached["model"], inputs, prediction["predicted_label"])
         return {"request_id": uuid4().hex, "preprocessing": metadata,
                 "predictions": predictions, "total_latency_ms": (time.perf_counter() - started) * 1000}
 

@@ -1,0 +1,77 @@
+.neural-scene {
+  width: 100%;
+  max-width: 520px;
+  position: relative;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.neural-scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.neural-signals path {
+  stroke-dasharray: 7 93;
+  stroke-dashoffset: 100;
+  opacity: 0;
+  animation: neural-signal-flow 5.2s linear infinite;
+}
+
+.neural-node-lit {
+  animation: neural-node-breathe 4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.neural-orbit-particles {
+  animation: neural-particle-drift 11s ease-in-out infinite alternate;
+  transform-origin: 233px 139px;
+}
+
+.neural-orbits {
+  animation: neural-orbit-drift 13s ease-in-out infinite alternate;
+  transform-origin: 233px 139px;
+}
+
+.neural-scene-paused *,
+.neural-scene-paused *::before,
+.neural-scene-paused *::after {
+  animation-play-state: paused !important;
+}
+
+@keyframes neural-signal-flow {
+  0% { stroke-dashoffset: 107; opacity: 0; }
+  14% { opacity: .85; }
+  77% { opacity: .85; }
+  100% { stroke-dashoffset: -7; opacity: 0; }
+}
+
+@keyframes neural-node-breathe {
+  0%, 100% { opacity: .7; }
+  50% { opacity: 1; }
+}
+
+@keyframes neural-particle-drift {
+  from { transform: rotate(-3deg); opacity: .5; }
+  to { transform: rotate(6deg); opacity: 1; }
+}
+
+@keyframes neural-orbit-drift {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neural-scene *,
+  .neural-scene *::before,
+  .neural-scene *::after {
+    animation: none !important;
+  }
+  .neural-signals path {
+    opacity: .35;
+    stroke-dashoffset: 25;
+  }
+}

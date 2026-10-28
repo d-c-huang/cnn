@@ -1,5 +1,5 @@
-import { useId } from "react";
-import { ArrowRight } from "lucide-react";
+import { useId, useState } from "react";
+import { ArrowRight, Pause, Play } from "lucide-react";
 import type { XorSnapshot } from "../lib/xor";
 import { flattenParameters } from "../lib/xor";
 import { format } from "../lib/api";
@@ -19,6 +19,7 @@ export default function XorNetwork({
   onSelectParameter,
 }: Props) {
   const markerId = useId().replace(/:/g, "");
+  const [flowPaused, setFlowPaused] = useState(false);
   const values = flattenParameters(snapshot.parameters);
   const sampleGradients = flattenParameters(snapshot.sample_gradients);
   const weights = new Map(values.map((entry) => [entry.name, entry.value]));
@@ -50,7 +51,8 @@ export default function XorNetwork({
     })),
   ];
   return (
-    <div className="xv-network-shell">
+    <div className={`xv-network-shell xv-enhanced ${flowPaused ? "xv-flow-paused" : ""}`} data-flow={mode}>
+      <div className="xv-stage-toolbar"><div><span className="signal-dot" /><strong>NEURAL SIGNAL LAB</strong><span>2 → 4 → 1 · 17 个参数</span></div><button type="button" className="secondary-button" aria-pressed={!flowPaused} onClick={() => setFlowPaused(!flowPaused)}>{flowPaused ? <Play size={13} /> : <Pause size={13} />}{flowPaused ? "播放光流" : "暂停光流"}</button></div>
       <div className="xv-network-caption">
         <span>
           样本 {snapshot.selected.inputs.join("")} → 标签{" "}
@@ -66,22 +68,27 @@ export default function XorNetwork({
         <svg
           className="xv-network-svg"
           viewBox="0 0 720 440"
-          role="img"
+          role="group"
           aria-label={`XOR 两个输入、四个隐藏单元、一个输出的神经网络，当前输出 ${format(snapshot.selected.output)}`}
         >
           <defs>
+            <pattern id={`${markerId}-grid`} width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#73c2a9" strokeOpacity=".08" strokeWidth=".6" /></pattern>
+            <radialGradient id={`${markerId}-halo`}><stop stopColor="#7fe1bd" stopOpacity=".12" /><stop offset="1" stopColor="#7fe1bd" stopOpacity="0" /></radialGradient>
             <marker
               id={markerId}
               markerWidth="7"
               markerHeight="7"
               refX="6"
               refY="3.5"
-              orient="auto"
+              orient="auto-start-reverse"
               markerUnits="userSpaceOnUse"
             >
-              <path d="M0 0L7 3.5L0 7Z" fill="#8b9b78" />
+              <path d="M0 0L7 3.5L0 7Z" fill="#a4d3ad" />
             </marker>
           </defs>
+          <rect x="1" y="1" width="718" height="438" rx="12" fill={`url(#${markerId}-grid)`} />
+          <ellipse cx="360" cy="196" rx="310" ry="195" fill={`url(#${markerId}-halo)`} />
+          <g fill="#81bc9e" fillOpacity=".025" stroke="#7eb892" strokeOpacity=".14"><rect x="14" y="70" width="99" height="246" rx="15" /><rect x="302" y="7" width="116" height="391" rx="15" /><rect x="600" y="122" width="107" height="157" rx="15" /></g>
           {edges.map((edge) => {
             const value =
               mode === "forward"
@@ -89,7 +96,7 @@ export default function XorNetwork({
                 : (gradients.get(edge.name) ?? 0);
             const active = selectedParameter === edge.name;
             return (
-              <g key={edge.name}>
+              <g key={edge.name} className={`xv-edge ${active ? "is-selected" : ""}`} role="button" tabIndex={0} aria-label={`选择连接 ${edge.name}，${mode === "forward" ? "权重" : "单样本梯度"} ${format(value, 5)}`} aria-pressed={active} onClick={() => onSelectParameter(edge.name)} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelectParameter(edge.name); } }}>
                 {active && (
                   <line
                     x1={edge.from[0]}
@@ -116,7 +123,8 @@ export default function XorNetwork({
                         )
                   }
                   strokeDasharray={value < 0 ? "6 4" : undefined}
-                  markerEnd={`url(#${markerId})`}
+                  markerEnd={mode === "forward" ? `url(#${markerId})` : undefined}
+                  markerStart={mode === "gradient" ? `url(#${markerId})` : undefined}
                   opacity={active ? 1 : 0.54}
                 >
                   <title>
@@ -124,6 +132,8 @@ export default function XorNetwork({
                     {format(value, 5)}
                   </title>
                 </line>
+                <line className="xv-signal-stream" x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} pathLength="100" stroke={value < 0 ? "#80cdbb" : "#c0e99a"} style={{ animationDelay: `${-edges.indexOf(edge) * .24}s` }} />
+                <line className="xv-edge-hit" x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} stroke="transparent" strokeWidth="17" />
               </g>
             );
           })}
@@ -154,7 +164,8 @@ export default function XorNetwork({
             </g>
           ))}
           {snapshot.selected.a1.map((value, j) => (
-            <g key={`hidden-${j}`}>
+            <g key={`hidden-${j}`} className="xv-neuron-select" role="button" tabIndex={0} aria-label={`选择隐藏单元 ${j + 1} 偏置 b1[${j}]`} aria-pressed={selectedParameter === `b1[${j}]`} onClick={() => onSelectParameter(`b1[${j}]`)} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelectParameter(`b1[${j}]`); } }}>
+              <circle cx="360" cy={hiddenY[j]} r="43" fill="none" stroke={value < 0 ? "#7ed2c4" : "#c2eaa1"} strokeOpacity=".5" strokeWidth="2" strokeDasharray={`${Math.abs(value) * 270} 270`} transform={`rotate(-90 360 ${hiddenY[j]})`} />
               <circle
                 cx="360"
                 cy={hiddenY[j]}
@@ -187,7 +198,7 @@ export default function XorNetwork({
               </text>
             </g>
           ))}
-          <g>
+          <g className="xv-neuron-select" role="button" tabIndex={0} aria-label="选择输出偏置 b2" aria-pressed={selectedParameter === "b2"} onClick={() => onSelectParameter("b2")} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelectParameter("b2"); } }}>
             <circle
               cx="654"
               cy="195"
@@ -285,6 +296,7 @@ export default function XorNetwork({
       </div>
       <p className="xv-note">
         实线表示正值，虚线表示负值。
+        光流仅示意计算方向；可直接点击连线或神经元检查参数。
         {mode === "gradient"
           ? "这里显示选中样本的参数梯度；训练更新使用四个样本梯度的平均值。"
           : "连线粗细表示权重绝对值，节点中的数字是选中样本的前向激活值。"}

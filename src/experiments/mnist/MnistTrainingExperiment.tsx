@@ -6,6 +6,7 @@ import {
   activeStatuses,
   loadMnistConfig,
   mnistRequest,
+  modelLabel,
   selectRunId,
   selectedRunId,
   statusLabels,
@@ -14,7 +15,9 @@ import {
 import type { MnistStatus, Run, RunConfig } from "../../lib/mnist";
 import { downloadText, useMnistResource } from "../../lib/useMnist";
 import TrainingCurves from "./TrainingCurves";
+import { analyzeNetwork, readSavedNetwork } from "../../lib/networkBuilder";
 import "./mnist-training.css";
+import "../custom-models.css";
 
 export default function MnistTrainingExperiment({
   onInteract,
@@ -22,6 +25,9 @@ export default function MnistTrainingExperiment({
   onInteract: () => void;
 }) {
   const [config, setConfig] = useState<RunConfig>(loadMnistConfig);
+  const [savedArchitecture] = useState(readSavedNetwork);
+  const customAvailable = !!savedArchitecture && analyzeNetwork(savedArchitecture).valid;
+  const validConfig = config.model !== "custom" || !!config.architecture && analyzeNetwork(config.architecture).valid;
   const [chosenId, setChosenId] = useState<string | null>(selectedRunId);
   const [freshRun, setFreshRun] = useState<Run | null>(null);
   const [busy, setBusy] = useState(false);
@@ -77,7 +83,12 @@ export default function MnistTrainingExperiment({
   );
 
   function change(next: Partial<RunConfig>) {
-    setConfig((previous) => ({ ...previous, ...next }));
+    setConfig((previous) => {
+      const updated = { ...previous, ...next };
+      if (next.model === "custom" && savedArchitecture) updated.architecture = savedArchitecture.map(layer => ({ ...layer }));
+      if (updated.model !== "custom") delete updated.architecture;
+      return updated;
+    });
     onInteract();
   }
   function choose(item: Run) {
@@ -167,7 +178,11 @@ export default function MnistTrainingExperiment({
                 </small>
               </button>
             ))}
+            <button aria-pressed={config.model === "custom"} disabled={!customAvailable} onClick={() => change({ model: "custom" })}>
+              <strong>自定义网络</strong><span>网络搭建器中的结构</span><small>{customAvailable ? `${savedArchitecture!.length} 层 · ${analyzeNetwork(savedArchitecture!).totalParameters.toLocaleString()} 参数` : "先在搭建器保存有效的十类网络"}</small>
+            </button>
           </div>
+          {config.model === "custom" && <p className="panel-note">本次使用 {config.architecture?.length ?? 0} 层结构的独立快照。更改搭建器后，重新选择「自定义网络」可载入新结构。</p>}
           <div className="mt-fields">
             <label>
               训练轮数 Epochs
@@ -259,6 +274,7 @@ export default function MnistTrainingExperiment({
               className="primary-button"
               disabled={
                 busy ||
+                !validConfig ||
                 currentActive ||
                 status.data?.dataset.status !== "ready" ||
                 !status.data?.runtime.available
@@ -355,7 +371,7 @@ export default function MnistTrainingExperiment({
                 onClick={() => choose(item)}
               >
                 <span>
-                  <strong>{item.config.model.toUpperCase()}</strong>
+                  <strong>{modelLabel(item.config.model)}</strong>
                   <em>{statusLabels[item.status]}</em>
                 </span>
                 <span>
@@ -380,7 +396,7 @@ export default function MnistTrainingExperiment({
           </div>
         ) : (
           <p className="mt-empty">
-            还没有训练记录。准备数据后，选择 MLP 或 CNN 开始训练。
+            还没有训练记录。准备数据后，选择 MLP、CNN 或自定义网络开始训练。
           </p>
         )}
       </ExperimentPanel>
@@ -388,7 +404,7 @@ export default function MnistTrainingExperiment({
       {run && (
         <>
           <ExperimentPanel
-            title={`${run.config.model.toUpperCase()} · 所选实验的训练过程`}
+            title={`${modelLabel(run.config.model)} · 所选实验的训练过程`}
             eyebrow={`RUN ${run.id.slice(0, 8).toUpperCase()}`}
             action={
               <span className={`mt-status ${run.status}`}>

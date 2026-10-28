@@ -1,0 +1,465 @@
+/* Instrument surfaces. Keep sample pixels, heatmaps and drawing data unaltered. */
+.experiment-panel {
+  background: linear-gradient(145deg, #122126e8, #0e1a1ee8);
+  border-color: #253b3d;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px #00000012, inset 0 1px #c4fff604;
+}
+.control-panel {
+  background: #101e22;
+  border-color: #263b3d;
+  border-radius: 14px;
+}
+.experiment-panel h2,
+.controls-heading h3 { color: #e0eeec; }
+.panel-heading .eyebrow { color: #6faaa4; }
+.panel-heading .live-tag,
+.controls-heading svg { color: #78ccb8; }
+.live-tag i { background: #75d4ad; box-shadow: 0 0 8px #75d4ad50; }
+.experiment-panel .small-label,
+.control-panel .small-label,
+.slider-heading,
+.normalize-toggle { color: #a0b5b4; }
+.math-symbol { color: #79cbbb; }
+.slider-heading output {
+  background: #081519;
+  border-color: #2b4545;
+  color: #9cebd7;
+  font-family: Consolas, monospace;
+  box-shadow: inset 0 1px 5px #0002;
+}
+.slider-field input[type="range"] { accent-color: #62d7bc; }
+.slider-limits,
+.panel-note,
+.axis-note,
+.result-hint { color: #8fa7a6; }
+.normalize-toggle input { accent-color: #63d6bc; }
+.formula { color: #a4d8ce; }
+.control-panel > .formula,
+.control-stack > .small-label:not(:first-child) { border-color: #2b4142; }
+.insight {
+  background: #17302c;
+  border: 1px solid #28473f;
+  color: #acc6b5;
+}
+.result > strong {
+  color: #d2f0e7;
+  font-family: Consolas, "Microsoft YaHei UI", monospace;
+  font-weight: 500;
+}
+.segmented { background: #081619; border: 1px solid #233b3d; }
+.segmented button { color: #89a29f; }
+.segmented button:hover:not(:disabled) { background: #193231; }
+.segmented button[aria-pressed="true"] {
+  background: #234039;
+  color: #c5f3d0;
+  box-shadow: inset 0 0 0 1px #3c6651;
+}
+.experiment-panel .primary-button,
+.control-panel .primary-button {
+  background: #bfe97a;
+  color: #112218;
+  font-weight: 600;
+  border: 1px solid #c9f789;
+}
+.experiment-panel .primary-button svg,
+.control-panel .primary-button svg { color: #24432a; }
+.experiment-panel .primary-button:hover:not(:disabled),
+.control-panel .primary-button:hover:not(:disabled) { background: #d0f49e; }
+.experiment-panel .secondary-button,
+.control-panel .secondary-button {
+  background: #14282a;
+  border-color: #35504f;
+  color: #b2cfca;
+}
+.experiment-panel .secondary-button:hover:not(:disabled),
+.control-panel .secondary-button:hover:not(:disabled) {
+  background: #1b3837;
+  border-color: #578578;
+}
+.experiment-panel .text-button,
+.control-panel .text-button { color: #83cfbb; }
+.experiment-panel .icon-button:hover { background: #203a36; }
+.error-message {
+  background: #33251f;
+  border: 1px solid #634332;
+  color: #edb492;
+}
+.warning-text { color: #e6b37e; }
+.positive-text,
+.sample-table td.positive-text { color: #a9db8a; }
+.chart-tick,
+.chart-axis-label { fill: #8ba8a5; }
+.grid-line,
+.grid-line.vertical { stroke: #274044; }
+.grid-line.vertical { opacity: .55; }
+.zero-line { stroke: #4b6866; }
+.hover-guide { stroke: #79c9ba; }
+.chart-tooltip {
+  background: #142b2e;
+  border-color: #41655e;
+  color: #ceece4;
+  box-shadow: 0 8px 25px #0004;
+}
+.chart-tooltip span { color: #77968d; }
+.chart-placeholder,
+.plot-legend { color: #90a9a4; }
+.sample-table th { color: #8da7a2; }
+.sample-table td { color: #bbceca; border-color: #263b3d; }
+.sample-table tbody tr:hover { background: #7ae2c707; }
+.explanation-index { background: #1a3530; color: #9dd5b4; }
+.explanation-strip h3 { color: #c1d7d0; }
+.explanation-strip p,
+.step-count,
+.run-status,
+.update-detail p,
+.empty-history { color: #8aa9a0; }
+.step-count strong,
+.update-detail > strong { color: #b9e2ca; }
+.empty-history > span { color: #44665b; }
+.rate-presets > button {
+  border-color: #314b46;
+  color: #9fb9ac;
+}
+.rate-presets > button:hover { background: #1b352e; }
+.rate-presets > .is-selected {
+  background: #223d2e;
+  border-color: #628450;
+  color: #d2ebae;
+}
+
+/* Tensor inspector */
+.pixel-grid {
+  background: #182c2d;
+  border: 1px solid #375354;
+  box-shadow: 0 0 22px #5ddbc70a;
+}
+.pixel-selection { color: #a9eb7d; }
+.tensor-matrix { background: #243b3c; border-color: #2b4948; }
+.tensor-cell { background: #102327; color: #89afa7; }
+.tensor-cell.is-selected {
+  background: #31513a;
+  color: #d8f8a4;
+  box-shadow: inset 0 0 0 1px #88a862;
+}
+.vector-cell { background: #102529; border-color: #28403e; color: #94bcb1; }
+.vector-index { color: #607f79; }
+.vector-cell:hover { background: #1b3735; }
+.vector-cell.is-selected {
+  background: #2e4833;
+  border-color: #86aa61;
+  color: #d6f7ab;
+}
+.vector-cell.is-selected .vector-index { color: #accc8e; }
+
+/* The neuron schematic has a few presentation colors in its SVG markup. */
+.neuron-diagram text { fill: #c0d9d1; }
+.neuron-diagram .diagram-detail { fill: #8da79e !important; }
+.neuron-diagram path[stroke="#252a23"] { stroke: #75cbb6; }
+.neuron-diagram path[stroke="#858b7d"] { stroke: #9babb1; }
+.neuron-diagram circle[fill="#f1efe8"] { fill: #1a3334; stroke: #54766a; }
+.neuron-diagram circle[fill="#c9ef6b"] { fill: #2b543f; stroke: #8bd894; }
+.neuron-diagram rect[fill="#252a23"] { fill: #254139; stroke: #62846a; }
+.neuron-diagram .diagram-activation { fill: #d6f4b9 !important; }
+.neuron-diagram .diagram-activation-detail { fill: #a4cda1 !important; }
+.neuron-substitution { color: #9db5a9; }
+.neuron-substitution strong { color: #b6d7b3; }
+.neuron-diagram .neuron-compact { color: #c2d8cc; }
+.neuron-compact-input { background: #183130; }
+.neuron-compact-label { color: #9fb9a7; }
+.neuron-compact-product strong { color: #b5dea9; }
+.neuron-compact-sum { background: #213d2e; }
+.neuron-compact-symbol { color: #b3d698; }
+.neuron-compact-activation { background: #1b3630; }
+.neuron-compact-output { background: #315536; color: #dcf4ba; }
+.neuron-compact-output .neuron-compact-label { color: #c4dfa3; }
+.chart path[stroke="#5d7629"] { stroke: #b7e180; }
+.chart circle[fill="#252a23"] { fill: #c2e3aa; }
+
+/* Computation graph and back propagation */
+.gz-loading,
+.gz-direction,
+.gz-direction > small,
+.gz-node-detail,
+.gz-chain-list > p,
+.gz-chain-list small,
+.gz-wait-note,
+.gz-player > span,
+.gz-step-explanation p,
+.gz-current-parameters dt { color: #8eaaa0; }
+.gz-desktop > svg { color: #496b61; }
+.gz-edge-selected { color: #8bad7c; }
+.gz-edge-active { color: #bce784; }
+.gz-node { background: #17302f; border-color: #34554b; color: #bad7c7; }
+.gz-node:hover { background: #254035; border-color: #779d68; }
+.gz-node.gz-parameter { background: #1e342c; }
+.gz-node.gz-selected {
+  border-color: #a5cd7e;
+  background: #304733;
+  box-shadow: 0 0 0 2px #c1ea7914;
+}
+.gz-node.gz-active { background: #bfe878; border-color: #d0f998; color: #20351b; }
+.gz-node.gz-unrevealed { color: #628579; background: #112223; }
+.gz-node-label i,
+.gz-node > small,
+.gz-detail-heading > span:last-child { color: #8aafa0; }
+.gz-node.gz-active > small,
+.gz-node.gz-active .gz-node-label i { color: #466731; }
+.gz-node-detail,
+.gz-chain-list > div,
+.gz-player,
+.gz-update-section,
+.gz-current-parameters { border-color: #2b443e; }
+.gz-expression,
+.gz-detail-values strong,
+.gz-chain-list code,
+.gz-current-parameters dd { color: #b7ddbd; }
+.gz-stages { background: #0c1c1e; border: 1px solid #2b423e; }
+.gz-stages > button,
+.gz-stages > button > span { color: #8ca99a; }
+.gz-stages > button[aria-pressed="true"] {
+  background: #2a4434;
+  color: #d7f2b6;
+  box-shadow: none;
+}
+.gz-step-explanation,
+.gz-applied-message { background: #1b352a; color: #b6d6a3; }
+
+/* XOR weights and decision boundary */
+.xor-forward-details,
+.xor-step-label,
+.xor-run-notice,
+.xor-seed-control > label > span,
+.xor-parameter-inspect > div > span,
+.xor-sample-input > span,
+.xor-update-formula,
+.xor-update-formula > p,
+.xv-network-caption,
+.xv-selected-parameter,
+.xv-note,
+.xv-boundary-selection,
+.xv-probability-legend,
+.xv-compact-head { color: #8faf9c; }
+.xor-forward-details summary,
+.xor-forward-details strong,
+.xor-parameter-inspect strong,
+.xor-sample-input,
+.xor-update-formula > span,
+.xor-update-formula > strong,
+.xv-network-caption > span:first-child,
+.xv-selected-parameter > strong,
+.xv-selected-parameter b,
+.xv-boundary-selection strong,
+.xv-compact-node strong { color: #b9dba6; }
+.xor-seed-control input { background: #102224; border-color: #345149; color: #d6e8dc; }
+.xor-samples > button { background: #17302b; border-color: #314e40; color: #a1c298; }
+.xor-samples > button.selected {
+  background: #2b4630;
+  border-color: #8bab69;
+  box-shadow: inset 0 0 0 1px #8bab69;
+}
+.xor-correct { color: #b0dd84; }
+.xor-incorrect { color: #e7b17d; }
+.xor-param-button { color: #a1c795; }
+.xor-param-button[aria-pressed="true"] { background: #30492e; color: #d0ecab; border-color: #90ac66; }
+.xor-selected-row { background: #20372a; }
+.xv-network-shell,
+.xv-boundary-shell { color: #b5d4be; }
+.xv-network-svg text { fill: #c4e0c7; }
+.xv-network-svg .xv-bias-label,
+.xv-network-svg .xv-layer-label { fill: #8ba58b !important; }
+.xv-input-circle { fill: #18312d; stroke: #59775b; }
+.xv-hidden-circle { fill: #24412e; stroke: #729264; }
+.xv-output-circle { fill: #3b5734; stroke: #abc87a; }
+.xv-selected-bias { stroke: #d0ec91; }
+.xv-network-svg line[stroke="#4e5f41"] { stroke: #abc88a; }
+.xv-network-svg line[stroke="#80a79b"] { stroke: #65baa9; }
+.xv-network-svg marker path { fill: #a1c288; }
+.xv-selected-parameter { border-color: #30493e; }
+.xv-parameter-picker > button { background: #17302a; border-color: #314b3e; color: #a4c192; }
+.xv-parameter-picker > button[aria-pressed="true"] { background: #324a2e; border-color: #8ca963; color: #d9f3b7; }
+.xv-axis-label { fill: #90ac94; }
+.xv-compact-node { background: #183129; border-color: #37533d; }
+.xv-compact-node small { color: #99b691; }
+.xv-compact-output { background: #304a2e; border-color: #7f9e57; }
+
+/* Real datasets, training and inference share the instrument palette. */
+.md-runtime-row p,
+.md-split-explanation strong,
+.md-sample strong,
+.md-total-row td,
+.md-preprocessing strong,
+.mt-model-options strong,
+.mt-run-list strong,
+.mt-run-list b,
+.mt-run-heading strong,
+.me-pending-evaluation strong,
+.me-error-overview strong,
+.mv-curve-values strong,
+.mv-error-labels strong,
+.if-model-toggle strong,
+.if-processed-image strong,
+.if-serving-flow > span,
+.if-deploy-steps strong,
+.iv-architecture,
+.iv-predicted-digit > strong,
+.iv-predicted-digit b { color: #b4d8b6; }
+.md-runtime-row small,
+.md-status-message,
+.md-split-legend,
+.md-split-explanation p,
+.md-split-empty,
+.md-form > label,
+.md-form > label > span,
+.md-config-note,
+.md-sample > span,
+.md-sample > small,
+.md-preprocessing p,
+.mt-model-options span,
+.mt-model-options small,
+.mt-fields > label,
+.mt-operation-notice,
+.mt-process-note,
+.mt-run-list em,
+.mt-run-list small,
+.mt-run-heading span,
+.mt-empty,
+.me-select-run,
+.me-empty,
+.me-error-overview p,
+.me-probabilities > div > span,
+.me-probabilities strong,
+.mv-curve-legend,
+.mv-curve-toolbar > label,
+.mv-curve-values,
+.mv-note,
+.mv-empty-curves,
+.mv-error-empty,
+.mv-error-loading,
+.mv-empty-curves > p,
+.mv-error-empty > p,
+.mv-matrix-axis,
+.mv-matrix-table th,
+.mv-matrix-caption,
+.mv-matrix-selection,
+.mv-errors-heading,
+.mv-errors-heading > span:last-child,
+.mv-error-index,
+.mv-error-confidence,
+.mv-error-pagination > span,
+.if-model-toggle small,
+.if-check,
+.if-model > p,
+.if-model > p > span,
+.if-model > code,
+.if-model > label,
+.if-example-loader label,
+.if-identify-row > span,
+.if-input-placeholder,
+.if-processed-image p,
+.if-results-empty,
+.if-serving-flow,
+.if-deploy-steps,
+.iv-canvas-status,
+.iv-canvas-note,
+.iv-checkpoint,
+.iv-forward-latency,
+.iv-predicted-digit span,
+.iv-predicted-digit small,
+.iv-score-label,
+.iv-score-row > strong,
+.iv-top-three,
+.iv-top-three b,
+.iv-top-three small,
+.iv-prediction-note { color: #8fae9d; }
+.md-dataset-state { color: #dfbc85; }
+.md-dataset-state.md-ready,
+.if-model.selected .if-check,
+.if-example-check.correct { color: #aed783; }
+.md-install-note { color: #e3b889; }
+.md-install-note code { background: #2e261d; border-color: #635036; }
+.md-form input,
+.md-form select,
+.mt-fields select,
+.mt-fields input,
+.me-select-run select,
+.mv-curve-toolbar select,
+.if-model select,
+.if-example-loader select {
+  color-scheme: dark;
+  background: #0b1b1e;
+  border-color: #345047;
+  color: #c1dbcb;
+}
+.md-sample,
+.mt-model-options > button,
+.mt-run-list > button,
+.mv-error-card,
+.if-model,
+.iv-prediction {
+  background: #142925;
+  border-color: #304b40;
+  color: #abc49c;
+}
+.md-preprocessing > div > span { background: #233e2c; color: #a5c38c; }
+.mt-model-options > button[aria-pressed="true"],
+.mt-run-list > button[aria-pressed="true"],
+.if-model.selected {
+  background: #253f2e;
+  border-color: #779e5f;
+  box-shadow: inset 0 0 0 1px #a8cc7220;
+}
+.mt-split-numbers .result,
+.iv-predicted-digit,
+.iv-top-three { border-color: #2c473b; }
+.mt-status { background: #2a422d; color: #bedb9a; }
+.mt-status.failed,
+.mt-status.interrupted { background: #3a2d22; color: #efbc8e; }
+.mt-progress,
+.me-probabilities > div > div,
+.iv-score-track { background: #243c31; }
+.mt-progress > div { background: #b5d779; }
+.mt-history-table td:first-child { color: #abd382; }
+.me-pending-evaluation { background: #203b2b; color: #a8c393; }
+.me-error-dialog { background: #102320; border-color: #45634b; box-shadow: 0 20px 90px #0008; }
+.me-error-dialog::backdrop { background: #020908bd; }
+.me-probabilities i { background: #73966c; }
+.me-probabilities i.predicted { background: #c3dd87; }
+.me-probabilities i.truth { background: #67c5af; }
+.mv-train-swatch { border-color: #b5de86; }
+.mv-validation-swatch { border-color: #63c9b3; }
+.mv-grid-line { stroke: #2b4438; }
+.mv-axis-text,
+.mv-axis-title { fill: #90af97; }
+.mv-train-line { stroke: #b5de86; }
+.mv-validation-line { stroke: #63c9b3; }
+.mv-train-point { fill: #b5de86; stroke: #183125; }
+.mv-validation-point { fill: #63c9b3; stroke: #183125; }
+.mv-epoch-guide { stroke: #6e9465; }
+.mv-empty-curves > span { color: #54724c; }
+.mv-matrix-table button { color: #425c30; }
+.mv-matrix-table button.mv-off-diagonal { color: #7d4b29; }
+.mv-matrix-table button.mv-cell-selected { outline-color: #d3ef91; border-color: #182b1e; box-shadow: 0 0 0 2px #7c9e61; }
+.mv-error-card:hover { background: #26412d; border-color: #86a768; }
+.mv-error-labels strong:last-child,
+.if-example-check { color: #e5b181; }
+.mv-error-labels > span { color: #738f72; }
+.if-input-placeholder > span { color: #54724f; }
+.if-code { background: #081614; border: 1px solid #2d4638; color: #bfdca7; }
+.iv-canvas-surface { border-color: #4f7560; }
+.iv-canvas-hint > strong { color: #8eaa91; }
+.iv-canvas-hint > span { color: #8ba38c; }
+.iv-score-track > i { background: #719065; }
+.iv-is-predicted .iv-score-track > i { background: #bedc83; }
+.iv-is-predicted .iv-score-label,
+.iv-is-predicted > strong,
+.iv-score-winner { color: #c4e79b; }
+
+@media (max-width: 600px) {
+  .experiment-panel { border-radius: 11px; }
+  .control-panel { border-radius: 11px; }
+  .slider-field input[type="range"] { min-height: 24px; }
+  .experiment-panel .secondary-button,
+  .control-panel .secondary-button,
+  .segmented button { min-height: 36px; }
+}

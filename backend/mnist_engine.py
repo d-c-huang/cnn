@@ -23,6 +23,7 @@ from uuid import uuid4
 
 import numpy as np
 from fastapi import HTTPException
+from backend.network_architecture import build_custom_model, validate_architecture
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,9 +60,11 @@ def runtime_status() -> dict:
     }
 
 
-def build_model(name: str):
+def build_model(name: str, architecture=None):
     torch = torch_runtime()
     nn = torch.nn
+    if name == "custom":
+        return build_custom_model(architecture, nn)
     if name == "mlp":
         return nn.Sequential(
             nn.Flatten(), nn.Linear(784, 128), nn.ReLU(),
@@ -200,9 +203,25 @@ class MnistService:
     @staticmethod
     def _atomic_json(path: Path, value):
         path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_suffix(path.suffix + ".tmp")
-        temporary.write_text(json.dumps(value, ensure_ascii=False, allow_nan=False), encoding="utf-8")
-        os.replace(temporary, path)
+        temporary = path.with_name(f".{path.name}.{uuid4().hex}.tmp")
+        try:
+            temporary.write_text(json.dumps(value, ensure_ascii=False, allow_nan=False), encoding="utf-8")
+            # Windows readers can briefly deny replacement while a catalog/poll
+            # reads run.json. Retry only the replace, never hide a lasting error.
+            for attempt in range(6):
+                try:
+                    os.replace(temporary, path)
+                    return
+                except PermissionError:
+                    if attempt == 5:
+                        raise
+                    time.sleep(min(0.02 * (2 ** attempt), 0.16))
+        finally:
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError:
+                # Cleanup must not replace the original persistence exception.
+                pass
 
     def _persist(self, run_id: str):
         self._atomic_json(self.runs_root / run_id / "run.json", self.runs[run_id])
@@ -324,6 +343,14 @@ class MnistService:
             return {"runs": [self.get_run(run_id) for run_id in sorted(self.runs, key=lambda key: self.runs[key]["created_at"], reverse=True)]}
 
     def create_run(self, config: dict) -> dict:
+        config = copy.deepcopy(config)
+        if config.get("model") == "custom":
+            try:
+                config["architecture"] = validate_architecture(config.get("architecture"))
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from exc
+        elif config.get("model") not in {"mlp", "cnn"} or config.get("architecture") is not None:
+            raise HTTPException(422, "模型类型或网络结构配置无效。")
         self._require_data()
         with self.lock:
             if self.active_run_id is not None:
@@ -333,7 +360,7 @@ class MnistService:
             run_id = uuid4().hex
             run = {
                 "id": run_id, "created_at": datetime.now(timezone.utc).isoformat(), "status": "queued",
-                "config": dict(config), "epoch": 0, "batch": 0,
+                "config": copy.deepcopy(config), "epoch": 0, "batch": 0,
                 "batches_per_epoch": math.ceil(len(indices["effective_train"]) / config["batch_size"]),
                 "processed_samples": 0, "train_samples": int(len(indices["effective_train"])),
                 "validation_samples": int(len(indices["validation"])), "test_samples": int(len(data["test_labels"])),
@@ -440,7 +467,7 @@ class MnistService:
             config = self.runs[run_id]["config"]
             self._update(run_id, status="preparing", message="正在构建模型与互斥的数据加载器。")
             torch.manual_seed(config["seed"])
-            model = build_model(config["model"])
+            model = build_model("custom", config["architecture"]) if config["model"] == "custom" else build_model(config["model"])
             generator = torch.Generator().manual_seed(config["seed"])
             train_loader = self._loader("train", indices["effective_train"], config["batch_size"], True, generator)
             validation_loader = self._loader("train", indices["validation"], 256)

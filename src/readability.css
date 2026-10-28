@@ -1,0 +1,116 @@
+/* The reading preference changes text, preserving the size of images and charts. */
+:root { --reading-scale: 1.12; }
+:root[data-reading-size="standard"] { --reading-scale: 1; }
+:root[data-reading-size="comfortable"] { --reading-scale: 1.12; }
+:root[data-reading-size="large"] { --reading-scale: 1.25; }
+.main-content :is(p, label), .main-content .panel-note, .main-content .axis-note,
+.main-content .insight p, .main-content .insight-steps p, .main-content .insight-feedback,
+.main-content .insight-question legend, .main-content .insight-option,
+.main-content .explanation-strip p, .main-content .connection-notice,
+.main-content .insight-objective, .main-content .control-panel .insight {
+  font-size: calc(14px * var(--reading-scale)); line-height: 1.85;
+}
+.main-content :is(.small-label, .slider-heading, .normalize-toggle, .result-hint, .axis-note,
+  .sample-table, .sample-table th, .sample-table td, .segmented button, .plot-legend,
+  .controls-heading h3, .code-toggle, .text-button, .primary-button, .secondary-button,
+  .step-count, .run-status, .rate-presets button, .slider-limits, .insight-retry,
+  .data-workbench .small-label, .data-image-area .panel-note, .data-matrix-area .axis-note) {
+  font-size: calc(13px * var(--reading-scale));
+}
+.main-content .learning-prompt p, .main-content .learning-prompt p strong { font-size: calc(14px * var(--reading-scale)); }
+.main-content .lesson-header p, .main-content .hero-copy > p { font-size: calc(14px * var(--reading-scale)); }
+.main-content .panel-heading h2, .main-content .insight-heading h2 { font-size: calc(16px * var(--reading-scale)); }
+.main-content .insight-steps h3, .main-content .insight-quiz h3 { font-size: calc(14px * var(--reading-scale)); }
+.main-content .insight-misconception, .main-content .insight-misconception h3,
+.main-content .insight-formula p, .main-content .insight-quiz-note { font-size: calc(13px * var(--reading-scale)); }
+.main-content .insight-formula code, .main-content .formula { font-size: calc(16px * var(--reading-scale)); }
+.main-content .code-panel pre { font-size: calc(14px * var(--reading-scale)); }
+.main-content :is(.tensor-cell, .vector-cell, .slider-heading output) { font-size: calc(13px * var(--reading-scale)); }
+.main-content :is(.vector-index, .panel-heading .eyebrow, .lesson-kicker, .hero-eyebrow, .insight-eyebrow, .insight-formula > span, .insight-card-label) { font-size: calc(11px * var(--reading-scale)); }
+.main-content .concepts > .small-label, .main-content .concepts > span:last-child { font-size: calc(13px * var(--reading-scale)); }
+.main-content .chart-tick, .main-content .chart-axis-label { font-size: calc(12px * var(--reading-scale)); }
+.main-content .result > strong { font-size: calc(26px * var(--reading-scale)); }
+.main-content .roadmap-heading h2 { font-size: calc(14px * var(--reading-scale)); }
+.main-content .roadmap-card h3 { font-size: calc(14px * var(--reading-scale)); }
+.main-content .roadmap-card p { font-size: calc(12px * var(--reading-scale)); }
+.main-content .hero-facts { font-size: calc(12px * var(--reading-scale)); }
+.main-content .hero-facts strong { font-size: calc(14px * var(--reading-scale)); }
+.main-content .hero-secondary { font-size: calc(13px * var(--reading-scale)); }
+.main-content .hero-visual-caption, .main-content .roadmap-heading > span { font-size: 10px; }
+.main-content .roadmap-current { font-size: 10px; }
+.main-content .lesson-header h1 { font-size: calc(28px * var(--reading-scale)); }
+.sidebar .lesson-link { font-size: calc(13px * var(--reading-scale)); }
+.sidebar .course-label p, .sidebar .phase-label strong, .sidebar .progress-heading, .sidebar .about-button { font-size: 12px; }
+.sidebar .phase-switcher button { font-size: 12px; }
+.sidebar .course-label .eyebrow { font-size: 10px; }
+.topbar .breadcrumb, .topbar .breadcrumb strong, .topbar .topbar-button, .topbar .effects-toggle, .topbar .engine-status { font-size: 12px; }
+.topbar .breadcrumb { min-width: 0; }
+.topbar .breadcrumb strong { white-space: nowrap; }
+.about-dialog p { font-size: calc(14px * var(--reading-scale)); }
+.main-content small { font-size: calc(12px * var(--reading-scale)); }
+.main-content select, .main-content input[type="number"] { font-size: calc(14px * var(--reading-scale)); }
+.main-content .mt-run-list :is(span, small, b, em), .main-content .mt-run-heading span,
+.main-content .mt-status, .main-content .mt-model-options span, .main-content .mv-curve-values,
+.main-content .if-check, .main-content .if-identify-row > span, .main-content .if-model > code {
+  font-size: calc(13px * var(--reading-scale));
+}
+.main-content .mv-axis-text, .main-content .mv-axis-title { font-size: calc(12px * var(--reading-scale)); }
+.main-content .insight-step-number, .main-content .insight-option-letter,
+.main-content .insight-card-label > span:last-child, .main-content .chapter-count span { font-size: calc(11px * var(--reading-scale)); }
+.sidebar-bottom > p { font-size: 11px; line-height: 1.75; }
+.page-caption, .page-caption > span:last-child { font-size: 11px; line-height: 1.8; }
+@media (min-width: 1600px) {
+  .sidebar { width: 276px; padding-left: 21px; padding-right: 21px; }
+  .main-shell { margin-left: 276px; }
+  .main-content { max-width: 1840px; padding: 36px 46px; }
+  .main-content .experiment-layout { grid-template-columns: minmax(0, 1fr) 305px; gap: 27px; }
+  .hero-copy h2 { font-size: 48px; }
+  .main-content .hero-copy { padding-left: 36px; padding-top: 36px; padding-bottom: 34px; }
+  .sidebar .lesson-link, .playground-link { min-height: 49px; }
+  .topbar { height: 74px; padding-left: 46px; padding-right: 46px; }
+  .main-content .data-workbench { gap: 25px; }
+  .main-content .pixel-grid { max-width: 300px; }
+  .main-content .tensor-matrix { max-width: 390px; }
+}
+@media (max-width: 1200px) {
+  .topbar .breadcrumb, .topbar .breadcrumb strong, .topbar .engine-status { font-size: 11px; }
+  .topbar-actions { gap: 11px; }
+  .main-content .roadmap-card p { font-size: calc(11px * var(--reading-scale)); }
+  .hero-facts { flex-wrap: wrap; }
+}
+@media (min-width: 1021px) and (max-width: 1400px) {
+  .main-content .data-workbench { grid-template-columns: minmax(0, 1fr); gap: 23px; }
+  .main-content .pixel-grid { max-width: 250px; margin: 0 auto; }
+  .main-content .tensor-matrix { max-width: 330px; margin: 0 auto; }
+}
+@media (max-width: 760px) {
+  .main-content :is(p, label), .main-content .panel-note, .main-content .insight-steps p, .main-content .insight-question legend { font-size: calc(13px * var(--reading-scale)); }
+  .main-content .lesson-header h1 { font-size: calc(23px * var(--reading-scale)); }
+  .main-content .hero-copy h2 { font-size: 34px; }
+  .main-content .lesson-kicker { font-size: 9px; letter-spacing: .5px; flex-wrap: wrap; }
+  .main-content .hero-eyebrow { font-size: 10px; letter-spacing: .7px; }
+  .main-content .hero-visual-caption { font-size: 7px; }
+  .main-content .roadmap-heading > span { display: none; }
+  .main-content .roadmap-card h3 { font-size: calc(12px * var(--reading-scale)); }
+  .main-content .roadmap-card p { font-size: calc(11px * var(--reading-scale)); }
+  .main-content .roadmap-current { font-size: 9px; }
+  .sidebar .lesson-link { font-size: 11px; }
+  .sidebar .phase-switcher button { font-size: 12px; }
+  .topbar { gap: 8px; }
+  .topbar-actions { gap: 10px; }
+  .topbar .breadcrumb, .topbar .breadcrumb strong, .topbar .engine-status { font-size: 10px; }
+  .topbar .focus-toggle { display: none; }
+  .main-content .code-toggle { white-space: normal; }
+}
+@media (max-width: 430px) {
+  .main-content .hero-actions { flex-wrap: wrap; gap: 10px 18px; }
+  .main-content .hero-facts { gap: 10px; }
+  .main-content .tensor-cell, .main-content .vector-cell { font-size: calc(11px * var(--reading-scale)); }
+  .main-content .vector-index { font-size: 10px; }
+  .topbar-actions { gap: 9px; }
+  .topbar .engine-status { font-size: 9px; }
+  .main-content .insight-objective { flex-wrap: wrap; }
+  .main-content .insight-objective > p { flex-basis: 100%; }
+  .main-content .insight-objective > svg:last-child { display: none; }
+  .main-content .playground-tabs button { font-size: 12px; }
+}

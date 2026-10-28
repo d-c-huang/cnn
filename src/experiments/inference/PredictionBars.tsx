@@ -1,4 +1,5 @@
 import type { ModelPrediction } from "../../lib/inference";
+import { modelLabel } from "../../lib/mnist";
 import "./inference-visuals.css";
 
 export default function PredictionBars({
@@ -14,12 +15,12 @@ export default function PredictionBars({
   return (
     <section
       className="iv-prediction"
-      aria-label={`${prediction.architecture.toUpperCase()} 预测结果`}
+      aria-label={`${modelLabel(prediction.architecture)} 预测结果`}
     >
       <div className="iv-prediction-heading">
         <div>
           <span className="iv-architecture">
-            {prediction.architecture.toUpperCase()}
+            {modelLabel(prediction.architecture)}
           </span>
           <span className="iv-checkpoint">
             验证集最佳权重 · Epoch {prediction.checkpoint_epoch}

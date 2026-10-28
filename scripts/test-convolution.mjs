@@ -1,0 +1,24 @@
+import assert from "node:assert/strict";
+import { convolutionWindow, crossCorrelate, maxPool2d, outputSize, relu } from "../src/lib/convolution.ts";
+
+assert.deepEqual(crossCorrelate([[1, 2], [3, 4]], [[1, 2], [3, 4]]), [[30]], "Correlation must not flip the kernel");
+assert.deepEqual(crossCorrelate([[1, 2], [3, 4]], [[1]], 2), [[1]]);
+assert.deepEqual(crossCorrelate([[1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]], 1, 1), [[1]]);
+assert.equal(outputSize(8, 3, 1, 0), 6);
+assert.equal(outputSize(8, 3, 2, 1), 4);
+assert.equal(outputSize(2, 3), 0);
+assert.deepEqual(crossCorrelate([[1, 2]], [[1, 1], [1, 1]]), []);
+assert.deepEqual(crossCorrelate([[1, 2, 3], [4, 5, 6]], [[1, 0]]), [[1, 2], [4, 5]], "Rectangular geometry must remain rectangular");
+assert.deepEqual(relu([[-2, 0, 3]]), [[0, 0, 3]]);
+assert.deepEqual(maxPool2d([[-8, -7, 99], [-6, -5, 99], [99, 99, 99]]), [[-5]], "Pooling drops incomplete bottom/right windows, never pads negatives with zero");
+assert.deepEqual(maxPool2d([[1, 2], [3, 4]]), [[4]]);
+const window = convolutionWindow([[1, 2], [3, 4]], [[1, 2], [3, 4]], 0, 0, 1, 1);
+assert.equal(window.filter(item => item.padded).length, 3);
+assert.equal(window.reduce((sum, item) => sum + item.product, 0), crossCorrelate([[1, 2], [3, 4]], [[1, 2], [3, 4]], 1, 1)[0][0]);
+assert.throws(() => crossCorrelate([[NaN]], [[1]]));
+assert.throws(() => crossCorrelate([[1], [1, 2]], [[1]]));
+assert.throws(() => crossCorrelate([[1]], [[1]], 0));
+assert.throws(() => convolutionWindow([[1]], [[1]], -1, 0));
+assert.deepEqual(relu([]), []);
+assert.deepEqual(maxPool2d([]), []);
+console.log("Convolution geometry, padding, window contributions, ReLU and pooling checks passed.");

@@ -3,6 +3,11 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./styles.css";
 import "./phase2.css";
+import "./design.css";
+import "./experiment-theme.css";
+import "./playground.css";
+import "./readability.css";
+import "./neural-upgrade.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
