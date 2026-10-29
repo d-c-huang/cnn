@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Download, Play, Square } from "lucide-react";
 import { ErrorMessage, ExperimentPanel, Result } from "../../components/ui";
 import { format } from "../../lib/api";
+import { useLessonTask } from "../../lib/learningProgress";
+import { isMnistTrainingTaskComplete } from "../../lib/advancedTaskChecks";
 import {
   activeStatuses,
   loadMnistConfig,
@@ -56,6 +58,7 @@ export default function MnistTrainingExperiment({
       !runs.some((item) => item.id === freshRun.id))
   );
   const latest = run?.history.at(-1);
+  useLessonTask("mnist-train", isMnistTrainingTaskComplete(run));
   const progress = run
     ? Math.min(
         1,

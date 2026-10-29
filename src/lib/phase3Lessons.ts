@@ -1,6 +1,7 @@
-import MnistDataExperiment from "../experiments/mnist/MnistDataExperiment";
-import MnistTrainingExperiment from "../experiments/mnist/MnistTrainingExperiment";
-import MnistEvaluationExperiment from "../experiments/mnist/MnistEvaluationExperiment";
+import { lazy } from "react";
+const MnistDataExperiment = lazy(() => import("../experiments/mnist/MnistDataExperiment"));
+const MnistTrainingExperiment = lazy(() => import("../experiments/mnist/MnistTrainingExperiment"));
+const MnistEvaluationExperiment = lazy(() => import("../experiments/mnist/MnistEvaluationExperiment"));
 
 export const phase3Lessons = [
   {

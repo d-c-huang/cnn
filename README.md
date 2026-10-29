@@ -307,7 +307,7 @@ compose.yaml        本机入口、健康检查与持久化数据卷
 docs/deployment.md  完整部署操作说明
 ```
 
-浏览器真实调用 `/api`，由 Vite 代理到 `127.0.0.1:8000`，不是用预录的结果模拟计算。若计算服务没有启动，页面会提示请求错误。第一期接口为 `/api/health`、`/api/data`、`/api/linear`、`/api/neuron`、`/api/loss` 和 `/api/gradient`。
+基础实验在拖动参数时按当前输入即时计算可重复验证的数学预览，同时真实调用 `/api`（由 Vite 代理到 `127.0.0.1:8000`）核对结果。预览与后端确认结果分开，等待期间不清空曲线或显示旧参数结果；计算服务不可用时会保留数学预览并明确显示错误。实际 SGD 更新、MNIST 训练、评估与模型推理仍以真实后端响应为准。第一期接口为 `/api/health`、`/api/data`、`/api/linear`、`/api/neuron`、`/api/loss` 和 `/api/gradient`。
 
 第二期新增接口：
 
@@ -351,8 +351,15 @@ XOR API 的 `accuracy` 范围为 `0–1`，界面转换为百分比。预测网�
 
 ## 检查与构建
 
+日常前端验收可统一运行 `npm run check`：依次检查数学预览、学习判定、阶段进度和探索工坊，再构建并核对首屏分包预算。完整后端回归另运行 `npm run test:api`。
+
 ```powershell
 npm run build
+npm run test:bundle
+npm run test:foundations -- --api
+npm run test:neuron -- --api
+npm run test:loss -- --api
+npm run test:learning
 npm run test:api
 ```
 
@@ -396,6 +403,16 @@ python scripts/smoke_test.py --base-url http://127.0.0.1:8080
 ```
 
 Smoke test 会请求首页、构建资源、未知 API 的 404，以及两个真实模型对官方测试示例的推理结果与概率向量；只有目标服务启动后通过检查，才验证了该入口。单 worker 保持第三期后台任务管理一致。当前没有公开发布网站，域名与 TLS 可按部署环境另行配置，详见 [部署文档](docs/deployment.md)。
+
+## 实时交互、按需加载与学习反馈
+
+13 个课程实验与原理自测按需加载，数学排版使用独立共享分包。总览页不加载实验或 KaTeX 的 JavaScript；课程分包加载失败时会提供重新加载入口。构建生成 `dist/.vite/manifest.json`，`npm run test:bundle` 校验课程分包及首屏 JavaScript 预算（先执行构建）。
+
+`test:foundations`、`test:neuron`、`test:loss` 的默认模式检查数学不变量和边界情况；加 `--api` 会逐字段对照正在运行的本机 8000 端口 API。基础实验的显示预览不能作为反向传播参数提交的依据，提交必须使用当前参数的后端确认结果。
+
+每课显示两项完成条件：实验任务达标、本节自测答对。两项通过后才能记录新的完成进度；已通过的条件在继续调参、重新作答和刷新页面后保留。MNIST 和推理任务只认真实成功结果，不会用占位数据通过。原有完成记录继续有效，并与新的验证记录分别展示。
+
+任务与自测证据保存在当前浏览器的 `zhiwei-learning-evidence-v1`，原有进度仍保存在 `zhiwei-foundation-v1`。关于页的“重置学习进度”会同时清除两类学习记录并重置当前实验，不删除后台训练记录或模型。
 
 ## 当前范围
 

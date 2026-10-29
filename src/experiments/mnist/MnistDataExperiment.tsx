@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Database, Download, RefreshCw } from "lucide-react";
 import { ErrorMessage, ExperimentPanel, Result } from "../../components/ui";
+import { useLessonTask } from "../../lib/learningProgress";
+import { isMnistDataTaskComplete } from "../../lib/advancedTaskChecks";
 import {
   loadMnistConfig,
   mnistRequest,
@@ -53,6 +55,7 @@ export default function MnistDataExperiment({
   const [gallery, setGallery] = useState<keyof typeof splitNames>("train");
   const prepareController = useRef<AbortController | null>(null);
   const prepareVersion = useRef(0);
+  const successfulSplitKey = useRef<string | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -101,7 +104,9 @@ export default function MnistDataExperiment({
     }
     let live = true;
     const controller = new AbortController();
-    setSplit(null);
+    const requestKey = JSON.stringify(applied);
+    // A refresh of the same applied configuration can keep its confirmed samples.
+    setSplit(previous => successfulSplitKey.current === requestKey ? previous : null);
     setSplitPending(true);
     setSplitError(null);
     void mnistRequest<DataSplit>("/split", {
@@ -109,7 +114,10 @@ export default function MnistDataExperiment({
       signal: controller.signal,
     })
       .then((result) => {
-        if (live) setSplit(result);
+        if (live) {
+          successfulSplitKey.current = requestKey;
+          setSplit(result);
+        }
       })
       .catch((cause) => {
         if (live && !controller.signal.aborted)
@@ -184,7 +192,7 @@ export default function MnistDataExperiment({
     };
     setInputError(null);
     storeMnistConfig({ ...loadMnistConfig(), ...next });
-    setSplit(null);
+    if (successfulSplitKey.current !== JSON.stringify(next)) setSplit(null);
     setSplitError(null);
     setApplied(next);
     setSplitRevision((value) => value + 1);
@@ -202,6 +210,7 @@ export default function MnistDataExperiment({
   const allCount = split
     ? split.train_count + split.validation_count + split.test_count
     : 0;
+  useLessonTask("mnist-data", !splitPending && !splitError && !statusError && isMnistDataTaskComplete(status, split));
 
   return (
     <div className="md-experiment">
@@ -274,6 +283,7 @@ export default function MnistDataExperiment({
           title="三份数据，各自承担不同的任务"
           eyebrow="STRATIFIED & REPRODUCIBLE SPLIT"
         >
+          {split && <p className="panel-note" role="status">{splitPending ? "正在核对当前配置…" : "显示已确认的划分。"}</p>}
           {split ? (
             <>
               <div

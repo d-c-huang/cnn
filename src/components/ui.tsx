@@ -133,6 +133,7 @@ export function Chart({
   xDomain,
   yDomain,
   markers = [],
+  height = 286,
   ariaLabel,
 }: {
   series: Series[];
@@ -141,6 +142,7 @@ export function Chart({
   xDomain?: [number, number];
   yDomain?: [number, number];
   markers?: Marker[];
+  height?: number;
   ariaLabel: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -177,7 +179,7 @@ export function Chart({
     all.map((p) => p.y),
     yDomain,
   );
-  const h = 286,
+  const h = height,
     left = 58,
     right = 22,
     top = 30,

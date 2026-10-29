@@ -1,6 +1,7 @@
-import GraphExperiment from "../experiments/GraphExperiment";
-import BackpropExperiment from "../experiments/BackpropExperiment";
-import XorExperiment from "../experiments/XorExperiment";
+import { lazy } from "react";
+const GraphExperiment = lazy(() => import("../experiments/GraphExperiment"));
+const BackpropExperiment = lazy(() => import("../experiments/BackpropExperiment"));
+const XorExperiment = lazy(() => import("../experiments/XorExperiment"));
 
 export const phase2Lessons = [
   {
@@ -9,7 +10,7 @@ export const phase2Lessons = [
     en: "COMPUTATION GRAPH",
     title: "把一次计算，展开成一张图。",
     description: "从输入到损失，逐个查看运算节点，以及连接它们的局部导数。",
-    task: "切换前向数值与反向梯度，点击 z 节点，看看 tanh 如何影响梯度。",
+    task: "切换到反向梯度，查看 Tanh 计算图中梯度如何沿节点传回。",
     concept: "有向无环图 · 中间值 · 局部导数",
     component: GraphExperiment,
     code: "import numpy as np\n\nx1, x2 = 0.6, 0.9\nw1, w2, b, y = 0.8, -0.4, 0.2, 0.8\np1, p2 = x1 * w1, x2 * w2\ns = p1 + p2\nz = s + b\na = np.tanh(z)\ne = a - y\nloss = 0.5 * e ** 2\n\n# 每条边保存当前输入处的局部导数\n# ∂a/∂z = 1 - a²；∂L/∂e = e",
@@ -33,7 +34,7 @@ export const phase2Lessons = [
     title: "从一次更新，到学会非线性。",
     description:
       "训练一个 2→4→1 的小型神经网络，同时观察中间激活、反向梯度和决策边界。",
-    task: "先做一次单步更新，比较单样本与平均梯度，再自动训练并查看四个 XOR 预测。",
+    task: "实际训练网络，让四个 XOR 样本全部分类正确，并将平均 BCE 降到 0.2 以下。",
     concept: "隐藏层 · 二元交叉熵 · 全量训练",
     component: XorExperiment,
     code: "import numpy as np\n\nX = np.array([[0.,0.], [0.,1.], [1.,0.], [1.,1.]])\ny = np.array([0., 1., 1., 0.])\nrng = np.random.default_rng(7)\nW1 = rng.normal(size=(2, 4)); b1 = np.zeros(4)\nW2 = rng.normal(size=4); b2 = 0.\n\nfor step in range(500):\n    a1 = np.tanh(X @ W1 + b1)\n    z2 = a1 @ W2 + b2\n    p = np.exp(-np.logaddexp(0., -z2))\n    loss = np.mean(np.logaddexp(0., z2) - y * z2)\n    d2 = (p - y) / len(X)\n    d1 = d2[:, None] * W2 * (1 - a1 ** 2)\n    # 先算完所有梯度，再一起更新；学习率 = 1\n    gW1, gb1 = X.T @ d1, d1.sum(axis=0)\n    gW2, gb2 = a1.T @ d2, d2.sum()\n    W1 -= gW1; b1 -= gb1; W2 -= gW2; b2 -= gb2",

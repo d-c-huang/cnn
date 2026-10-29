@@ -1,3 +1,4 @@
+import { MathFormula } from "../components/MathFormula";
 import { useEffect, useRef, useState } from "react";
 import { Download, Pause, Play, RotateCcw, SkipForward } from "lucide-react";
 import {
@@ -8,6 +9,8 @@ import {
   Slider,
 } from "../components/ui";
 import { calculate, format } from "../lib/api";
+import { useLessonTask } from "../lib/learningProgress";
+import { isXorTaskComplete } from "../lib/advancedTaskChecks";
 import { flattenParameters } from "../lib/xor";
 import type {
   HistoryPoint,
@@ -242,6 +245,7 @@ export default function XorExperiment({
   const selected = parameterValues.find((p) => p.name === selectedParameter);
   const lastUpdate = updates.find((p) => p.name === selectedParameter);
   const reachedLimit = (snapshot?.iteration ?? 0) >= maxSteps;
+  useLessonTask("xor", isXorTaskComplete(snapshot));
 
   return (
     <div className="xor-experiment">
@@ -595,7 +599,7 @@ export default function XorExperiment({
               eyebrow="LAST COMMITTED UPDATE"
             >
               <div className="xor-update-formula">
-                <span>θ新 = θ旧 − η × 平均梯度</span>
+                <MathFormula tex={String.raw`\theta_{t+1}=\theta_t-\eta\,\overline{g}`} block />
                 {lastUpdate ? (
                   <>
                     <strong>{lastUpdate.name}</strong>

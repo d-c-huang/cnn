@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { MathFormula } from "../components/MathFormula";
+import { useMemo, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import {
   Chart,
@@ -8,7 +9,9 @@ import {
   Result,
   Slider,
 } from "../components/ui";
-import { format, useCalculation } from "../lib/api";
+import { calculationStatus, format, useCalculation } from "../lib/api";
+import { useLessonTask } from "../lib/learningProgress";
+import { squaredErrorPreview } from "../lib/loss";
 
 type LossResponse = {
   loss: number;
@@ -23,10 +26,10 @@ export default function LossExperiment({
 }) {
   const [prediction, setPrediction] = useState(-1);
   const [target, setTarget] = useState(2);
-  const { data, error, pending } = useCalculation<LossResponse>("/loss", {
-    prediction,
-    target,
-  });
+  const preview = useMemo(() => squaredErrorPreview(prediction, target), [prediction, target]);
+  const { data, error, pending } = useCalculation<LossResponse>("/loss", { prediction, target }, preview);
+  const current = data ?? preview;
+  useLessonTask("loss", Math.abs(prediction - target) < 1e-12 && current.loss < 1e-12 && Math.abs(current.gradient) < 1e-12);
   return (
     <div className="experiment-layout">
       <div className="experiment-main">
@@ -34,9 +37,9 @@ export default function LossExperiment({
           title="把“错了多少”变成一个数字"
           eyebrow="SQUARED ERROR"
           action={
-            <span className="live-tag">
+            <span className="live-tag" title={calculationStatus(error, pending)}>
               <i />
-              实时计算
+              实时预览
             </span>
           }
         >
@@ -50,36 +53,30 @@ export default function LossExperiment({
               当前预测
             </span>
           </div>
-          {data ? (
-            <Chart
-              ariaLabel="平方误差随预测值变化的曲线，最低点是真实标签"
-              series={[{ points: data.curve }]}
-              xLabel="预测值 ŷ"
-              yLabel="损失 L"
-              markers={[
-                { x: prediction, y: data.loss, label: "当前预测" },
-                {
-                  x: target,
-                  y: 0,
-                  label: "损失最低点",
-                  color: "var(--teal-soft)",
-                },
-              ]}
-            />
-          ) : (
-            <div className="chart-placeholder">
-              {pending ? "正在计算损失…" : "计算服务未连接"}
-            </div>
-          )}
+          <Chart
+            ariaLabel="平方误差随预测值变化的曲线，最低点是真实标签"
+            series={[{ points: current.curve }]}
+            xLabel="预测值 ŷ"
+            yLabel="损失 L"
+            markers={[
+              { x: prediction, y: current.loss, label: "当前预测" },
+              {
+                x: target,
+                y: 0,
+                label: "损失最低点",
+                color: "var(--teal-soft)",
+              },
+            ]}
+          />
           <div className="result-grid" aria-live="polite">
             <Result
               label="平方误差"
-              value={data ? format(data.loss, 4) : "—"}
+              value={format(current.loss, 4)}
               hint="L = (ŷ − y)²"
             />
             <Result
               label="当前梯度"
-              value={data ? format(data.gradient) : "—"}
+              value={format(current.gradient)}
               hint="∂L/∂ŷ = 2(ŷ − y)"
             />
           </div>
@@ -138,11 +135,7 @@ export default function LossExperiment({
             }}
           />
         </div>
-        <div className="formula">
-          L = ({format(prediction)} − {format(target)})²
-          <br />
-          <strong>= {data ? format(data.loss, 4) : "…"}</strong>
-        </div>
+        <MathFormula className="formula" tex={String.raw`\begin{aligned}L &= \bigl(${format(prediction)} - (${format(target)})\bigr)^2 \\ &= ${format(current.loss, 4)}\end{aligned}`} block />
         <p className="panel-note">
           这里计算单个样本的平方误差。上一节的
           MSE，是把多个样本的平方误差取平均。

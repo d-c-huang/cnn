@@ -1,5 +1,8 @@
+import { MathFormula } from "../components/MathFormula";
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { useCalculation } from "../lib/api";
+import { calculationStatus, useCalculation } from "../lib/api";
+import { dataPreview } from "../lib/foundationPreviews";
+import { useLessonTask } from "../lib/learningProgress";
 import {
   Slider,
   ExperimentPanel,
@@ -74,14 +77,17 @@ export default function DataExperiment({ onInteract }: ExperimentProps) {
   const [normalize, setNormalize] = useState(true);
   const pixelRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const payload = useMemo(() => ({ pixels, normalize }), [pixels, normalize]);
+  const preview = useMemo(() => dataPreview(pixels, normalize), [pixels, normalize]);
   const { data, error, pending } = useCalculation<DataResponse>(
     "/data",
     payload,
+    preview,
   );
   const row = Math.floor(selected / 8);
   const column = selected % 8;
   const rawValue = pixels[row]?.[column] ?? 0;
   const convertedValue = data?.matrix[row]?.[column];
+  useLessonTask("data", normalize && rawValue === 128 && convertedValue !== undefined && Math.abs(convertedValue - 128 / 255) < 1e-12);
 
   function updatePixel(index: number, value: number) {
     const targetRow = Math.floor(index / 8);
@@ -127,6 +133,7 @@ export default function DataExperiment({ onInteract }: ExperimentProps) {
         <ExperimentPanel
           title="一张图片，也是一张数字表"
           eyebrow="01 / DATA → TENSOR"
+          action={<span className="live-tag" title={calculationStatus(error, pending)}><i />实时预览</span>}
         >
           <div className="data-workbench">
             <div className="data-image-area">
@@ -174,12 +181,12 @@ export default function DataExperiment({ onInteract }: ExperimentProps) {
             </div>
             <div className="data-matrix-area" aria-busy={pending}>
               <div className="small-label">
-                送入模型的矩阵 {pending ? "· 正在计算…" : ""}
+                送入模型的矩阵
               </div>
               <div
                 className="tensor-matrix"
                 role="group"
-                aria-label="后端转换后的 8 行 8 列矩阵"
+                aria-label="当前参数转换后的 8 行 8 列矩阵"
               >
                 {Array.from({ length: 64 }, (_, index) => (
                   <span
@@ -250,7 +257,7 @@ export default function DataExperiment({ onInteract }: ExperimentProps) {
             ))}
           </div>
           <div className="formula-row">
-            <code className="formula">[8, 8] → [64]</code>
+            <MathFormula className="formula" tex={String.raw`[8,8]\longrightarrow[64]`} />
             <span className="axis-note">
               当前索引：{row} × 8 + {column} = {selected}（从 0 开始）
             </span>
@@ -297,9 +304,7 @@ export default function DataExperiment({ onInteract }: ExperimentProps) {
           </label>
           <div>
             <div className="small-label">当前转换公式</div>
-            <div className="formula">
-              {normalize ? "x′ = x / 255" : "x′ = x"}
-            </div>
+            <MathFormula className="formula" tex={normalize ? String.raw`x\prime = \frac{x}{255}` : String.raw`x\prime = x`} block />
             <p className="panel-note">
               {normalize
                 ? `${rawValue} / 255 = ${display(convertedValue)}`
@@ -310,7 +315,7 @@ export default function DataExperiment({ onInteract }: ExperimentProps) {
             像素值是输入特征。改变一个像素，就改变了模型接收到的一个数字。
           </div>
           <p className="panel-note">
-            本节只观察数据，不训练模型。矩阵、展平和统计量均由后端计算。
+            本节只观察数据，不训练模型。矩阵、展平和统计量即时预览，并由后端同步核对。
           </p>
         </div>
       </aside>

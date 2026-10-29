@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Download, X } from "lucide-react";
 import { ErrorMessage, ExperimentPanel, Result } from "../../components/ui";
 import { format } from "../../lib/api";
+import { useLessonTask } from "../../lib/learningProgress";
+import { isMnistEvaluationTaskComplete } from "../../lib/advancedTaskChecks";
 import {
   mnistRequest,
   modelLabel,
@@ -47,6 +49,7 @@ export default function MnistEvaluationExperiment({
   const evaluation = run?.evaluation;
   const checkpointEpoch = evaluation?.checkpoint_epoch;
   const datasetReady = dataset.data?.dataset.status === "ready";
+  useLessonTask("mnist-evaluation", isMnistEvaluationTaskComplete(run));
 
   useEffect(() => () => prepareRequest.current?.abort(), []);
   async function prepareImages() {

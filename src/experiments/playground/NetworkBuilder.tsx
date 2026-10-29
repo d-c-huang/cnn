@@ -1,3 +1,4 @@
+import { MathFormula } from "../../components/MathFormula";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent, PointerEvent } from "react";
 import { ArrowDown, ArrowUp, ArrowDownRight, Box, Braces, CheckCircle2, ChevronDown, Code2, Copy, Cpu, Download, Eye, GripVertical, Layers3, Maximize2, Plus, RotateCcw, Trash2, TriangleAlert, Waves } from "lucide-react";
@@ -149,7 +150,7 @@ export default function NetworkBuilder({ onInteract, onOpenLesson }: { onInterac
             </button>;
           })}
           <p className="builder-palette-tip"><GripVertical size={15} />电脑可拖拽排序；手机和键盘可用层卡片上的上下按钮。</p>
-          <div className="builder-formula-note"><span>CONV / POOL SIZE</span><code>⌊(n + 2p − k) / s⌋ + 1</code><p>n：输入尺寸 · p：填充<br />k：窗口大小 · s：步幅</p></div>
+          <div className="builder-formula-note"><span>CONV / POOL SIZE</span><MathFormula tex={String.raw`\left\lfloor\frac{n+2p-k}{s}\right\rfloor+1`} block /><p>n：输入尺寸 · p：填充<br />k：窗口大小 · s：步幅</p></div>
         </aside>
         <div className="builder-workspace">
           <div className="builder-workspace-bar"><div><span className="builder-section-label">YOUR NETWORK</span><strong>{layers.length} / {MAX_NETWORK_LAYERS} 层</strong></div><div className="builder-presets"><button type="button" onClick={() => commit(createExample("cnn"), "已载入 CNN 示例：卷积 → 激活 → 池化 → 展平 → 分类。")}>CNN 示例</button><button type="button" onClick={() => commit(createExample("mlp"), "已载入 MLP 示例：展平 → 全连接 → 激活 → 分类。")}>MLP 示例</button><button type="button" onClick={() => commit([], "网络已清空，可以从层库重新搭建。")}><RotateCcw size={13} />清空</button></div></div>

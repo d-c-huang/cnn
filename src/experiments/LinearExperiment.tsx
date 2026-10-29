@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { MathFormula } from "../components/MathFormula";
+import { useMemo, useState } from "react";
 import { RotateCcw, WandSparkles } from "lucide-react";
 import {
   Chart,
@@ -8,7 +9,9 @@ import {
   Result,
   Slider,
 } from "../components/ui";
-import { format, useCalculation } from "../lib/api";
+import { calculationStatus, format, useCalculation } from "../lib/api";
+import { linearPreview } from "../lib/foundationPreviews";
+import { useLessonTask } from "../lib/learningProgress";
 
 type LinearResponse = {
   points: { x: number; y: number; prediction: number; error: number }[];
@@ -22,10 +25,12 @@ export default function LinearExperiment({
 }) {
   const [weight, setWeight] = useState(0.5);
   const [bias, setBias] = useState(0);
-  const { data, error, pending } = useCalculation<LinearResponse>("/linear", {
+  const preview = useMemo(() => linearPreview(weight, bias), [weight, bias]);
+  const { data: displayedData, error, pending } = useCalculation<LinearResponse>("/linear", {
     weight,
     bias,
-  });
+  }, preview);
+  useLessonTask("linear", Boolean(displayedData && displayedData.points.length === 5 && displayedData.mse < 0.001));
   const change = (setter: (n: number) => void, n: number) => {
     setter(n);
     onInteract();
@@ -37,9 +42,9 @@ export default function LinearExperiment({
           title="找到穿过数据的那条线"
           eyebrow="LINEAR REGRESSION"
           action={
-            <span className="live-tag">
+            <span className="live-tag" title={calculationStatus(error, pending)}>
               <i />
-              实时计算
+              实时预览
             </span>
           }
         >
@@ -57,7 +62,7 @@ export default function LinearExperiment({
               预测误差
             </span>
           </div>
-          {data ? (
+          {displayedData ? (
             <Chart
               ariaLabel="线性模型预测与五个真实样本的对比图"
               xLabel="输入 x"
@@ -70,7 +75,7 @@ export default function LinearExperiment({
                     { x: 2.5, y: weight * 2.5 + bias },
                   ],
                 },
-                ...data.points.map((p) => ({
+                ...displayedData.points.map((p) => ({
                   points: [
                     { x: p.x, y: p.y },
                     { x: p.x, y: p.prediction },
@@ -79,7 +84,7 @@ export default function LinearExperiment({
                   color: "var(--orange)",
                 })),
               ]}
-              markers={data.points.map((p) => ({
+              markers={displayedData.points.map((p) => ({
                 x: p.x,
                 y: p.y,
                 label: `样本 x=${p.x}`,
@@ -98,7 +103,7 @@ export default function LinearExperiment({
             />
             <Result
               label="均方误差 MSE"
-              value={data ? format(data.mse, 4) : "—"}
+              value={displayedData ? format(displayedData.mse, 4) : "—"}
               hint="越接近 0，拟合越准确"
             />
           </div>
@@ -119,7 +124,7 @@ export default function LinearExperiment({
                 </tr>
               </thead>
               <tbody>
-                {data?.points.map((p) => (
+                {displayedData?.points.map((p) => (
                   <tr key={p.x}>
                     <td>{format(p.x)}</td>
                     <td>{format(p.y)}</td>
@@ -177,7 +182,7 @@ export default function LinearExperiment({
             onChange={(v) => change(setBias, v)}
           />
         </div>
-        <div className="formula">ŷ = w × x + b</div>
+        <MathFormula className="formula" tex={String.raw`\hat{y} = wx + b`} block />
         <p className="panel-note">
           权重决定直线的倾斜程度，偏置让整条线向上或向下移动。
         </p>

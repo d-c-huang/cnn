@@ -3,7 +3,79 @@
   display: none;
 }
 
+.main-content .experiment-layout.neuron-workspace { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.neuron-interactive { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: stretch; min-width: 0; }
+.neuron-output-panel > .panel-heading { margin-bottom: 16px; }
+.neuron-curve-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.neuron-curve-toolbar .segmented { flex: 0 1 260px; margin-top: 0; }
+.neuron-reference-button { white-space: nowrap; }
+.main-content .neuron-output-panel .neuron-curve-context { margin: 10px 0; font-size: calc(12px * var(--reading-scale, 1)); }
+.main-content .neuron-output-panel .plot-legend { gap: 10px; flex-wrap: wrap; font-size: calc(12px * var(--reading-scale, 1)); }
+.neuron-curve-reference { display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 8px 0; color: #a7b7a2; font-size: calc(12px * var(--reading-scale, 1)); line-height: 1.8; }
+.neuron-output-panel .math-formula { color: #a4d8ce; }
+.neuron-output-panel .legend-line { border-color: #7ed2c4; }
+.neuron-output-panel .legend-line.dashed { background: none; border-color: #c89974; }
+.neuron-output-panel .legend-dot { background: #c2eaa1; }
+.neuron-curve-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; padding: 16px 0; border-top: 1px solid #2a4142; }
+.neuron-curve-metrics .result { min-width: 0; }
+.main-content .neuron-curve-metrics .result > strong { font-size: 24px; line-height: 1.5; white-space: nowrap; }
+.neuron-curve-metrics .result:last-child > strong { color: #c2eaa1; }
+.neuron-curve-notes { border-top: 1px solid #2a4142; }
+.neuron-curve-notes > summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 13px; color: #8fada7; font-size: calc(12px * var(--reading-scale, 1)); cursor: pointer; list-style: none; }
+.neuron-curve-notes > summary::-webkit-details-marker,
+.neuron-explanation > summary::-webkit-details-marker { display: none; }
+.neuron-curve-notes[open] > summary { margin-bottom: 14px; }
+.neuron-curve-notes[open] > summary > svg,
+.neuron-explanation[open] > summary > svg { transform: rotate(180deg); }
+.neuron-controls.control-panel { grid-row: auto; padding: 22px; }
+.neuron-controls-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 22px; }
+.neuron-controls-heading h2, .neuron-controls-heading button { display: inline-flex; gap: 8px; align-items: center; }
+.neuron-controls-heading h2 { color: #e0eeec; font-size: calc(15px * var(--reading-scale, 1)); }
+.neuron-controls-heading svg { color: #83cfbb; }
+.neuron-control-groups { display: grid; gap: 20px; }
+.neuron-control-group { padding: 0; margin: 0; border: 0; min-width: 0; }
+.neuron-control-group legend { color: #8fa7a6; font-size: calc(12px * var(--reading-scale, 1)); padding: 0; margin-bottom: 12px; }
+.neuron-controls .activation-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; margin-top: 0; }
+.neuron-controls .activation-options > button { min-width: 0; padding: 8px 2px; font-size: calc(11px * var(--reading-scale, 1)); }
+.neuron-slider-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.neuron-controls .slider-heading { flex-wrap: wrap; row-gap: 4px; margin-bottom: 12px; }
+.neuron-controls .slider-heading label { font-size: calc(12px * var(--reading-scale, 1)); }
+.neuron-controls .slider-heading output { min-width: 36px; padding: 2px 5px; }
+.neuron-controls .math-symbol { margin-left: 2px; }
+.neuron-controls .slider-limits { margin-top: 8px; font-size: 10px; }
+.neuron-bias-control { margin-top: 17px; }
+.neuron-weights-group, .neuron-inputs-group { border-top: 1px solid #293e40; padding-top: 16px; }
+.neuron-weights-group legend, .neuron-inputs-group legend { padding-right: 10px; margin-bottom: 0; }
+.main-content .neuron-inputs-group .panel-note { font-size: calc(12px * var(--reading-scale, 1)); margin-top: 12px; }
+.neuron-explanation { min-width: 0; border: 1px solid #263d3e; border-radius: 12px; background: #0f1d20; }
+.neuron-explanation > summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 17px 22px; color: #adc6bf; cursor: pointer; list-style: none; }
+.neuron-explanation > summary > span { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; }
+.neuron-explanation .eyebrow { color: #6faaa4; font-size: 10px; letter-spacing: 1px; }
+.neuron-explanation > summary strong { font-size: calc(14px * var(--reading-scale, 1)); font-weight: 500; }
+.neuron-explanation[open] > summary { border-bottom: 1px solid #263d3e; }
+.neuron-explanation-body { display: grid; gap: 18px; padding: 18px; min-width: 0; }
+
+@media (min-width: 1600px) {
+  .neuron-interactive { grid-template-columns: minmax(0, 1fr) 350px; gap: 24px; }
+  .neuron-explanation-body { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); align-items: start; }
+}
+@media (max-width: 1150px) {
+  .neuron-interactive { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .neuron-control-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; }
+  .neuron-activation-group { grid-column: 1 / -1; }
+  .neuron-controls .activation-options { max-width: 420px; }
+  .neuron-controls-heading { margin-bottom: 16px; }
+}
+
 @media (max-width: 600px) {
+  .main-content .neuron-output-panel, .main-content .neuron-controls { padding: 17px; }
+  .neuron-control-groups { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .neuron-curve-toolbar .segmented { flex-basis: 215px; }
+  .neuron-curve-metrics { gap: 8px; }
+  .main-content .neuron-curve-metrics .result > strong { font-size: 21px; }
+  .main-content .neuron-curve-metrics .small-label { font-size: calc(11px * var(--reading-scale, 1)); }
+  .neuron-explanation > summary { padding: 16px 17px; }
+  .neuron-explanation-body { padding: 10px; gap: 12px; }
   .neuron-diagram svg.neuron-desktop,
   .neuron-desktop-note {
     display: none;

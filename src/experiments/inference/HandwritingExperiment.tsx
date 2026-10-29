@@ -1,7 +1,10 @@
+import { MathFormula } from "../../components/MathFormula";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Download, RefreshCw, ScanLine } from "lucide-react";
 import { ErrorMessage, ExperimentPanel, Result } from "../../components/ui";
 import { format } from "../../lib/api";
+import { useLessonTask } from "../../lib/learningProgress";
+import { isHandwritingTaskComplete } from "../../lib/advancedTaskChecks";
 import { clearPreferredInferenceRun, inferenceRequest, preferredInferenceRun } from "../../lib/inference";
 import { modelLabel } from "../../lib/mnist";
 import type { ModelType } from "../../lib/mnist";
@@ -184,7 +187,8 @@ export default function HandwritingExperiment({
     const controller = new AbortController();
     request.current = controller;
     setPending(true);
-    setPrediction(null);
+    // Editing input/model/explanation already invalidates the old result. A repeat
+    // request for the unchanged input can keep its last confirmed prediction.
     setError(null);
     try {
       const result = await inferenceRequest<PredictionResponse>("/predict", {
@@ -203,6 +207,8 @@ export default function HandwritingExperiment({
       if (request.current === controller) request.current = null;
     }
   }
+
+  useLessonTask("handwriting", !pending && !error && isHandwritingTaskComplete(prediction, modelIds));
 
   return (
     <div className="if-experiment">
@@ -426,11 +432,7 @@ export default function HandwritingExperiment({
                   </p>
                 </div>
               </div>
-              <div className="formula">
-                x标准 = (pixel / 255 −{" "}
-                {prediction.preprocessing.normalization.mean}) /{" "}
-                {prediction.preprocessing.normalization.std}
-              </div>
+              <MathFormula className="formula" tex={String.raw`x_{\mathrm{std}}=\frac{\mathrm{pixel}/255-${prediction.preprocessing.normalization.mean}}{${prediction.preprocessing.normalization.std}}`} block />
               <div className="result-grid">
                 <Result
                   label="本次请求总用时"
@@ -480,7 +482,8 @@ export default function HandwritingExperiment({
       >
         {prediction ? (
           <>
-            <div className="if-prediction-grid">
+            <p className="panel-note" role="status">{pending ? "正在更新，保留上次结果。" : "当前输入的已确认结果。"}</p>
+            <div className="if-prediction-grid" aria-busy={pending}>
               {prediction.predictions.map((item) => (
                 <div key={item.model_id}>
                   <PredictionBars prediction={item} />

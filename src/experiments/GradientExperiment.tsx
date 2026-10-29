@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { MathFormula } from "../components/MathFormula";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Pause, Play, RotateCcw, SkipForward } from "lucide-react";
 import {
   Chart,
@@ -8,7 +9,9 @@ import {
   Result,
   Slider,
 } from "../components/ui";
-import { calculate, format, useCalculation } from "../lib/api";
+import { calculate, calculationStatus, format, useCalculation } from "../lib/api";
+import { gradientPreview } from "../lib/foundationPreviews";
+import { useLessonTask } from "../lib/learningProgress";
 
 type GradientResponse = {
   weight_before: number;
@@ -41,10 +44,12 @@ export default function GradientExperiment({
   const [lastUpdate, setLastUpdate] = useState<GradientResponse | null>(null);
   const last = history.at(-1);
   const weight = last?.weight ?? start;
-  const { data, error } = useCalculation<GradientResponse>("/gradient", {
+  const preview = useMemo(() => gradientPreview(weight, rate), [weight, rate]);
+  const { data, error, pending } = useCalculation<GradientResponse>("/gradient", {
     weight,
     learning_rate: rate,
-  });
+  }, preview);
+  useLessonTask("gradient", history.length >= 4 && Boolean(last && last.loss < history[0].loss));
   const inFlight = useRef(false);
   const request = useRef<AbortController | null>(null);
   const version = useRef(0);
@@ -75,7 +80,7 @@ export default function GradientExperiment({
         { weight, learning_rate: rate },
         controller.signal,
       );
-      if (version.current !== currentVersion) return;
+      if (controller.signal.aborted || version.current !== currentVersion) return;
       setHistory((previous) => {
         const entries = previous.length
           ? previous
@@ -124,8 +129,11 @@ export default function GradientExperiment({
         setRunning(false);
       }
     } finally {
-      inFlight.current = false;
-      if (version.current === currentVersion) setBusy(false);
+      if (version.current === currentVersion) {
+        inFlight.current = false;
+        request.current = null;
+        setBusy(false);
+      }
     }
   }
 
@@ -140,6 +148,8 @@ export default function GradientExperiment({
   function reset(nextStart = start) {
     version.current++;
     request.current?.abort();
+    request.current = null;
+    inFlight.current = false;
     setRunning(false);
     setBusy(false);
     setHistory([]);
@@ -185,7 +195,7 @@ export default function GradientExperiment({
           title="让参数，沿着梯度走下去"
           eyebrow="GRADIENT DESCENT"
           action={
-            <span className="live-tag">
+            <span className="live-tag" title={calculationStatus(error, pending)}>
               <i />
               NumPy 单步计算
             </span>
@@ -368,7 +378,7 @@ export default function GradientExperiment({
             0.55 · 逐步发散
           </button>
         </div>
-        <div className="formula">w新 = w旧 − η × ∂L/∂w</div>
+        <MathFormula className="formula" tex={String.raw`w_{t+1}=w_t-\eta\,\frac{\partial L}{\partial w}`} block />
         {lastUpdate && (
           <div className="update-detail">
             <span className="small-label">最近一次参数更新</span>
@@ -382,9 +392,9 @@ export default function GradientExperiment({
         <p className="panel-note">
           沿用线性模型的 5 个样本，固定 b = 0.5，只训练权重 w。
           <br />
-          L(w) = 2(w − 2)²
+          <MathFormula tex="L(w)=2(w-2)^2" />
           <br />
-          ∂L/∂w = 4(w − 2)
+          <MathFormula tex={String.raw`\frac{\partial L}{\partial w}=4(w-2)`} />
         </p>
         <div className="insight">
           <span className="small-label">观察重点</span>

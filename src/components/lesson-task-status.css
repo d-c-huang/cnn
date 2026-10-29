@@ -1,0 +1,24 @@
+.lesson-task-status { margin: 20px 0; padding: 18px 20px; min-width: 0; border: 1px solid #2a4440; border-radius: 10px; background: #10231f; }
+.lesson-task-status.is-ready { border-color: #4e6e42; background: #162a20; }
+.lesson-task-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+.main-content .lesson-task-status .lesson-task-heading h2 { display: inline-flex; align-items: center; gap: 8px; margin: 0; color: #c9dfd0; font-size: calc(14px * var(--reading-scale, 1)); font-weight: 550; }
+.lesson-task-heading svg { color: #8fc8a6; flex-shrink: 0; }
+.lesson-task-count { flex-shrink: 0; color: #9cb7a5; font-size: calc(11px * var(--reading-scale, 1)); }
+.lesson-task-status.is-ready .lesson-task-count { color: #c1e598; }
+.lesson-task-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 22px; padding: 0; margin: 0; list-style: none; }
+.lesson-task-checks li { display: flex; align-items: flex-start; gap: 9px; min-width: 0; }
+.lesson-task-checks li > svg { margin-top: 3px; flex-shrink: 0; color: #637f72; }
+.lesson-task-checks li > div { min-width: 0; flex: 1; }
+.lesson-task-checks strong { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 9px; color: #b6cdbe; font-size: calc(12px * var(--reading-scale, 1)); font-weight: 500; line-height: 1.7; }
+.lesson-task-checks strong > span { color: #7d9c89; font-size: calc(10px * var(--reading-scale, 1)); white-space: nowrap; }
+.lesson-task-checks li.is-passed > svg, .lesson-task-checks li.is-passed strong > span { color: #b4dc8d; }
+.main-content .lesson-task-status .lesson-task-checks p { margin: 5px 0 0; color: #87a492; font-size: calc(12px * var(--reading-scale, 1)); line-height: 1.8; overflow-wrap: anywhere; }
+.main-content .lesson-task-status .lesson-task-note { margin: 13px 0 0; padding-top: 11px; border-top: 1px solid #294237; color: #809d89; font-size: calc(11px * var(--reading-scale, 1)); line-height: 1.8; }
+.lesson-task-quiz-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 3px 0; border: 0; background: transparent; color: #9cccaf; font-size: calc(11px * var(--reading-scale, 1)); cursor: pointer; }
+.lesson-task-quiz-link:hover { color: #d0ecb2; }
+.lesson-quiz-target { scroll-margin-top: calc(var(--topbar-height, 64px) + 20px); }
+@media (max-width: 650px) {
+  .lesson-task-status { padding: 16px; }
+  .lesson-task-checks { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .lesson-task-heading { align-items: flex-start; }
+}

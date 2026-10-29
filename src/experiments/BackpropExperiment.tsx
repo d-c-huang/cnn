@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { MathFormula } from "../components/MathFormula";
+import { useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, RotateCcw } from "lucide-react";
 import {
   ControlsHeading,
@@ -7,7 +8,9 @@ import {
   Result,
   Slider,
 } from "../components/ui";
-import { format, useCalculation } from "../lib/api";
+import { calculationStatus, format, useCalculation } from "../lib/api";
+import { graphPreview } from "../lib/foundationPreviews";
+import { useLessonTask } from "../lib/learningProgress";
 import ComputationGraph, {
   GraphNodeDetails,
   initialGraph,
@@ -29,10 +32,14 @@ export default function BackpropExperiment({
     before: number;
     after: number;
   } | null>(null);
-  const { data, error, pending } = useCalculation<GraphResponse>(
+  const appliedKey = useRef<string | null>(null);
+  const preview = useMemo(() => graphPreview(parameters), [parameters]);
+  const { data, confirmedData, error, pending } = useCalculation<GraphResponse>(
     "/graph",
     parameters,
+    preview,
   );
+  useLessonTask("backprop", applied > 0);
   const backwardOrder = data?.backward_order || [];
   const updateCursor = operations.length + backwardOrder.length + 1;
   const phase =
@@ -76,6 +83,7 @@ export default function BackpropExperiment({
     onInteract();
   }
   function change(next: GraphRequest) {
+    appliedKey.current = null;
     setParameters(next);
     setCursor(0);
     setSelected("p1");
@@ -83,6 +91,7 @@ export default function BackpropExperiment({
     onInteract();
   }
   function reset() {
+    appliedKey.current = null;
     setParameters(initialGraph);
     setCursor(0);
     setSelected("p1");
@@ -91,9 +100,11 @@ export default function BackpropExperiment({
     onInteract();
   }
   function applyUpdate() {
-    if (!data || pending || phase !== "update") return;
-    setLastApplied({ before: data.loss, after: data.loss_after });
-    setParameters(data.next);
+    const key = JSON.stringify(parameters);
+    if (!confirmedData || pending || phase !== "update" || appliedKey.current === key) return;
+    appliedKey.current = key;
+    setLastApplied({ before: confirmedData.loss, after: confirmedData.loss_after });
+    setParameters(confirmedData.next);
     setApplied((previous) => previous + 1);
     setCursor(0);
     setSelected("p1");
@@ -107,9 +118,9 @@ export default function BackpropExperiment({
           title="跟着一次训练，走完前向与反向"
           eyebrow="ONE COMPLETE TRAINING STEP"
           action={
-            <span className="live-tag">
+            <span className="live-tag" title={calculationStatus(error, pending)}>
               <i />
-              NumPy 真实梯度
+              解析梯度 · 实时预览
             </span>
           }
         >
@@ -236,10 +247,12 @@ export default function BackpropExperiment({
                   <button
                     className="primary-button gz-apply-button"
                     onClick={applyUpdate}
+                    disabled={pending || !confirmedData}
                   >
                     <Check size={16} />
                     应用参数更新
                   </button>
+                  <p className="panel-note">只有后端确认当前参数的梯度后，才可应用更新。</p>
                 </div>
               )}
             </>
@@ -324,10 +337,7 @@ export default function BackpropExperiment({
           </dl>
           <span className="small-label">已应用更新：{applied} 次</span>
         </div>
-        <div className="formula">
-          ∂L/∂w₁
-          <br />= ∂L/∂a × ∂a/∂z × x₁
-        </div>
+        <MathFormula className="formula" tex={String.raw`\begin{aligned}\frac{\partial L}{\partial w_1} &= \frac{\partial L}{\partial a} \\ &\quad\cdot\frac{\partial a}{\partial z}\cdot x_1\end{aligned}`} block />
         <p className="panel-note">
           固定输入 x₁ = 0.6、x₂ =
           0.9。偏导数是在其他量不变时，一个量对损失的影响。

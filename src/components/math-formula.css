@@ -1,0 +1,23 @@
+.math-formula {
+  min-width: 0;
+  max-width: 100%;
+  color: inherit;
+  font-size: calc(15px * var(--reading-scale, 1));
+  font-weight: 400;
+  letter-spacing: normal;
+  overflow-wrap: normal;
+  text-transform: none;
+}
+.math-inline { display: inline-block; vertical-align: baseline; }
+.panel-note .math-inline { margin: 5px 0; font-size: 1em; }
+.math-block { display: block; overflow-x: auto; padding: 8px 2px; }
+.math-formula .katex { font-size: 1.12em; line-height: 1.5; text-indent: 0; }
+.math-formula .katex-display { margin: 0; text-align: left; }
+.math-formula .katex-display > .katex { text-align: left; }
+.insight-formula > .math-formula { color: #bce6a6; padding: 12px 0; }
+.builder-formula-note > .math-formula { color: #b5d8b0; margin-top: 8px; }
+.conv-size-equation > .math-formula { color: #a1c38f; }
+.xor-update-formula > .math-formula { color: #a4d8ce; }
+@media (max-width: 600px) {
+  .math-formula { font-size: calc(13px * var(--reading-scale, 1)); }
+}

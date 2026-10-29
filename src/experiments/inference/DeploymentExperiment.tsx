@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { ArrowRight, Box, Server } from "lucide-react";
 import { ErrorMessage, ExperimentPanel, Result } from "../../components/ui";
 import { inferenceRequest } from "../../lib/inference";
+import { useLessonTask } from "../../lib/learningProgress";
+import { isDeploymentTaskComplete } from "../../lib/advancedTaskChecks";
 import type { ModelCatalog } from "../../lib/inference";
 import "./inference.css";
 
@@ -31,6 +33,7 @@ export default function DeploymentExperiment({
     return () => controller.abort();
   }, []);
   const origin = window.location.origin;
+  useLessonTask("deployment", !pending && !error && isDeploymentTaskComplete(catalog));
   return (
     <div className="if-experiment">
       <ExperimentPanel

@@ -1,0 +1,5 @@
+.lesson-loading, .experiment-load-error { min-width: 0; min-height: 300px; padding: 28px; border: 1px solid #2c4542; border-radius: 12px; background: #101f21; color: #a7c5b8; }
+.lesson-loading { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.experiment-load-error strong { display: block; color: #e1d1b6; font-size: 17px; }
+.experiment-load-error p { margin: 10px 0 18px; }
+.app-shell .lesson-footer > span { flex: 1; min-width: 160px; line-height: 1.7; }

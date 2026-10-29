@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
+export function calculationStatus(error: string | null, pending: boolean) {
+  return error ? "当前参数的本地预览，后端计算结果未同步"
+    : pending ? "当前参数的即时预览，正在等待后端计算结果" : "已同步后端计算结果";
+}
+
 export async function calculate<T>(
   path: string,
   payload: unknown,
@@ -25,25 +30,31 @@ export async function calculate<T>(
   return response.json() as Promise<T>;
 }
 
-export function useCalculation<T>(path: string, payload: unknown) {
+// A preview must be derived from the same current payload. It is display-only:
+// actions that commit an optimizer step must use confirmedData instead.
+export function useCalculation<T>(path: string, payload: unknown, preview?: T) {
   const key = JSON.stringify(payload);
   const [state, setState] = useState<{
+    path: string;
     key: string;
     data: T | null;
     error: string | null;
     pending: boolean;
-  }>({ key, data: null, error: null, pending: true });
+  }>({ path, key, data: null, error: null, pending: true });
+  const lastSuccess = useRef<{ path: string; data: T } | null>(null);
   const version = useRef(0);
   useEffect(() => {
     const currentVersion = ++version.current;
     const controller = new AbortController();
     // Clear the preceding result so a fast slider movement never pairs new inputs with old values.
-    setState({ key, data: null, error: null, pending: true });
+    setState({ path, key, data: null, error: null, pending: true });
     const timeout = window.setTimeout(() => {
       calculate<T>(path, JSON.parse(key), controller.signal)
         .then((data) => {
-          if (version.current === currentVersion)
-            setState({ key, data, error: null, pending: false });
+          if (!controller.signal.aborted && version.current === currentVersion) {
+            lastSuccess.current = { path, data };
+            setState({ path, key, data, error: null, pending: false });
+          }
         })
         .catch((error) => {
           if (
@@ -51,6 +62,7 @@ export function useCalculation<T>(path: string, payload: unknown) {
             version.current === currentVersion
           ) {
             setState({
+              path,
               key,
               data: null,
               error:
@@ -67,7 +79,16 @@ export function useCalculation<T>(path: string, payload: unknown) {
       controller.abort();
     };
   }, [path, key]);
-  return state.key === key ? state : { data: null, error: null, pending: true };
+  const current = state.path === path && state.key === key ? state : { data: null, error: null, pending: true };
+  // Expose the last successful sample separately; callers must explicitly derive
+  // a preview rather than presenting old results as answers for new parameters.
+  return {
+    ...current,
+    data: current.data ?? preview ?? null,
+    confirmedData: current.data,
+    previewing: current.data === null && preview !== undefined,
+    previousData: lastSuccess.current?.path === path ? lastSuccess.current.data : null,
+  };
 }
 
 export function format(value: number, digits = 3) {

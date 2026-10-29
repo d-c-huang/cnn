@@ -1,5 +1,6 @@
-import HandwritingExperiment from "../experiments/inference/HandwritingExperiment";
-import DeploymentExperiment from "../experiments/inference/DeploymentExperiment";
+import { lazy } from "react";
+const HandwritingExperiment = lazy(() => import("../experiments/inference/HandwritingExperiment"));
+const DeploymentExperiment = lazy(() => import("../experiments/inference/DeploymentExperiment"));
 
 export const phase4Lessons = [
   {

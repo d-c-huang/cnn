@@ -24,7 +24,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "缩放数值范围", description: "将所有像素除以 255，把范围变为 0–1。图像的相对明暗关系保持不变。" },
       { title: "按顺序展平", description: "逐行读取 8 × 8 矩阵，得到 64 维向量。值与数量不变，排列形状发生变化。" },
     ],
-    formula: "x′ = x / 255     [8, 8] → [64]",
+    formula: String.raw`x' = \frac{x}{255} \qquad [8,8] \longrightarrow [64]`,
     formulaNote: "例如灰度 128 归一化后约为 0.502；它仍然对应原来的那个像素。",
     misconception: "展平没有提取新特征，也没有减少元素。这里的 8 × 8 图是教学样本，后续 MNIST 使用 28 × 28 图像。",
     quiz: {
@@ -41,7 +41,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "两个参数，两种作用", description: "权重决定直线的斜率，偏置决定整体上下移动。每次只改一个参数更容易观察。" },
       { title: "用全部样本衡量", description: "分别计算五个样本的平方误差，再取平均，得到均方误差 MSE。" },
     ],
-    formula: "ŷ = wx + b     MSE = Σ(ŷᵢ − yᵢ)² / N",
+    formula: String.raw`\begin{gathered}\hat{y} = wx+b \\ \mathrm{MSE}=\frac{1}{N}\sum_{i=1}^{N}(\hat{y}_i-y_i)^2\end{gathered}`,
     formulaNote: "本实验的目标关系是 y = 2x + 0.5。当 w = 2、b = 0.5 时，五个教学样本的误差为 0。",
     misconception: "一条直线经过某一个点，不代表整体拟合好。需要同时观察所有样本与平均损失。",
     quiz: {
@@ -58,7 +58,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "汇总成加权和", description: "把各项乘积相加，再加入偏置，得到激活前的值 z。" },
       { title: "经过激活函数", description: "ReLU 截断负值，Sigmoid 压到 0–1，Tanh 压到 −1–1；线性激活直接保留 z。" },
     ],
-    formula: "z = w₁x₁ + w₂x₂ + b     a = f(z)",
+    formula: String.raw`\begin{gathered}z=w_1x_1+w_2x_2+b \\ a=f(z)\end{gathered}`,
     formulaNote: "先判断 z 如何变化，再根据激活函数判断 a。负权重配合更大的输入，会使这一项乘积更小。",
     misconception: "输入增大不一定让输出增大：权重可能为负，ReLU 还可能把一段负的 z 都映射为 0。",
     quiz: {
@@ -75,7 +75,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "把误差平方", description: "平方误差始终非负。离目标同样远的两个预测，损失相同。" },
       { title: "读曲线的斜率", description: "梯度为正表示向右增大预测会增加损失；梯度为负时，向右移动会降低损失。" },
     ],
-    formula: "L = (ŷ − y)²     ∂L/∂ŷ = 2(ŷ − y)",
+    formula: String.raw`\begin{gathered}L=(\hat{y}-y)^2 \\ \frac{\partial L}{\partial\hat{y}}=2(\hat{y}-y)\end{gathered}`,
     formulaNote: "当预测等于标签时，损失与梯度都为 0。本节使用单样本平方误差，不是多个样本的平均值。",
     misconception: "相同的损失不一定意味着相同的更新方向。目标两侧的等距点，损失相等，梯度符号相反。",
     quiz: {
@@ -92,7 +92,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "沿负梯度更新", description: "从当前权重减去学习率乘以梯度。学习率决定这一步走多远。" },
       { title: "重新观察损失", description: "更新后的参数需要重新计算损失。连续单步执行，观察下降、来回振荡或发散。" },
     ],
-    formula: "wₜ₊₁ = wₜ − η · ∂L/∂w",
+    formula: String.raw`w_{t+1}=w_t-\eta\,\frac{\partial L}{\partial w}`,
     formulaNote: "本节固定 b = 0.5，只更新 w。对应损失为 L = 2(w − 2)²，最低点在 w = 2。",
     misconception: "学习率越大不代表学习越快。步长过大可能越过最低点，持续振荡甚至让损失增大。",
     quiz: {
@@ -109,7 +109,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "检查局部导数", description: "每条边描述一个局部依赖。乘法的导数取决于另一个乘数，Tanh 的导数取决于当前输出。" },
       { title: "连接局部变化", description: "沿路径组合局部导数，就能解释某个输入或参数的变化如何影响最终损失。" },
     ],
-    formula: "a = tanh(z)     ∂a/∂z = 1 − a²",
+    formula: String.raw`\begin{gathered}a=\tanh(z) \\ \frac{\partial a}{\partial z}=1-a^2\end{gathered}`,
     formulaNote: "当 Tanh 输出接近 ±1 时，局部导数接近 0。同样的上游梯度经过这里后会变小。",
     misconception: "局部导数与最终损失对参数的梯度不是同一个量。后者还要结合后续节点传回的梯度。",
     quiz: {
@@ -126,7 +126,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "按链式法则回传", description: "从损失向输入方向传播，上游梯度乘以局部导数；如果存在多条路径，需要累加贡献。" },
       { title: "再执行参数更新", description: "收集权重和偏置的梯度后，用 SGD 更新，再重新前向计算，比较新旧损失。" },
     ],
-    formula: "∂L/∂w₁ = (∂L/∂a)(1 − a²)x₁",
+    formula: String.raw`\frac{\partial L}{\partial w_1}=\frac{\partial L}{\partial a}(1-a^2)x_1`,
     formulaNote: "这里 a = tanh(z)。反向传播计算梯度，SGD 使用梯度更新参数，两者各自完成不同步骤。",
     misconception: "算出梯度并不意味着参数已经改变。只有应用更新，下一次前向计算才会使用新权重。",
     quiz: {
@@ -143,7 +143,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "隐藏层改变表示", description: "2→4→1 网络先用四个 Tanh 隐藏单元变换输入，再用输出层得到正类概率。" },
       { title: "聚合样本梯度", description: "用四个样本的平均二元交叉熵训练。观察单样本梯度、平均梯度和决策边界如何对应。" },
     ],
-    formula: "h = tanh(XW₁ + b₁)     p = sigmoid(hW₂ + b₂)",
+    formula: String.raw`\begin{gathered}h=\tanh(XW_1+b_1) \\ p=\operatorname{sigmoid}(hW_2+b_2)\end{gathered}`,
     formulaNote: "分类使用 0.5 阈值；训练保留连续输出的信息，并从 logits 稳定计算二元交叉熵。",
     misconception: "增加层数但全部使用线性激活，仍等价于一个线性变换。隐藏层的非线性是解决 XOR 的关键。",
     quiz: {
@@ -160,7 +160,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "划分训练与验证", description: "从官方训练数据中按类别分层划分验证集，用随机种子使相同配置可复现。" },
       { title: "保留独立测试集", description: "训练集用于更新参数，验证集用于比较配置与选模，官方测试集用于最后检验。" },
     ],
-    formula: "训练集 ∩ 验证集 = ∅     测试集独立保留",
+    formula: String.raw`\begin{gathered}\mathcal{D}_{\mathrm{train}}\cap\mathcal{D}_{\mathrm{val}}=\varnothing \\ \text{测试集独立保留}\end{gathered}`,
     formulaNote: "完整官方训练源有 60,000 张；验证比例为 10% 且不限制训练子集时，划分为 54,000 / 6,000 张，另有 10,000 张测试图。",
     misconception: "反复查看测试表现并据此调参，会让测试信息间接进入模型选择，使最终分数失去独立评估的意义。",
     quiz: {
@@ -177,7 +177,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "按批次更新参数", description: "图像先标准化，再前向计算 logits、交叉熵与梯度，由优化器更新模型权重。" },
       { title: "每轮检查验证表现", description: "一轮结束后切换评估模式，计算独立验证指标；保存验证损失最低时的权重。" },
     ],
-    formula: "x = (pixels / 255 − 0.1307) / 0.3081",
+    formula: String.raw`x=\frac{\mathrm{pixels}/255-0.1307}{0.3081}`,
     formulaNote: "本项目使用相同的 MNIST 标准化供训练、验证和推理使用。一个 Epoch 表示完成一次当前训练集的遍历。",
     misconception: "训练损失持续下降不保证泛化能力更好。如果验证损失上升，需要检查过拟合，而不是只增加训练轮次。",
     quiz: {
@@ -194,7 +194,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "读取混淆矩阵", description: "本项目中行代表真实标签，列代表模型预测。对角线上是正确预测，其余位置都是错例。" },
       { title: "回到具体图像", description: "点击非对角单元格，查看对应数字及各类分数，区分难辨笔迹和系统性混淆。" },
     ],
-    formula: "Accuracy = 对角线元素之和 / 全部样本数",
+    formula: String.raw`\mathrm{Accuracy}=\frac{\sum_i C_{ii}}{\sum_{i,j} C_{ij}}`,
     formulaNote: "某类 Precision 衡量预测成该类时有多少正确；Recall 衡量真实属于该类的样本有多少被找出。",
     misconception: "总体准确率不能说明每个数字都表现良好。相同准确率可能对应完全不同的类别混淆与错误分布。",
     quiz: {
@@ -211,7 +211,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "复用训练标准化", description: "根据检查点保存的均值与标准差处理图像，加载相同网络结构与最佳权重进行推理。" },
       { title: "比较十类分数", description: "Softmax 将输出转换为十类相对分数，最大值对应预测数字；可比较 MLP 和 CNN 的结果。" },
     ],
-    formula: "pᵢ = exp(zᵢ) / Σ exp(zⱼ)     预测 = argmax(p)",
+    formula: String.raw`\begin{gathered}p_i=\frac{\exp(z_i)}{\sum_j\exp(z_j)} \\ \hat{y}=\operatorname*{arg\,max}_i p_i\end{gathered}`,
     formulaNote: "先检查预处理预览中的数字是否清楚且居中，再判断模型输出。输入分布与训练样本越不同，预测越可能不稳定。",
     misconception: "Softmax 的最高分不是正确率保证。模型遇到奇怪笔迹或训练分布外的输入，也可能给出很高分；本应用会在推理前拒绝空白输入。",
     quiz: {
@@ -228,7 +228,7 @@ export const lessonInsights: Record<string, LessonInsight> = {
       { title: "打包应用依赖", description: "使用项目的 Docker Compose 配置启动前端、API 与模型文件，确保服务能够找到所需资源。" },
       { title: "验证完整请求链路", description: "检查健康接口与模型列表，再提交真实图像请求；运行 smoke 脚本验证两种模型的预测链路。" },
     ],
-    formula: "图像请求 → 预处理 → 模型推理 → 类别与分数",
+    formula: String.raw`\begin{gathered}\text{图像请求}\longrightarrow\text{预处理} \\ \longrightarrow\text{模型推理}\longrightarrow\text{类别与分数}\end{gathered}`,
     formulaNote: "GET /api/inference/models 查询模型；POST /api/inference/predict 提交图像并返回预测。",
     misconception: "服务启动成功不等于模型可用。还应确认权重已加载、请求格式正确，并用真实图像验证返回结果。",
     quiz: {

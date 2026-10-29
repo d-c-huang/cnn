@@ -1,3 +1,4 @@
+import { MathFormula } from "../../components/MathFormula";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, Grid3X3, Pause, Play, RotateCcw, ScanLine } from "lucide-react";
 import { convolutionWindow, crossCorrelate, maxPool2d, outputSize, relu } from "../../lib/convolution";
@@ -106,7 +107,7 @@ export default function ConvolutionLab({ onInteract }: { onInteract?: () => void
             </div>
           </div>
           <div className="conv-playback"><div><button className="conv-icon-button" aria-label="上一个卷积位置" disabled={position === 0} onClick={() => move(position - 1)}><ChevronLeft size={17} /></button><button className="primary-button" onClick={() => { setRunning(!running); onInteract?.(); }}>{running ? <Pause size={13} /> : <Play size={13} />}{running ? "暂停扫描" : "开始扫描"}</button><button className="conv-icon-button" aria-label="下一个卷积位置" disabled={position === count - 1} onClick={() => move(position + 1)}><ChevronRight size={17} /></button></div><span>{position + 1}<em> / {count} 个位置</em></span></div>
-          <div className="conv-size-equation"><code>⌊(N + 2P − K) / S⌋ + 1</code><span>= ⌊(8 + {2 * padding} − 3) / {stride}⌋ + 1 = <strong>{outputSize(8, 3, stride, padding)}</strong></span></div>
+          <div className="conv-size-equation"><MathFormula tex={String.raw`\begin{aligned}N_{\mathrm{out}}&=\left\lfloor\frac{N+2P-K}{S}\right\rfloor+1 \\ &=\left\lfloor\frac{8+${2 * padding}-3}{${stride}}\right\rfloor+1=${outputSize(8, 3, stride, padding)}\end{aligned}`} block /></div>
         </section>
 
         <aside className="conv-controls" aria-label="卷积参数控制">
@@ -125,7 +126,7 @@ export default function ConvolutionLab({ onInteract }: { onInteract?: () => void
       <section className="conv-calculation" aria-labelledby="conv-calc-title">
         <div className="conv-panel-heading"><div><span>02 / EVERY MULTIPLICATION MATTERS</span><h2 id="conv-calc-title">把当前输出，拆成九次乘法。</h2></div><code>Y[{row}, {column}] = {numberText(sum)}</code></div>
         <div className="conv-products">{window.map((item, index) => <div key={index} className={`conv-product ${item.padded ? "is-padded" : ""}`}><span>{item.padded ? "零填充" : `X[${item.row}, ${item.column}]`}</span><code>{numberText(item.input)} × {numberText(item.kernel)}</code><strong>{numberText(item.product)}</strong></div>)}</div>
-        <div className="conv-sum-line"><span>逐项相乘，然后求和</span><code>Σ(X × K) = <strong>{numberText(sum)}</strong></code>{useRelu && <><ArrowRight size={15} /><code>ReLU = <strong>{numberText(Math.max(0, sum))}</strong></code></>}</div>
+        <div className="conv-sum-line"><span>逐项相乘，然后求和</span><MathFormula tex={String.raw`\sum_{i,j}X_{ij}K_{ij}=${numberText(sum)}`} />{useRelu && <><ArrowRight size={15} /><MathFormula tex={String.raw`\operatorname{ReLU}(${numberText(sum)})=${numberText(Math.max(0, sum))}`} /></>}</div>
       </section>
 
       <section className="conv-pipeline" aria-labelledby="conv-pipeline-title"><div className="conv-panel-heading"><div><span>03 / FEATURE EXTRACTION PIPELINE</span><h2 id="conv-pipeline-title">提取响应，再压缩空间。</h2></div><span className="conv-pipeline-shape">{side} × {side}{usePool ? ` → ${pooled.length} × ${pooled[0]?.length ?? 0}` : " · 原始尺寸"}</span></div>

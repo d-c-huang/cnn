@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import {
   ControlsHeading,
@@ -7,7 +7,9 @@ import {
   Result,
   Slider,
 } from "../components/ui";
-import { format, useCalculation } from "../lib/api";
+import { calculationStatus, format, useCalculation } from "../lib/api";
+import { graphPreview } from "../lib/foundationPreviews";
+import { useLessonTask } from "../lib/learningProgress";
 import ComputationGraph, {
   GraphNodeDetails,
   initialGraph,
@@ -22,10 +24,13 @@ export default function GraphExperiment({
   const [parameters, setParameters] = useState<GraphRequest>(initialGraph);
   const [selected, setSelected] = useState("a");
   const [mode, setMode] = useState<"forward" | "backward">("forward");
+  const preview = useMemo(() => graphPreview(parameters), [parameters]);
   const { data, error, pending } = useCalculation<GraphResponse>(
     "/graph",
     parameters,
+    preview,
   );
+  useLessonTask("graph", mode === "backward" && data?.nodes.some(node => node.id === "a" && node.op === "tanh") === true);
   function change(next: GraphRequest) {
     setParameters(next);
     onInteract();
@@ -63,6 +68,7 @@ export default function GraphExperiment({
             </div>
           }
         >
+          <p className="axis-note" title={calculationStatus(error, pending)}>当前参数实时预览，后端返回后同步核对。</p>
           {data ? (
             <>
               <ComputationGraph
