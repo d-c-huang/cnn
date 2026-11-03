@@ -14,9 +14,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /app
 COPY requirements.txt ./
-# Install the matching CPU wheels first; the remaining requirements reuse them.
-RUN python -m pip install --no-cache-dir torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cpu \
-    && python -m pip install --no-cache-dir -r requirements.txt
+# Install uv and use it for fast installations
+RUN pip install --no-cache-dir uv \
+    && uv pip install --system --no-cache-dir torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cpu \
+    && uv pip install --system --no-cache-dir -r requirements.txt
 COPY backend ./backend
 COPY --from=frontend /web/dist ./dist
 COPY models ./models

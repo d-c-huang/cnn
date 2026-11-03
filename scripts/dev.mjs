@@ -33,7 +33,7 @@ const python = candidates.find((candidate) => {
 });
 if (!python) {
   console.error(
-    "请先安装计算服务依赖：python -m pip install -r requirements.txt",
+    "请先安装计算服务依赖（推荐使用 uv）：uv pip install -r requirements.txt 或者 python -m pip install -r requirements.txt",
   );
   process.exit(1);
 }

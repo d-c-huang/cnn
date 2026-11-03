@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
 from typing import Annotated, Literal
+import functools
 
 import numpy as np
 from fastapi import FastAPI
@@ -142,9 +143,10 @@ def api_schema():
 
 
 @app.post("/api/data")
-def data_experiment(request: DataRequest) -> dict:
-    matrix = np.asarray(request.pixels, dtype=np.float64)
-    if request.normalize:
+@functools.lru_cache(maxsize=128)
+def _data_experiment(pixels_tuple: tuple, normalize: bool) -> dict:
+    matrix = np.asarray(pixels_tuple, dtype=np.float64)
+    if normalize:
         matrix = matrix / 255.0
     flat = matrix.ravel(order="C")
     return {
@@ -157,10 +159,15 @@ def data_experiment(request: DataRequest) -> dict:
         "mean": float(np.mean(matrix)),
     }
 
+@app.post("/api/data")
+def data_experiment(request: DataRequest) -> dict:
+    pixels_tuple = tuple(tuple(row) for row in request.pixels)
+    return _data_experiment(pixels_tuple, request.normalize)
 
-@app.post("/api/linear")
-def linear_experiment(request: LinearRequest) -> dict:
-    prediction = request.weight * SAMPLE_X + request.bias
+
+@functools.lru_cache(maxsize=128)
+def _linear_experiment(weight: float, bias: float) -> dict:
+    prediction = weight * SAMPLE_X + bias
     error = prediction - SAMPLE_Y
     return {
         "points": [
@@ -169,6 +176,10 @@ def linear_experiment(request: LinearRequest) -> dict:
         ],
         "mse": float(np.mean(np.square(error))),
     }
+
+@app.post("/api/linear")
+def linear_experiment(request: LinearRequest) -> dict:
+    return _linear_experiment(request.weight, request.bias)
 
 
 def activate(values: np.ndarray, name: str) -> np.ndarray:
@@ -182,34 +193,44 @@ def activate(values: np.ndarray, name: str) -> np.ndarray:
     return values
 
 
-@app.post("/api/neuron")
-def neuron_experiment(request: NeuronRequest) -> dict:
-    products = np.multiply(request.inputs, request.weights)
-    z = float(np.sum(products) + request.bias)
+@functools.lru_cache(maxsize=128)
+def _neuron_experiment(in1: float, in2: float, w1: float, w2: float, bias: float, activation: str) -> dict:
+    inputs = np.array([in1, in2])
+    weights = np.array([w1, w2])
+    products = np.multiply(inputs, weights)
+    z = float(np.sum(products) + bias)
     curve_left = min(-6.0, z) - 0.5
     curve_right = max(6.0, z) + 0.5
     curve_x = np.unique(np.concatenate([np.linspace(curve_left, curve_right, 121), [z]]))
-    curve_y = activate(curve_x, request.activation)
+    curve_y = activate(curve_x, activation)
     return {
         "products": products.tolist(),
         "z": z,
-        "output": float(activate(np.asarray(z), request.activation)),
+        "output": float(activate(np.asarray(z), activation)),
         "curve": [
             {"x": float(x), "y": float(y)} for x, y in zip(curve_x, curve_y)
         ],
     }
 
+@app.post("/api/neuron")
+def neuron_experiment(request: NeuronRequest) -> dict:
+    return _neuron_experiment(
+        request.inputs[0], request.inputs[1],
+        request.weights[0], request.weights[1],
+        request.bias, request.activation
+    )
 
-@app.post("/api/loss")
-def loss_experiment(request: LossRequest) -> dict:
-    error = request.prediction - request.target
-    left = min(request.target - 5.0, request.prediction)
-    right = max(request.target + 5.0, request.prediction)
+
+@functools.lru_cache(maxsize=128)
+def _loss_experiment(prediction: float, target: float) -> dict:
+    error = prediction - target
+    left = min(target - 5.0, prediction)
+    right = max(target + 5.0, prediction)
     # Include the current prediction and exact minimum even for asymmetric domains.
     curve_x = np.unique(
-        np.concatenate([np.linspace(left, right, 121), [request.target, request.prediction]])
+        np.concatenate([np.linspace(left, right, 121), [target, prediction]])
     )
-    curve_y = np.square(curve_x - request.target)
+    curve_y = np.square(curve_x - target)
     return {
         "loss": float(error**2),
         "gradient": float(2.0 * error),
@@ -218,6 +239,29 @@ def loss_experiment(request: LossRequest) -> dict:
         ],
     }
 
+@app.post("/api/loss")
+def loss_experiment(request: LossRequest) -> dict:
+    return _loss_experiment(request.prediction, request.target)
+
+
+@functools.lru_cache(maxsize=128)
+def _gradient_experiment(weight: float, learning_rate: float) -> dict:
+    errors = weight * SAMPLE_X + 0.5 - SAMPLE_Y
+    gradient = float(2.0 * np.mean(errors * SAMPLE_X))
+    weight_after = weight - learning_rate * gradient
+    loss_before = float(np.mean(np.square(errors)))
+    loss_after = float(
+        np.mean(np.square(weight_after * SAMPLE_X + 0.5 - SAMPLE_Y))
+    )
+    return {
+        "weight_before": weight,
+        "weight_after": float(weight_after),
+        "gradient": gradient,
+        "loss_before": loss_before,
+        "loss_after": loss_after,
+        "converged": bool(abs(weight_after - 2.0) < 0.001),
+        "diverged": bool(loss_after > loss_before + 1e-12),
+    }
 
 @app.post("/api/gradient")
 def gradient_experiment(request: GradientRequest) -> dict:
@@ -226,22 +270,7 @@ def gradient_experiment(request: GradientRequest) -> dict:
     For the five teaching samples, mean(x²)=2, so L(w)=2(w−2)²
     and dL/dw=4(w−2). NumPy computes these from the samples directly.
     """
-    errors = request.weight * SAMPLE_X + 0.5 - SAMPLE_Y
-    gradient = float(2.0 * np.mean(errors * SAMPLE_X))
-    weight_after = request.weight - request.learning_rate * gradient
-    loss_before = float(np.mean(np.square(errors)))
-    loss_after = float(
-        np.mean(np.square(weight_after * SAMPLE_X + 0.5 - SAMPLE_Y))
-    )
-    return {
-        "weight_before": request.weight,
-        "weight_after": float(weight_after),
-        "gradient": gradient,
-        "loss_before": loss_before,
-        "loss_after": loss_after,
-        "converged": bool(abs(weight_after - 2.0) < 0.001),
-        "diverged": bool(loss_after > loss_before + 1e-12),
-    }
+    return _gradient_experiment(request.weight, request.learning_rate)
 
 
 # The frontend mount must come after all API routes.

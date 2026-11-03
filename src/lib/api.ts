@@ -47,6 +47,7 @@ export function useCalculation<T>(path: string, payload: unknown, preview?: T) {
     const currentVersion = ++version.current;
     const controller = new AbortController();
     // Clear the preceding result so a fast slider movement never pairs new inputs with old values.
+    // Callers pass a same-payload preview for the gap; 20ms only drops intermediate slider values.
     setState({ path, key, data: null, error: null, pending: true });
     const timeout = window.setTimeout(() => {
       calculate<T>(path, JSON.parse(key), controller.signal)
@@ -73,7 +74,7 @@ export function useCalculation<T>(path: string, payload: unknown, preview?: T) {
             });
           }
         });
-    }, 70);
+    }, 20);
     return () => {
       window.clearTimeout(timeout);
       controller.abort();
