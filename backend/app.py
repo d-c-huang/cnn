@@ -142,7 +142,6 @@ def api_schema():
     return app.openapi()
 
 
-@app.post("/api/data")
 @functools.lru_cache(maxsize=128)
 def _data_experiment(pixels_tuple: tuple, normalize: bool) -> dict:
     matrix = np.asarray(pixels_tuple, dtype=np.float64)

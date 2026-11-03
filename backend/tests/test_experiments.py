@@ -9,7 +9,7 @@ import json
 import math
 import unittest
 
-from backend.app import app
+from backend.app import _data_experiment, app, data_experiment
 
 
 async def asgi_request(method, path, body=None, headers=None):
@@ -64,6 +64,44 @@ class ExperimentTests(unittest.TestCase):
         self.assertEqual(result["flat"], [12, 34])
         self.assertEqual(result["min"], 12)
         self.assertEqual(result["max"], 34)
+
+    def test_data_route_uses_validated_request_once(self):
+        routes = [
+            route for route in app.routes
+            if getattr(route, "path", None) == "/api/data"
+            and "POST" in getattr(route, "methods", set())
+        ]
+        self.assertEqual(len(routes), 1)
+        self.assertIs(routes[0].endpoint, data_experiment)
+        operation = app.openapi()["paths"]["/api/data"]["post"]
+        self.assertEqual(
+            operation["requestBody"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/DataRequest",
+        )
+        self.assertFalse(operation.get("parameters"))
+
+    def test_data_cache_preserves_normalization_and_validation(self):
+        _data_experiment.cache_clear()
+        self.addCleanup(_data_experiment.cache_clear)
+        body = {"pixels": [[0, 255], [127.5, 51]]}
+        first = self.successful("/api/data", body)
+        repeated = self.successful("/api/data", body)
+        self.assertEqual(first, repeated)
+        self.assertEqual(_data_experiment.cache_info().hits, 1)
+        raw = self.successful("/api/data", {**body, "normalize": False})
+        self.assertEqual(raw["flat"], [0, 255, 127.5, 51])
+        self.assertEqual(first["flat"], [0, 1, 0.5, 0.2])
+        self.assertEqual(_data_experiment.cache_info().misses, 2)
+        before = _data_experiment.cache_info()
+        for invalid in [
+            {"pixels_tuple": [[0, 255]], "normalize": True},
+            {**body, "extra": 1},
+            {"pixels": [[256]]},
+        ]:
+            with self.subTest(body=invalid):
+                status, _, _ = self.call("/api/data", invalid)
+                self.assertEqual(status, 422)
+        self.assertEqual(_data_experiment.cache_info(), before)
 
     def test_linear_best_fit_and_mse(self):
         best = self.successful("/api/linear", {"weight": 2, "bias": 0.5})
