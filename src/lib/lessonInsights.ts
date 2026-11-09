@@ -52,15 +52,15 @@ export const lessonInsights: Record<string, LessonInsight> = {
     },
   },
   neuron: {
-    objective: "逐项追踪输入贡献，并比较不同激活函数如何改变输出。",
+    objective: "追踪输入贡献，比较八种激活函数的输出与导数，理解饱和如何影响梯度。",
     steps: [
       { title: "先看每条连接", description: "每个输入与自己的权重相乘。正负号决定它对加权和的推动方向。" },
       { title: "汇总成加权和", description: "把各项乘积相加，再加入偏置，得到激活前的值 z。" },
-      { title: "经过激活函数", description: "ReLU 截断负值，Sigmoid 压到 0–1，Tanh 压到 −1–1；线性激活直接保留 z。" },
+      { title: "对照输出与导数", description: "从 ReLU 的负半轴零梯度，到 Leaky ReLU 的泄漏、ELU 的负侧饱和、Softplus 与 SiLU 的平滑过渡，再比较 Sigmoid、Tanh 与线性函数。" },
     ],
     formula: String.raw`\begin{gathered}z=w_1x_1+w_2x_2+b \\ a=f(z)\end{gathered}`,
-    formulaNote: "先判断 z 如何变化，再根据激活函数判断 a。负权重配合更大的输入，会使这一项乘积更小。",
-    misconception: "输入增大不一定让输出增大：权重可能为负，ReLU 还可能把一段负的 z 都映射为 0。",
+    formulaNote: "输出对输入的导数为 ∂a/∂xᵢ = f′(z)wᵢ。损失对参数的完整梯度还需结合上游梯度；不要把局部导数直接当成损失梯度。",
+    misconception: "输入增大不一定让输出增大：权重可能为负，ReLU 可能落在零区，SiLU 的局部导数也可能为负。平滑函数同样可能存在饱和与梯度衰减。",
     quiz: {
       question: "当加权和 z = −0.4 时，ReLU 的输出是多少？",
       options: ["−0.4", "0", "0.4"],
@@ -69,14 +69,14 @@ export const lessonInsights: Record<string, LessonInsight> = {
     },
   },
   loss: {
-    objective: "区分损失的大小和梯度的方向，读懂平方误差曲线。",
+    objective: "区分损失的大小和梯度的方向，比较回归与分类的四种损失。",
     steps: [
       { title: "先比较预测与标签", description: "预测减去真实标签得到有正负号的误差，表示预测偏大还是偏小。" },
-      { title: "把误差平方", description: "平方误差始终非负。离目标同样远的两个预测，损失相同。" },
+      { title: "切换惩罚方式", description: "比较 MSE、MAE 与 Huber 对同一误差的损失和梯度；再切换 BCE，观察二分类原始分数 z 与概率的关系。" },
       { title: "读曲线的斜率", description: "梯度为正表示向右增大预测会增加损失；梯度为负时，向右移动会降低损失。" },
     ],
     formula: String.raw`\begin{gathered}L=(\hat{y}-y)^2 \\ \frac{\partial L}{\partial\hat{y}}=2(\hat{y}-y)\end{gathered}`,
-    formulaNote: "当预测等于标签时，损失与梯度都为 0。本节使用单样本平方误差，不是多个样本的平均值。",
+    formulaNote: "以上是默认 MSE 的单样本公式。MAE 在零误差处选用次梯度 0；Huber 的二次项含 ½；BCE 显示对原始分数 z 的梯度 p − y。",
     misconception: "相同的损失不一定意味着相同的更新方向。目标两侧的等距点，损失相等，梯度符号相反。",
     quiz: {
       question: "真实标签是 2，预测分别是 1 和 3，它们的平方误差有什么关系？",
@@ -86,17 +86,17 @@ export const lessonInsights: Record<string, LessonInsight> = {
     },
   },
   gradient: {
-    objective: "把梯度变成实际更新，比较学习率对收敛和振荡的影响。",
+    objective: "把梯度变成实际更新，比较 SGD、Momentum、AdaGrad、RMSProp 与 Adam 的状态、步长和收敛过程。",
     steps: [
       { title: "计算当前梯度", description: "用当前权重计算所有教学样本的平均损失，再得到损失对权重的导数。" },
-      { title: "沿负梯度更新", description: "从当前权重减去学习率乘以梯度。学习率决定这一步走多远。" },
-      { title: "重新观察损失", description: "更新后的参数需要重新计算损失。连续单步执行，观察下降、来回振荡或发散。" },
+      { title: "区分梯度与更新量", description: "SGD 直接缩放当前梯度；Momentum 累积方向，AdaGrad、RMSProp 和 Adam 还利用梯度平方按坐标调整步长。" },
+      { title: "在共同条件下比较", description: "使用相同目标、起点与步数预算，查看损失和轨迹；再分别调节学习率。达到阈值后继续观察，区分短暂经过最低点与稳定收敛。" },
     ],
     formula: String.raw`w_{t+1}=w_t-\eta\,\frac{\partial L}{\partial w}`,
-    formulaNote: "本节固定 b = 0.5，只更新 w。对应损失为 L = 2(w − 2)²，最低点在 w = 2。",
-    misconception: "学习率越大不代表学习越快。步长过大可能越过最低点，持续振荡甚至让损失增大。",
+    formulaNote: "以上为基础 SGD 更新式。一维实验固定 b = 0.5，L = 2(w − 2)²；对比区还提供二维狭长谷底，最低点为 (2, −1)。不同优化器的状态和公式可分别查看。",
+    misconception: "自适应优化器仍需调学习率，Adam 不保证总是最快。同样学习率并非同样有效步长；一次损失上升不等于发散，首次达标也不等于后续稳定。",
     quiz: {
-      question: "当前梯度为正，学习率也为正，梯度下降会怎样更新权重？",
+      question: "当前梯度为正，学习率也为正，不带动量的基础 SGD 会怎样更新权重？",
       options: ["增大权重", "保持不变", "减小权重"],
       answer: 2,
       explanation: "更新是 w − η × 梯度。当 η 与梯度都为正时，减去一个正数，所以权重减小。",

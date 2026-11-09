@@ -22,8 +22,8 @@ export const lessonDeepDives: Record<string, LessonDeepDive> = {
   },
   neuron: {
     example: { title: "沿两条连接追踪一次输出", steps: ["使用默认输入与权重：第一路贡献 0.6 × 0.8 = 0.48，第二路贡献 0.9 × (−0.4) = −0.36。", "加入偏置 0.2，得到加权和 z = 0.32。选择 Sigmoid 后，输出约为 0.5793。", "仅把 w₁ 改为 −0.8，z 变成 −0.64，Sigmoid 输出约为 0.3452。"], tex: String.raw`z=0.48-0.36+0.2=0.32,\qquad \sigma(z)=\frac{1}{1+e^{-z}}`, takeaway: "先看每路贡献与加权和，再看激活输出。输出曲线的横轴是输入，激活函数图的横轴是 z。" },
-    observations: [{ action: "选择 Sigmoid，横轴选输入 1，将 w₁ 调为负数。", expected: "曲线随输入增大而下降；两端接近饱和时，输出变化变小。" }, { action: "把当前参数设为参考，再只改变偏置。", expected: "实线与参考虚线的位置分开。固定的另一路输入仍通过其乘积影响曲线。" }],
-    terms: [{ term: "饱和", definition: "Sigmoid 或 Tanh 在较大正、负输入处趋于平坦，局部导数接近 0。" }, { term: "激活阈值", definition: "例如 ReLU 在 z = 0 处改变行为；偏置会改变到达这一位置所需的输入。" }],
+    observations: [{ action: "选择 Sigmoid，横轴选输入 1，将 w₁ 调为负数。", expected: "曲线随输入增大而下降；两端接近饱和时，输出变化变小。" }, { action: "把当前参数设为参考，再只改变偏置。", expected: "实线与参考虚线的位置分开。固定的另一路输入仍通过其乘积影响曲线。" }, { action: "在激活实验区点击“负值区”，对比 ReLU、Leaky ReLU 与 SiLU。", expected: "z = −3 时，ReLU 的局部导数为 0，Leaky ReLU 为 0.1，SiLU 则为负值。" }, { action: "点击“零点”，再比较 Softplus、ELU 与 ReLU。", expected: "Softplus 的输出为 ln 2，导数为 0.5；ELU（α = 1）导数为 1；ReLU 不可导，显示的是约定反传值。" }],
+    terms: [{ term: "饱和", definition: "Sigmoid 或 Tanh 在较大正、负输入处趋于平坦，局部导数接近 0。ELU 的负侧也会饱和。" }, { term: "激活阈值", definition: "例如 ReLU 在 z = 0 处改变行为；偏置会改变到达这一位置所需的输入。" }, { term: "局部导数", definition: "f′(z) 描述激活输出对加权和的瞬时变化率。反向传播时，它乘以上游梯度；它本身不是损失对权重的完整梯度。" }, { term: "非单调", definition: "函数不总是随输入增加而增加。SiLU 的部分负区间导数为负，因此正权重也不保证输出处处上升。" }],
     connection: "有了预测，还需要一个标量来衡量预测偏离目标的程度。", next: "loss",
   },
   loss: {
@@ -34,8 +34,8 @@ export const lessonDeepDives: Record<string, LessonDeepDive> = {
   },
   gradient: {
     example: { title: "手算第一步梯度下降", steps: ["本实验固定偏置，只训练 w，损失是 L(w) = 2(w − 2)²。初始 w = −2 时，损失为 32。", "当前位置的梯度是 4(w − 2) = −16，学习率取 0.1。", "更新后 w = −2 − 0.1 × (−16) = −0.4，重新计算损失得到 11.52。"], tex: String.raw`w_{1}=-0.4,\qquad L(w_1)=2(-0.4-2)^2=11.52`, takeaway: "先用旧参数计算梯度，再更新参数，最后重新计算损失；三个步骤不可混淆。" },
-    observations: [{ action: "分别使用 0.1、0.5、0.55 的预设，重置后比较相同更新次数。", expected: "本实验中分别表现为收敛、等幅振荡和逐步发散；这三个数不是其他任务的通用阈值。" }, { action: "查看训练历史，再导出 CSV。", expected: "记录的是每次真实更新后的损失，可以与当前权重对应核对。" }],
-    terms: [{ term: "学习率", definition: "缩放梯度更新步长的系数；过大可能越过低损失区域。" }, { term: "收敛", definition: "这里指参数接近最低点、损失趋于稳定，不意味着任何训练都能找到全局最优解。" }],
+    observations: [{ action: "在基础单步实验中分别使用 0.1、0.5、0.55，重置后比较相同步数。", expected: "分别表现为收敛、等幅振荡和逐步发散；这三个数不是其他任务的通用阈值。" }, { action: "运行一维优化器对比，选中 Momentum，查看第 2 步与第 3 步。", expected: "默认起点 −2、学习率 0.1 时，第 2 步到达最低点；第 3 步仍会被非零动量推离，因此首次达标不代表持续稳定。" }, { action: "切换狭长谷底，先共用学习率，再勾选分别调节学习率。", expected: "不同方法对两个方向的梯度有不同的缩放方式。调整学习率后，速度排序可能改变，不能把一次结果当成通用结论。" }, { action: "拖动回放步数，再导出完整 CSV。", expected: "表格展示当前回放位置，CSV 保留本次全部实际计算记录；第 0 步不包含更新梯度。" }],
+    terms: [{ term: "学习率", definition: "控制更新步长的超参数；自适应方法仍需要它，并不是自动找到最佳学习率。" }, { term: "收敛", definition: "参数与损失逐渐稳定的过程。首次低于某个阈值只是一次观测，不代表之后不再离开。" }, { term: "动量", definition: "保留历史梯度方向的状态，方向一致时累积，也会在梯度改变或变为零后继续影响更新。" }, { term: "自适应缩放", definition: "利用各坐标的历史梯度平方分别缩放更新量。AdaGrad 永久累积，RMSProp 与 Adam 使用滑动平均。" }, { term: "偏差校正", definition: "Adam 将一阶与二阶矩分别除以 1−β₁ᵗ 和 1−β₂ᵗ，补偿从零开始计算滑动平均时的早期偏差。" }],
     connection: "更复杂模型中的梯度，来自计算图上每一个局部运算的组合。", next: "graph",
   },
   graph: {

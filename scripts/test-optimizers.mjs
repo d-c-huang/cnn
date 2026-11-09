@@ -1,0 +1,24 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { renderToString } from "katex";
+import { comparisonRow, comparisonCsv, optimizerInfo } from "../src/lib/optimizers.ts";
+
+for (const info of Object.values(optimizerInfo)) renderToString(info.formula, { throwOnError: true });
+const python = spawnSync(process.env.PYTHON || "python", ["-c", "import json; from backend.optimizers import ComparisonRequest,compare_optimizers; print(json.dumps(compare_optimizers(ComparisonRequest(objective='valley',steps=80,learning_rate=1.0))))"], { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
+assert.equal(python.status, 0, python.stderr);
+const result = JSON.parse(python.stdout);
+const sgd = result.runs.find(run => run.optimizer === "sgd");
+assert.equal(sgd.status, "limit");
+assert.equal(comparisonRow(sgd, 80), sgd.history.at(-1), "A stopped run shows its last real step, never a padded synthetic update");
+assert.equal(comparisonRow(sgd, 0).gradient, null, "No update gradient at the initial state");
+const rows = comparisonCsv(result).replace(/^\uFEFF/, "").split("\n").map(line => line.split(","));
+assert.equal(rows.length, 1 + result.runs.reduce((count, run) => count + run.history.length, 0));
+assert.ok(rows.every(row => row.length === rows[0].length));
+const columns = Object.fromEntries(rows[0].map((key, i) => [key, i]));
+assert.equal(rows[1][columns.gradient_x_used], "");
+assert.equal(rows[2][columns.learning_rate], "1");
+assert.equal(Number(rows[2][columns.x_after]), sgd.history[1].position[0]);
+assert.equal(Number(rows[2][columns.gradient_y_used]), sgd.history[1].gradient[1]);
+assert.equal(Number(rows[2][columns.update_y]), sgd.history[1].update[1]);
+assert.equal(rows[2][columns.run_status], "limit");
+console.log("Optimizer presentation: formulas, real stopped-step indexing and complete CSV export passed.");

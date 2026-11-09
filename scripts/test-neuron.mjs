@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
-import { activateNeuron, neuronValue, neuronOutputCurve, neuronActivationCurve } from "../src/lib/neuron.ts";
+import { activateNeuron, activationDerivative, neuronValue, neuronOutputCurve, neuronActivationCurve, neuronDerivativeCurves } from "../src/lib/neuron.ts";
+import { ACTIVATIONS, activationInfo } from "../src/lib/activations.ts";
+import { renderToString } from "katex";
 
 const close = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-12, `${actual} != ${expected}`);
-for (const activation of ["relu", "sigmoid", "tanh", "linear"]) {
+for (const activation of ACTIVATIONS) {
   const inputs = [0.6, 0.9];
   const weights = [0.8, -0.4];
   const value = neuronValue(inputs, weights, 0.2, activation);
@@ -32,8 +34,41 @@ assert.equal(activateNeuron(1000, "sigmoid"), 1);
 const horizontal = neuronOutputCurve([0, 0], [1, 0], 0.8, "tanh", 1);
 assert.ok(horizontal.every(point => point.y === Math.tanh(0.8)), "Sweeping x2 must use w2");
 
+for (const activation of ACTIVATIONS) {
+  renderToString(activationInfo[activation].formula, { throwOnError: true });
+  renderToString(activationInfo[activation].derivative, { throwOnError: true });
+  for (const z of [-1000, -6, -3, -1, -0.0001, 0, 0.0001, 1, 3, 6, 1000]) {
+    const slope = activationDerivative(z, activation);
+    assert.ok(Number.isFinite(activateNeuron(z, activation)) && Number.isFinite(slope.derivative), `${activation}: finite at ${z}`);
+    if (slope.differentiable) {
+      const eps = 1e-6;
+      const numerical = (activateNeuron(z + eps, activation) - activateNeuron(z - eps, activation)) / (2 * eps);
+      assert.ok(Math.abs(numerical - slope.derivative) < 1e-6, `${activation} derivative at ${z}: ${slope.derivative} != ${numerical}`);
+    } else {
+      assert.equal(z, 0);
+      assert.ok(["relu", "leaky_relu"].includes(activation));
+    }
+  }
+}
+close(activateNeuron(-3, "leaky_relu"), -0.3);
+close(activateNeuron(0, "softplus"), Math.log(2));
+close(activationDerivative(0, "softplus").derivative, 0.5);
+close(activationDerivative(0, "silu").derivative, 0.5);
+close(activationDerivative(0, "elu").derivative, 1);
+assert.ok(activationDerivative(-3, "silu").derivative < 0, "SiLU is not monotone");
+assert.ok(activationDerivative(3, "silu").derivative > 1);
+for (const activation of ["relu", "leaky_relu"]) {
+  const branches = neuronDerivativeCurves(0, activation);
+  assert.equal(branches.length, 2);
+  assert.ok(branches[0].every(point => point.x <= 0));
+  assert.ok(branches[1].every(point => point.x >= 0));
+  assert.equal(branches[0].at(-1).y, activation === "relu" ? 0 : 0.1);
+  assert.equal(branches[1][0].y, 1);
+  assert.equal(activationDerivative(0, activation).differentiable, false);
+}
+
 if (process.argv.includes("--api")) {
-  for (const activation of ["relu", "sigmoid", "tanh", "linear"]) {
+  for (const activation of ACTIVATIONS) {
     for (const [inputs, weights, bias] of [[[0.6, 0.9], [0.8, -0.4], 0.2], [[-3, 3], [-3, 3], 3], [[0, 0], [0, 0], 0]]) {
       const response = await fetch("http://127.0.0.1:8000/api/neuron", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -44,8 +79,13 @@ if (process.argv.includes("--api")) {
       const preview = neuronValue(inputs, weights, bias, activation);
       close(preview.z, actual.z);
       close(preview.output, actual.output);
+      close(preview.derivative, actual.derivative);
+      assert.equal(preview.differentiable, actual.differentiable);
+      const curve = neuronActivationCurve(preview.z, activation);
+      assert.equal(curve.length, actual.curve.length);
+      curve.forEach((point, i) => { close(point.x, actual.curve[i].x); close(point.y, actual.curve[i].y); });
       actual.curve.forEach(point => close(activateNeuron(point.x, activation), point.y));
     }
   }
 }
-console.log("Neuron curves: both input axes, parameter effects, zero weights, ReLU corner, saturation and current marker passed.");
+console.log("Eight activations: input curves, finite-difference derivatives, corners, saturation, stable extremes, SiLU non-monotonicity and valid formulas passed.");

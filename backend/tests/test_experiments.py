@@ -131,6 +131,33 @@ class ExperimentTests(unittest.TestCase):
             self.assertGreaterEqual(result["curve"][-1]["x"], max(6, result["z"]) + 0.5)
             self.assertIn({"x": result["z"], "y": result["output"]}, result["curve"])
 
+    def test_eight_activation_derivatives_and_extremes(self):
+        at_zero = {
+            "relu": (0, 0, False), "leaky_relu": (0, 0.1, False),
+            "elu": (0, 1, True), "softplus": (math.log(2), 0.5, True),
+            "silu": (0, 0.5, True), "sigmoid": (0.5, 0.25, True),
+            "tanh": (0, 1, True), "linear": (0, 1, True),
+        }
+        for activation, (output, derivative, differentiable) in at_zero.items():
+            def evaluate(z):
+                return self.successful("/api/neuron", {"inputs": [0, 0], "weights": [0, 0], "bias": z, "activation": activation})
+
+            zero = evaluate(0)
+            self.assertAlmostEqual(zero["output"], output)
+            self.assertAlmostEqual(zero["derivative"], derivative)
+            self.assertEqual(zero["differentiable"], differentiable)
+            for z in [-1000, -3, -0.5, 0.5, 3, 1000]:
+                result = evaluate(z)
+                self.assertTrue(math.isfinite(result["output"]))
+                self.assertTrue(math.isfinite(result["derivative"]))
+                self.assertTrue(all(math.isfinite(point["y"]) for point in result["curve"]))
+                if abs(z) < 1000:
+                    numerical = (evaluate(z + 1e-5)["output"] - evaluate(z - 1e-5)["output"]) / 2e-5
+                    self.assertAlmostEqual(result["derivative"], numerical, places=7)
+            if activation == "silu":
+                self.assertLess(evaluate(-3)["derivative"], 0)
+                self.assertGreater(evaluate(3)["derivative"], 1)
+
     def test_loss_and_curve_domain(self):
         result = self.successful("/api/loss", {"prediction": 12, "target": 2})
         self.assertEqual(result["loss"], 100)
@@ -138,6 +165,22 @@ class ExperimentTests(unittest.TestCase):
         self.assertLessEqual(result["curve"][0]["x"], -3)
         self.assertGreaterEqual(result["curve"][-1]["x"], 12)
         self.assertIn({"x": 2, "y": 0}, result["curve"])
+
+    def test_loss_variants_and_validation(self):
+        for kind, loss, gradient in [("mse", 9, 6), ("mae", 3, 1), ("huber", 2.5, 1)]:
+            result = self.successful("/api/loss", {"prediction": 3, "target": 0, "kind": kind})
+            self.assertEqual(result["loss"], loss)
+            self.assertEqual(result["gradient"], gradient)
+        result = self.successful("/api/loss", {"prediction": 0, "target": 0, "kind": "mae"})
+        self.assertFalse(result["differentiable"])
+        for target in [0, 1]:
+            for prediction in [-1000, 0, 1000]:
+                result = self.successful("/api/loss", {"prediction": prediction, "target": target, "kind": "bce"})
+                self.assertTrue(math.isfinite(result["loss"]))
+                self.assertTrue(-1 <= result["gradient"] <= 1)
+        for extra in [{"kind": "bce", "target": 0.5}, {"kind": "unknown"}, {"delta": 0}, {"delta": -1}, {"delta": float("inf")}]:
+            status, _, _ = asyncio.run(asgi_request("POST", "/api/loss", {"prediction": 1, "target": 0, **extra}))
+            self.assertEqual(status, 422)
 
     def test_gradient_matches_finite_difference(self):
         for weight in [-2, 0, 1.9, 3]:

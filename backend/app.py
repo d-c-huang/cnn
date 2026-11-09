@@ -23,6 +23,7 @@ from backend.phase2 import router as phase2_router
 from backend.mnist import router as mnist_router, service as mnist_service
 from backend.inference import router as inference_router
 from backend.static_site import mount_static_site
+from backend.optimizers import router as optimizers_router
 
 
 Number = Annotated[
@@ -64,12 +65,20 @@ class NeuronRequest(ExperimentRequest):
     inputs: tuple[Number, Number]
     weights: tuple[Number, Number]
     bias: Number
-    activation: Literal["relu", "sigmoid", "tanh", "linear"]
+    activation: Literal["relu", "sigmoid", "tanh", "linear", "leaky_relu", "elu", "softplus", "silu"]
 
 
 class LossRequest(ExperimentRequest):
     prediction: Number
     target: Number
+    kind: Literal["mse", "mae", "huber", "bce"] = "mse"
+    delta: Annotated[float, Field(strict=True, gt=0, le=100, allow_inf_nan=False)] = 1.0
+
+    @model_validator(mode="after")
+    def binary_target(self) -> LossRequest:
+        if self.kind == "bce" and self.target not in (0, 1):
+            raise ValueError("BCE target must be 0 or 1; prediction is a logit")
+        return self
 
 
 class GradientRequest(ExperimentRequest):
@@ -95,6 +104,7 @@ app = FastAPI(
 app.include_router(phase2_router)
 app.include_router(mnist_router)
 app.include_router(inference_router)
+app.include_router(optimizers_router)
 
 origins = [
     origin.strip()
@@ -184,12 +194,37 @@ def linear_experiment(request: LinearRequest) -> dict:
 def activate(values: np.ndarray, name: str) -> np.ndarray:
     if name == "relu":
         return np.maximum(0.0, values)
+    if name == "leaky_relu":
+        return np.where(values >= 0, values, 0.1 * values)
+    if name == "elu":
+        return np.where(values >= 0, values, np.expm1(np.minimum(values, 0)))
+    if name == "softplus":
+        return np.logaddexp(0.0, values)
+    if name == "silu":
+        return values * activate(values, "sigmoid")
     if name == "sigmoid":
         # Stable for large positive and negative inputs without overflow warnings.
         return np.exp(-np.logaddexp(0.0, -values))
     if name == "tanh":
         return np.tanh(values)
     return values
+
+
+def activation_derivative(z: float, name: str) -> float:
+    if name == "relu":
+        return float(z > 0)
+    if name == "leaky_relu":
+        return 1.0 if z > 0 else 0.1
+    if name == "elu":
+        return 1.0 if z >= 0 else float(np.exp(z))
+    if name == "tanh":
+        return float(1 - np.tanh(z) ** 2)
+    if name in ("sigmoid", "softplus", "silu"):
+        p = float(activate(np.asarray(z), "sigmoid"))
+        if name == "sigmoid":
+            return p * (1 - p)
+        return p if name == "softplus" else p + z * p * (1 - p)
+    return 1.0
 
 
 @functools.lru_cache(maxsize=128)
@@ -200,12 +235,14 @@ def _neuron_experiment(in1: float, in2: float, w1: float, w2: float, bias: float
     z = float(np.sum(products) + bias)
     curve_left = min(-6.0, z) - 0.5
     curve_right = max(6.0, z) + 0.5
-    curve_x = np.unique(np.concatenate([np.linspace(curve_left, curve_right, 121), [z]]))
+    curve_x = np.unique(np.concatenate([np.linspace(curve_left, curve_right, 241), [z, 0.0]]))
     curve_y = activate(curve_x, activation)
     return {
         "products": products.tolist(),
         "z": z,
         "output": float(activate(np.asarray(z), activation)),
+        "derivative": activation_derivative(z, activation),
+        "differentiable": not (activation in ("relu", "leaky_relu") and z == 0),
         "curve": [
             {"x": float(x), "y": float(y)} for x, y in zip(curve_x, curve_y)
         ],
@@ -221,18 +258,32 @@ def neuron_experiment(request: NeuronRequest) -> dict:
 
 
 @functools.lru_cache(maxsize=128)
-def _loss_experiment(prediction: float, target: float) -> dict:
-    error = prediction - target
-    left = min(target - 5.0, prediction)
-    right = max(target + 5.0, prediction)
-    # Include the current prediction and exact minimum even for asymmetric domains.
+def _loss_experiment(prediction: float, target: float, kind: str = "mse", delta: float = 1.0) -> dict:
+    def evaluate(values):
+        error = values - target
+        absolute = np.abs(error)
+        if kind == "bce":
+            return np.maximum(values, 0) - target * values + np.log1p(np.exp(-np.abs(values))), np.exp(-np.logaddexp(0, -values)) - target
+        if kind == "mae":
+            return absolute, np.sign(error)
+        if kind == "huber":
+            return np.where(absolute <= delta, 0.5 * error**2, delta * (absolute - 0.5 * delta)), np.clip(error, -delta, delta)
+        return error**2, 2.0 * error
+
+    left = min(-8.0 if kind == "bce" else target - 5.0, prediction)
+    right = max(8.0 if kind == "bce" else target + 5.0, prediction)
+    anchors = [0.0 if kind == "bce" else target, prediction]
+    if kind == "huber":
+        anchors.extend(x for x in (target - delta, target + delta) if left <= x <= right)
     curve_x = np.unique(
-        np.concatenate([np.linspace(left, right, 121), [target, prediction]])
+        np.concatenate([np.linspace(left, right, 121), anchors])
     )
-    curve_y = np.square(curve_x - target)
+    curve_y, _ = evaluate(curve_x)
+    loss, gradient = evaluate(prediction)
     return {
-        "loss": float(error**2),
-        "gradient": float(2.0 * error),
+        "loss": float(loss),
+        "gradient": float(gradient),
+        "differentiable": not (kind == "mae" and prediction == target),
         "curve": [
             {"x": float(x), "y": float(y)} for x, y in zip(curve_x, curve_y)
         ],
@@ -240,7 +291,7 @@ def _loss_experiment(prediction: float, target: float) -> dict:
 
 @app.post("/api/loss")
 def loss_experiment(request: LossRequest) -> dict:
-    return _loss_experiment(request.prediction, request.target)
+    return _loss_experiment(request.prediction, request.target, request.kind, request.delta)
 
 
 @functools.lru_cache(maxsize=128)

@@ -12,6 +12,7 @@ import {
 import { calculate, calculationStatus, format, useCalculation } from "../lib/api";
 import { gradientPreview } from "../lib/foundationPreviews";
 import { useLessonTask } from "../lib/learningProgress";
+import OptimizerComparison from "./OptimizerComparison";
 
 type GradientResponse = {
   weight_before: number;
@@ -189,6 +190,8 @@ export default function GradientExperiment({
   }
 
   return (
+    <>
+    <div className="optimizer-jump"><span>先理解一次基础更新，再比较不同优化器。</span><button className="text-button" type="button" onClick={() => document.getElementById("optimizer-comparison")?.scrollIntoView({ behavior: "instant", block: "start" })}>前往五种优化器对比 ↓</button></div>
     <div className="experiment-layout">
       <div className="experiment-main">
         <ExperimentPanel
@@ -402,5 +405,7 @@ export default function GradientExperiment({
         </div>
       </aside>
     </div>
+    <OptimizerComparison onInteract={onInteract} />
+    </>
   );
 }

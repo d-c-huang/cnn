@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { squaredErrorPreview } from "../src/lib/loss.ts";
+import { lossPreview, lossValue, squaredErrorPreview } from "../src/lib/loss.ts";
+import { spawnSync } from "node:child_process";
 
 const close = (actual, expected, label) => assert.ok(
   Number.isFinite(actual) && Math.abs(actual - expected) <= 1e-12,
@@ -77,4 +78,52 @@ if (process.argv.includes("--api")) {
   }
 }
 
-console.log("Loss preview: zero, symmetry, gradients, extrema, exact markers and sorted asymmetric curves passed.");
+const extendedCases = [];
+for (const kind of ["mse", "mae", "huber", "bce"]) {
+  for (const delta of kind === "huber" ? [0.1, 1, 3] : [1]) {
+    for (const target of kind === "bce" ? [0, 1] : [-0.3, 2]) {
+      for (const prediction of [-8, -1, 0, 0.1, target, target - delta, target + delta, 8]) {
+        const preview = lossPreview(prediction, target, kind, delta);
+        extendedCases.push({ prediction, target, kind, delta });
+        assert.ok(preview.loss >= 0 && Number.isFinite(preview.loss));
+        assert.ok(preview.curve.some(point => point.x === prediction && point.y === preview.loss));
+        if (preview.differentiable) {
+          const eps = 1e-5;
+          const numerical = (lossValue(prediction + eps, target, kind, delta).loss - lossValue(prediction - eps, target, kind, delta).loss) / (2 * eps);
+          assert.ok(Math.abs(numerical - preview.gradient) < 4e-6, `${kind}: finite-difference derivative`);
+        } else {
+          assert.equal(kind, "mae");
+          assert.equal(preview.gradient, 0);
+        }
+      }
+    }
+  }
+}
+close(lossValue(3, 0, "mae").loss, 3, "MAE known value");
+close(lossValue(3, 0, "huber", 1).loss, 2.5, "Huber linear branch");
+close(lossValue(0.5, 0, "huber", 1).loss, 0.125, "Huber quadratic branch");
+close(lossValue(0, 1, "bce").loss, Math.log(2), "Uncertain BCE");
+for (const prediction of [-1000, 1000]) for (const target of [0, 1]) {
+  const value = lossValue(prediction, target, "bce");
+  assert.ok(Number.isFinite(value.loss) && Number.isFinite(value.gradient));
+  close(value.loss, (prediction > 0 ? 1 - target : target) * 1000, "Extreme logits");
+  extendedCases.push({ prediction, target, kind: "bce", delta: 1 });
+}
+// Compare every point with the Python implementation without a running server.
+const python = spawnSync(process.env.PYTHON || "python", ["-c", "import json,sys; from backend.app import LossRequest,loss_experiment; print(json.dumps([loss_experiment(LossRequest(**x)) for x in json.load(sys.stdin)]))"], {
+  input: JSON.stringify(extendedCases), encoding: "utf8", maxBuffer: 8 * 1024 * 1024,
+});
+assert.equal(python.status, 0, python.stderr);
+JSON.parse(python.stdout).forEach((actual, index) => {
+  const { prediction, target, kind, delta } = extendedCases[index];
+  const preview = lossPreview(prediction, target, kind, delta);
+  close(actual.loss, preview.loss, `${kind}: backend loss`);
+  close(actual.gradient, preview.gradient, `${kind}: backend gradient`);
+  assert.equal(actual.differentiable, preview.differentiable);
+  assert.equal(actual.curve.length, preview.curve.length);
+  actual.curve.forEach((point, i) => {
+    close(point.x, preview.curve[i].x, `${kind}: backend curve x`);
+    close(point.y, preview.curve[i].y, `${kind}: backend curve y`);
+  });
+});
+console.log(`Loss preview: existing MSE checks plus ${extendedCases.length} multi-loss cases, finite differences, extreme logits and Python parity passed.`);

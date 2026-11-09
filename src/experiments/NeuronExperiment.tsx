@@ -5,6 +5,8 @@ import { calculationStatus, format, useCalculation } from "../lib/api";
 import { useLessonTask } from "../lib/learningProgress";
 import { neuronActivationCurve, neuronOutputCurve, neuronValue } from "../lib/neuron";
 import type { Activation, Pair } from "../lib/neuron";
+import { ACTIVATIONS, activationInfo } from "../lib/activations";
+import ActivationExplorer from "./ActivationExplorer";
 import {
   Slider,
   ExperimentPanel,
@@ -18,6 +20,8 @@ interface NeuronResponse {
   products: [number, number];
   z: number;
   output: number;
+  derivative: number;
+  differentiable: boolean;
   curve: Array<{ x: number; y: number }>;
 }
 
@@ -25,19 +29,8 @@ interface ExperimentProps {
   onInteract: () => void;
 }
 
-const ACTIVATIONS: Activation[] = ["relu", "sigmoid", "tanh", "linear"];
-const ACTIVATION_LABELS: Record<Activation, string> = {
-  relu: "ReLU",
-  sigmoid: "Sigmoid",
-  tanh: "Tanh",
-  linear: "线性",
-};
-const ACTIVATION_FORMULAS: Record<Activation, string> = {
-  relu: String.raw`a = \max(0,z)`,
-  sigmoid: String.raw`a = \frac{1}{1+e^{-z}}`,
-  tanh: String.raw`a = \tanh(z)`,
-  linear: "a = z",
-};
+const ACTIVATION_LABELS = Object.fromEntries(ACTIVATIONS.map(value => [value, activationInfo[value].label])) as Record<Activation, string>;
+const ACTIVATION_FORMULAS = Object.fromEntries(ACTIVATIONS.map(value => [value, activationInfo[value].formula])) as Record<Activation, string>;
 
 function display(value: number | undefined): string {
   return value === undefined ? "—" : value.toFixed(3);
@@ -68,7 +61,6 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
     preview,
   );
   const current = data ?? preview;
-  const activationCurve = current.curve;
   useLessonTask("neuron", activation === "sigmoid" && weights[0] < 0 && curveAxis === 0);
   const outputCurve = useMemo(() => neuronOutputCurve(inputs, weights, bias, activation, curveAxis), [inputs, weights, bias, activation, curveAxis]);
   const referenceCurve = useMemo(() => neuronOutputCurve(inputs, reference.weights, reference.bias, activation, curveAxis), [inputs, reference, activation, curveAxis]);
@@ -85,6 +77,18 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
     setWeights((current) =>
       index === 0 ? [value, current[1]] : [current[0], value],
     );
+    onInteract();
+  }
+
+  function changeActivation(value: Activation) {
+    setActivation(value);
+    onInteract();
+  }
+
+  function activationPreset(z: number) {
+    setInputs([z / 3, 0]);
+    setWeights([3, 0]);
+    setBias(0);
     onInteract();
   }
 
@@ -149,7 +153,9 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
           <p className="panel-note">
             {weights[curveAxis] === 0
               ? "当前横轴对应的权重为 0，输出不随这个输入变化，曲线是一条水平线。"
-              : `调整 w${curveAxis === 0 ? "₁" : "₂"}，观察曲线的陡缓与方向；当前权重${weights[curveAxis] > 0 ? "为正，曲线随输入增大而上升（饱和区或 ReLU 零区可能保持平坦）" : "为负，曲线随输入增大而下降（饱和区或 ReLU 零区可能保持平坦）"}。`}
+              : activation === "silu"
+                ? "SiLU 不是全程单调函数，曲线方向由权重与局部导数的乘积决定。到下方激活实验查看导数的符号。"
+                : `调整 w${curveAxis === 0 ? "₁" : "₂"}，观察曲线的陡缓与方向；当前权重${weights[curveAxis] > 0 ? "为正，曲线随输入增大而上升（饱和区或 ReLU 零区可能保持平坦）" : "为负，曲线随输入增大而下降（饱和区或 ReLU 零区可能保持平坦）"}。`}
             改变偏置 b，观察曲线的位置变化；改变横轴对应的输入值，只会移动标记点。
           </p>
           </details>
@@ -172,10 +178,7 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
                   key={value}
                   type="button"
                   aria-pressed={activation === value}
-                  onClick={() => {
-                    setActivation(value);
-                    onInteract();
-                  }}
+                  onClick={() => changeActivation(value)}
                 >
                   {ACTIVATION_LABELS[value]}
                 </button>
@@ -246,9 +249,13 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
         </div>
       </aside>
       </div>
+      <ActivationExplorer activation={activation} z={current.z} output={current.output}
+        derivative={current.derivative} differentiable={current.differentiable}
+        weight={weights[curveAxis]} axis={curveAxis} onActivation={changeActivation}
+        onPreset={activationPreset} onInteract={onInteract} />
       <details className="neuron-explanation">
         <summary>
-          <span><span className="eyebrow">02 / UNDERSTAND</span><strong>计算过程与激活函数</strong></span>
+          <span><span className="eyebrow">03 / UNDERSTAND</span><strong>展开神经元的计算过程</strong></span>
           <ChevronDown size={18} aria-hidden="true" />
         </summary>
         <div className="neuron-explanation-body">
@@ -491,24 +498,6 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
           </div>
         </ExperimentPanel>
 
-        <ExperimentPanel title="激活函数改变了什么" eyebrow="NONLINEARITY">
-          <Chart
-            series={[{ points: activationCurve, color: "#7ed2c4" }]}
-            xLabel="加权和 z"
-            yLabel="激活输出 a"
-            markers={[{ x: current.z, y: current.output, label: "当前输出", color: "#c2eaa1" }]}
-            ariaLabel={`${ACTIVATION_LABELS[activation]} 激活函数曲线，当前加权和 ${display(current.z)}，输出 ${display(current.output)}`}
-          />
-          <p className="panel-note">
-            {activation === "linear"
-              ? "线性激活不改变加权和。多个纯线性层叠加，仍可合并成一个线性变换。"
-              : activation === "relu"
-                ? "ReLU 保留正值，把负值变为 0。将偏置向左移动，观察当前输出何时归零。"
-                : activation === "sigmoid"
-                  ? "Sigmoid 将输出压缩到 0–1。这个数在本实验中只是激活值，不自动代表可信的分类概率。"
-                  : "Tanh 将输出压缩到 −1 到 1；输入靠近 0 时，输出变化更明显。"}
-          </p>
-        </ExperimentPanel>
         </div>
       </details>
     </div>

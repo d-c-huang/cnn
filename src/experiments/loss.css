@@ -1,0 +1,18 @@
+.loss-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 20px; }
+.loss-picker button { display: grid; gap: 6px; padding: 14px 8px; text-align: left; border: 1px solid #304749; border-radius: 8px; background: #0e1c20; color: #a5bcbc; }
+.loss-picker button strong { color: #deeeeb; font-size: calc(15px * var(--reading-scale, 1)); }
+.loss-picker button span { font-size: calc(12px * var(--reading-scale, 1)); }
+.loss-picker button[aria-pressed="true"] { background: #1c3932; border-color: #83c6a9; }
+.loss-picker button:hover, .loss-presets button:hover { border-color: #83c6a9; }
+.loss-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.loss-toolbar .plot-legend { margin: 0; flex-wrap: wrap; }
+.loss-toolbar .normalize-toggle { margin: 0; }
+.loss-presets { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 22px; }
+.loss-presets button { padding: 8px 10px; border: 1px solid #3a5551; border-radius: 5px; background: #142a28; color: #b9d9cf; font-size: calc(12px * var(--reading-scale, 1)); }
+.loss-formula { overflow-x: auto; font-size: calc(12px * var(--reading-scale, 1)); }
+.loss-table-wrap { overflow-x: auto; }
+.loss-table { width: 100%; border-collapse: collapse; text-align: left; font-size: calc(13px * var(--reading-scale, 1)); color: #b9cfcb; }
+.loss-table th, .loss-table td { padding: 12px 9px; border-bottom: 1px solid #304747; white-space: nowrap; }
+.loss-table thead { color: #8fa7a6; }
+.loss-table tr[aria-current="true"] { background: #1b342e; color: #d2efde; }
+@media (max-width: 600px) { .loss-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); } .loss-table th, .loss-table td { padding: 10px 7px; } }

@@ -5,7 +5,7 @@ export const lessonTasks: Record<string, { title: string; instruction: string }>
   data: { title: "观察灰度归一化", instruction: "把选中像素的灰度设为 128，并打开归一化，确认转换后的数值约为 0.502。" },
   linear: { title: "找到准确拟合", instruction: "调整权重与偏置，让五个样本的均方误差 MSE 小于 0.001。" },
   neuron: { title: "观察负权重的作用", instruction: "选择 Sigmoid 激活，将权重 w₁ 调为负值，观察输出随输入 x₁ 增大而下降。" },
-  loss: { title: "找到损失最低点", instruction: "让预测值等于真实标签，确认平方误差与梯度同时为 0。" },
+  loss: { title: "找到损失最低点", instruction: "在回归损失中让预测值等于真实标签，确认损失与梯度（MAE 为选取的次梯度）同时为 0。" },
   gradient: { title: "验证梯度下降", instruction: "实际执行至少 3 次参数更新，并让损失低于本次训练的初始损失。" },
   graph: { title: "读懂局部梯度", instruction: "切换到反向梯度，查看 Tanh 节点的局部导数与梯度传递。" },
   backprop: { title: "完成一次反向传播更新", instruction: "沿计算图完成反向传播，并实际应用至少一次参数更新。" },
