@@ -9,7 +9,7 @@
   min-height: 330px;
   display: grid;
   place-items: center;
-  color: #8b987d;
+  color: var(--text-3);
   font-size: 12px;
 }
 .gz-graph {
@@ -23,7 +23,7 @@
   gap: 12px;
   flex-wrap: wrap;
   margin: 6px 0 12px;
-  color: #7e8f6b;
+  color: var(--fwd);
 }
 .gz-direction > span {
   display: flex;
@@ -33,7 +33,7 @@
 }
 .gz-direction > small {
   font-size: 10px;
-  color: #a1ab96;
+  color: var(--text-2);
 }
 .gz-desktop {
   position: relative;
@@ -46,7 +46,7 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  color: #c1cbb4;
+  color: var(--text-2);
 }
 .gz-edge {
   fill: none;
@@ -54,11 +54,11 @@
   stroke-width: 1.6;
 }
 .gz-edge-selected {
-  color: #94aa79;
+  color: var(--fwd);
   stroke-width: 2.2;
 }
 .gz-edge-active {
-  color: #638b3a;
+  color: var(--fwd);
   stroke-width: 3;
 }
 .gz-node {
@@ -67,10 +67,10 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background: #f7f9f2;
-  border: 1px solid #dfe6d4;
-  border-radius: 7px;
-  color: #687b55;
+  background: var(--surface-2);
+  border: 1px solid var(--text-1);
+  border-radius: var(--radius-sm);
+  color: var(--fwd);
   min-width: 0;
   padding: 7px 5px;
   font-variant-numeric: tabular-nums;
@@ -85,25 +85,24 @@
   height: 17%;
 }
 .gz-node:hover {
-  border-color: #94ad75;
-  background: #edf4e3;
+  border-color: var(--fwd);
+  background: var(--surface-2);
 }
 .gz-node.gz-parameter {
-  background: #eef2e7;
+  background: var(--surface-2);
 }
 .gz-node.gz-selected {
-  border-color: #8ba969;
-  box-shadow: 0 0 0 2px #dfeacd;
-  background: #eaf2df;
+  border-color: var(--fwd);
+  background: var(--surface-2);
 }
 .gz-node.gz-active {
-  background: #c9ef6b;
-  border-color: #a7ca52;
-  color: #344b20;
+  background: var(--fwd);
+  border-color: var(--fwd);
+  color: var(--fwd);
 }
 .gz-node.gz-unrevealed {
-  color: #a8b19d;
-  background: #fafbf8;
+  color: var(--text-2);
+  background: var(--surface-2);
 }
 .gz-node-label {
   display: flex;
@@ -116,7 +115,7 @@
 .gz-node-label i {
   font-family: Georgia, serif;
   font-size: 10px;
-  color: #9aa98a;
+  color: var(--fwd);
   font-style: normal;
 }
 .gz-node > strong {
@@ -126,20 +125,20 @@
 }
 .gz-node > small {
   font-size: 10px;
-  color: #98a58a;
+  color: var(--text-2);
   line-height: 1.25;
 }
 .gz-node.gz-active > small {
-  color: #6d8e48;
+  color: var(--fwd);
 }
 .gz-mobile {
   display: none;
 }
 .gz-node-detail {
-  border-top: 1px solid #e4e9dc;
+  border-top: 1px solid var(--text-1);
   margin-top: 23px;
   padding-top: 18px;
-  color: #70825c;
+  color: var(--fwd);
   min-width: 0;
 }
 .gz-detail-heading {
@@ -150,11 +149,11 @@
 }
 .gz-detail-heading > span:last-child {
   font-size: 10px;
-  color: #9aa68d;
+  color: var(--text-2);
 }
 .gz-expression {
   font-size: 14px;
-  color: #50683b;
+  color: var(--fwd);
   line-height: 1.8;
   margin-top: 8px;
   overflow-wrap: anywhere;
@@ -175,7 +174,7 @@
 .gz-detail-values strong {
   font-size: 17px;
   font-weight: 500;
-  color: #526d3a;
+  color: var(--fwd);
 }
 .gz-chain-list {
   margin-top: 16px;
@@ -184,29 +183,29 @@
 }
 .gz-chain-list > p {
   font-size: 11px;
-  color: #98a68a;
+  color: var(--text-2);
 }
 .gz-chain-list > div {
   display: grid;
   grid-template-columns: minmax(70px, auto) minmax(0, 1fr);
   gap: 3px 13px;
   padding: 12px 0;
-  border-bottom: 1px solid #eff2e9;
+  border-bottom: 1px solid var(--text-1);
 }
 .gz-chain-list code {
-  font-family: "Cascadia Code", Consolas, monospace;
-  color: #60794a;
+  font-family: var(--font-mono);
+  color: var(--fwd);
   font-size: 12px;
   overflow-wrap: anywhere;
 }
 .gz-chain-list small {
   grid-column: 2;
-  color: #a1ad94;
+  color: var(--text-2);
   font-size: 10px;
 }
 .gz-wait-note {
   font-size: 11px;
-  color: #a0ab95;
+  color: var(--text-2);
   line-height: 1.9;
   margin-top: 12px;
 }
@@ -214,8 +213,8 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   padding: 5px;
-  background: #f0f3e9;
-  border-radius: 7px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
   gap: 5px;
   margin-bottom: 20px;
 }
@@ -227,17 +226,16 @@
   gap: 8px;
   font-size: 11px;
   background: transparent;
-  border-radius: 5px;
-  color: #9aa88a;
+  border-radius: var(--radius-sm);
+  color: var(--fwd);
 }
 .gz-stages > button > span {
   font-size: 9px;
-  color: #a7b498;
+  color: var(--text-2);
 }
 .gz-stages > button[aria-pressed="true"] {
-  background: #fff;
-  color: #536d38;
-  box-shadow: 0 1px 5px #3c4c2512;
+  background: var(--surface-2);
+  color: var(--fwd);
 }
 .gz-player {
   display: flex;
@@ -247,27 +245,27 @@
   flex-wrap: wrap;
   padding-top: 17px;
   margin-top: 9px;
-  border-top: 1px solid #e9eee0;
+  border-top: 1px solid var(--text-1);
 }
 .gz-player > span {
   font-size: 11px;
-  color: #92a27f;
+  color: var(--fwd);
 }
 .gz-step-explanation {
-  background: #eef3e5;
-  border-radius: 6px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
   padding: 14px 16px;
   margin-top: 17px;
 }
 .gz-step-explanation p {
   font-size: 12px;
-  color: #7b8d66;
+  color: var(--fwd);
   line-height: 1.9;
   margin-top: 6px;
   overflow-wrap: anywhere;
 }
 .gz-update-section {
-  border-top: 1px solid #e4e9db;
+  border-top: 1px solid var(--text-1);
   padding-top: 23px;
   margin-top: 20px;
 }
@@ -281,7 +279,7 @@
 }
 .gz-current-parameters {
   margin-top: 27px;
-  border-top: 1px solid #dfe6d4;
+  border-top: 1px solid var(--text-1);
   padding-top: 18px;
 }
 .gz-current-parameters dl {
@@ -297,20 +295,20 @@
   font-size: 12px;
 }
 .gz-current-parameters dt {
-  color: #91a17f;
+  color: var(--fwd);
 }
 .gz-current-parameters dd {
   margin: 0;
-  color: #566f3f;
+  color: var(--fwd);
   font-variant-numeric: tabular-nums;
 }
 .gz-applied-message {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: #eaf2df;
-  color: #6c8651;
-  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--fwd);
+  border-radius: var(--radius-sm);
   padding: 16px 18px;
 }
 .gz-applied-message > svg {
@@ -345,10 +343,10 @@
     left: 6px;
     top: 5px;
     font-size: 8px;
-    color: #b1bba5;
+    color: var(--text-2);
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .gz-mobile {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

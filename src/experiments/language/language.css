@@ -1,0 +1,41 @@
+.language-lab { display: grid; gap: 22px; }
+.language-generation-controls { margin: 0; padding: 0; border: 0; min-width: 0; }
+.language-field textarea:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 3px; }
+.language-lab p { color: var(--text-2); line-height: 1.85; }
+.language-intro, .language-reading { padding: 22px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-1); }
+.language-field { display: grid; gap: 10px; margin: 16px 0; color: var(--text-1); font-weight: 600; }
+.language-field textarea, .language-field input { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: 10px; padding: 13px; background: var(--surface-2); color: var(--text-1); font: inherit; line-height: 1.7; }
+.language-field textarea { resize: vertical; }
+.language-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.language-status:empty { display: none; }
+.language-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; }
+.language-metrics > div { display: grid; gap: 9px; padding: 18px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; }
+.language-metrics span { color: var(--text-2); font-size: var(--fs12); }
+.language-metrics strong { color: var(--text-1); font-size: var(--fs22); font-variant-numeric: tabular-nums; }
+.language-vocab, .language-pairs { display: flex; flex-wrap: wrap; gap: 8px; }
+.language-vocab > span { display: grid; gap: 7px; min-width: 42px; text-align: center; border: 1px solid var(--border); border-radius: 8px; padding: 9px; }
+.language-vocab small, .language-pairs small { color: var(--text-3); }
+.language-pairs button[aria-pressed="true"] { border-color: var(--fwd); background: var(--surface-3); }
+.language-lab pre { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.9; font: inherit; }
+.language-lab summary { cursor: pointer; padding: 12px 0; color: var(--text-1); }
+.language-chart { margin: 22px 0; }
+.language-chart svg { width: 100%; max-height: 320px; overflow: visible; }
+.language-chart text { fill: var(--text-2); font-size: 12px; }
+.language-axis { fill: none; stroke: var(--border); }
+.language-train-line { fill: none; stroke: var(--fwd); stroke-width: 2.5; }
+.language-validation-line { fill: none; stroke: var(--text-2); stroke-width: 2; stroke-dasharray: 6 4; }
+.language-chart figcaption { display: flex; flex-wrap: wrap; gap: 20px; font-size: var(--fs12); color: var(--text-2); }
+.language-table { overflow-x: auto; }
+.language-table table { width: 100%; text-align: left; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.language-table td, .language-table th { padding: 10px; border-bottom: 1px solid var(--border); }
+.language-output { padding: 20px; border-radius: 12px; background: var(--surface-2); color: var(--text-1); }
+.language-output > span { color: var(--fwd); font-weight: 700; }
+.language-distribution { display: grid; gap: 13px; }
+.language-distribution > div { display: grid; grid-template-columns: 65px minmax(0, 1fr) 75px; gap: 12px; align-items: center; font-variant-numeric: tabular-nums; }
+.language-distribution meter { width: 100%; accent-color: var(--fwd); }
+@media (max-width: 640px) { .language-intro, .language-reading { padding: 16px; } .language-actions > button { flex: 1 1 auto; } }
+
+.transformer-config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 16px; }
+.language-field select { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--surface-2); color: var(--text-1); font: inherit; }
+.language-field select:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 3px; }
+.lora-frozen-status { padding: 16px; border-left: 3px solid var(--ok); background: var(--surface-2); }

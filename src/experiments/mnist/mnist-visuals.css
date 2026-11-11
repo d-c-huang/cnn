@@ -3,8 +3,8 @@
   max-width: 100%;
   height: auto;
   aspect-ratio: 1;
-  background: #000;
-  border-radius: 4px;
+  background: var(--surface-0);
+  border-radius: var(--radius-sm);
   image-rendering: pixelated;
 }
 .mv-training-curves,
@@ -28,7 +28,7 @@
   align-items: center;
   gap: 19px;
   font-size: 11px;
-  color: #7f8d71;
+  color: var(--text-3);
 }
 .mv-curve-legend > span {
   display: flex;
@@ -39,10 +39,10 @@
 .mv-validation-swatch {
   display: inline-block;
   width: 18px;
-  border-top: 2px solid #34452d;
+  border-top: 2px solid var(--border);
 }
 .mv-validation-swatch {
-  border-color: #739e8a;
+  border-color: var(--fwd);
   border-top-style: dashed;
 }
 .mv-curve-toolbar > label {
@@ -50,14 +50,14 @@
   align-items: center;
   gap: 9px;
   font-size: 11px;
-  color: #7e8d6d;
+  color: var(--fwd);
 }
 .mv-curve-toolbar select {
   max-width: 160px;
-  background: #f6f8f1;
-  border: 1px solid #dfe6d5;
-  border-radius: 5px;
-  color: #5b7342;
+  background: var(--surface-2);
+  border: 1px solid var(--text-1);
+  border-radius: var(--radius-sm);
+  color: var(--fwd);
   padding: 7px 9px;
   font: inherit;
   font-size: 11px;
@@ -78,42 +78,42 @@
   overflow: visible;
 }
 .mv-grid-line {
-  stroke: #e9ede1;
+  stroke: var(--text-1);
   stroke-width: 1;
 }
 .mv-axis-text,
 .mv-axis-title {
   font-family: inherit;
-  fill: #8d9b7d;
+  fill: var(--fwd);
   font-size: 11px;
 }
 .mv-train-line {
   fill: none;
-  stroke: #34452d;
+  stroke: var(--surface-3);
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 .mv-validation-line {
   fill: none;
-  stroke: #739e8a;
+  stroke: var(--fwd);
   stroke-width: 2.4;
   stroke-dasharray: 5 4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 .mv-train-point {
-  fill: #34452d;
-  stroke: #fff;
+  fill: var(--surface-3);
+  stroke: var(--text-1);
   stroke-width: 1;
 }
 .mv-validation-point {
-  fill: #87ae9d;
-  stroke: #fff;
+  fill: var(--fwd);
+  stroke: var(--text-1);
   stroke-width: 1;
 }
 .mv-epoch-guide {
-  stroke: #b4c49f;
+  stroke: var(--fwd);
   stroke-width: 1;
   stroke-dasharray: 3 5;
 }
@@ -123,12 +123,12 @@
   gap: 12px;
   flex-wrap: wrap;
   font-size: 11px;
-  color: #8d9b7c;
+  color: var(--fwd);
   line-height: 1.9;
   margin-top: 7px;
 }
 .mv-curve-values strong {
-  color: #50693b;
+  color: var(--fwd);
   font-size: 13px;
   font-weight: 500;
   margin-left: 4px;
@@ -136,7 +136,7 @@
 .mv-note {
   font-size: 11px;
   line-height: 1.9;
-  color: #95a187;
+  color: var(--text-2);
   margin-top: 15px;
 }
 .mv-empty-curves,
@@ -149,7 +149,7 @@
   flex-direction: column;
   gap: 15px;
   text-align: center;
-  color: #91a07e;
+  color: var(--fwd);
   font-size: 12px;
   line-height: 1.9;
   padding: 15px;
@@ -157,13 +157,13 @@
 .mv-empty-curves > span {
   font-size: 27px;
   letter-spacing: 1px;
-  color: #c3cfb4;
+  color: var(--text-1);
 }
 .mv-empty-curves > p,
 .mv-error-empty > p {
   max-width: 490px;
   font-size: 11px;
-  color: #a1ad94;
+  color: var(--text-2);
   line-height: 1.9;
 }
 .mv-matrix-mode {
@@ -177,7 +177,7 @@
 }
 .mv-matrix-axis {
   font-size: 12px;
-  color: #697f52;
+  color: var(--fwd);
   margin-bottom: 13px;
   line-height: 1.8;
 }
@@ -208,7 +208,7 @@
 .mv-matrix-table th {
   font-size: 11px;
   font-weight: 500;
-  color: #7d9067;
+  color: var(--fwd);
   height: 33px;
   text-align: center;
 }
@@ -229,27 +229,26 @@
   width: 100%;
   height: 35px;
   min-width: 0;
-  background: #f8faf4;
+  background: var(--surface-2);
   border: 1px solid transparent;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
-  color: #54703b;
+  color: var(--fwd);
   padding: 3px 2px;
   line-height: 1;
 }
 .mv-matrix-table button:hover {
-  outline: 1px solid #a4ba88;
+  outline: 1px solid var(--fwd);
   outline-offset: 0;
 }
 .mv-matrix-table button.mv-off-diagonal {
-  color: #a26f47;
+  color: var(--bwd);
 }
 .mv-matrix-table button.mv-cell-selected {
-  outline: 2px solid #638a3a;
+  outline: 2px solid var(--border);
   outline-offset: 0;
-  border-color: #f9fcf4;
-  box-shadow: 0 0 0 2px #d6e5c0;
+  border-color: var(--text-1);
 }
 .mv-matrix-caption {
   display: flex;
@@ -259,7 +258,7 @@
   margin-top: 14px;
   font-size: 11px;
   line-height: 1.9;
-  color: #99a58a;
+  color: var(--text-2);
 }
 .mv-matrix-caption > span {
   display: flex;
@@ -270,16 +269,16 @@
 .mv-error-key {
   height: 10px;
   width: 10px;
-  background: #c0d6a8;
-  border-radius: 2px;
+  background: var(--fwd);
+  border-radius: var(--radius-sm);
   display: inline-block;
 }
 .mv-error-key {
-  background: #e5c6aa;
+  background: var(--fwd);
 }
 .mv-matrix-selection {
   font-size: 12px;
-  color: #728958;
+  color: var(--fwd);
   margin-top: 14px;
   line-height: 1.9;
 }
@@ -291,12 +290,12 @@
   flex-wrap: wrap;
   font-size: 11px;
   line-height: 1.9;
-  color: #8d9d79;
+  color: var(--fwd);
   margin-bottom: 18px;
 }
 .mv-errors-heading > span:last-child {
   font-size: 11px;
-  color: #a0ac93;
+  color: var(--text-2);
 }
 .mv-error-grid {
   display: grid;
@@ -310,25 +309,25 @@
   gap: 10px;
   min-width: 0;
   padding: 17px 10px;
-  background: #f7f9f3;
-  border: 1px solid #e1e8d7;
-  border-radius: 7px;
+  background: var(--surface-2);
+  border: 1px solid var(--text-1);
+  border-radius: var(--radius-sm);
   text-align: center;
-  color: #6f8557;
+  color: var(--fwd);
   transition:
     background 0.15s,
     border-color 0.15s;
 }
 .mv-error-card:hover {
-  background: #edf4e2;
-  border-color: #acc78c;
+  background: var(--surface-2);
+  border-color: var(--fwd);
 }
 .mv-error-card .mv-digit {
   margin-bottom: 3px;
 }
 .mv-error-index {
   font-size: 10px;
-  color: #a5b097;
+  color: var(--text-2);
 }
 .mv-error-labels {
   display: flex;
@@ -341,18 +340,18 @@
 .mv-error-labels strong {
   font-size: 16px;
   font-weight: 500;
-  color: #4c6538;
+  color: var(--fwd);
 }
 .mv-error-labels strong:last-child {
-  color: #b58252;
+  color: var(--bwd);
 }
 .mv-error-labels > span {
-  color: #b6c0ab;
+  color: var(--text-2);
   margin: 0 1px;
 }
 .mv-error-confidence {
   font-size: 11px;
-  color: #96a286;
+  color: var(--text-2);
 }
 .mv-error-pagination {
   display: flex;
@@ -363,7 +362,7 @@
 }
 .mv-error-pagination > span {
   font-size: 11px;
-  color: #9aa78c;
+  color: var(--text-2);
   white-space: nowrap;
 }
 @media (max-width: 900px) {
@@ -372,7 +371,7 @@
     gap: 25px;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .mv-curve-toolbar {
     gap: 15px;
   }
@@ -415,8 +414,5 @@
     font-size: 11px;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .mv-error-card {
-    transition: none;
-  }
-}
+
+.mv-matrix-table td { background: var(--surface-1); }

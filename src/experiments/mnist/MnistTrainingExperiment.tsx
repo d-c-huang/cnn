@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Download, Play, Square } from "lucide-react";
 import { ErrorMessage, ExperimentPanel, Result } from "../../components/ui";
+import TweenNumber from "../../components/TweenNumber";
 import { format } from "../../lib/api";
 import { useLessonTask } from "../../lib/learningProgress";
 import { isMnistTrainingTaskComplete } from "../../lib/advancedTaskChecks";
@@ -454,14 +455,14 @@ export default function MnistTrainingExperiment({
               <Result
                 label="最新完整轮 · 训练准确率"
                 value={
-                  latest ? `${(latest.train_accuracy * 100).toFixed(2)}%` : "—"
+                  latest ? <TweenNumber value={latest.train_accuracy * 100} suffix="%" /> : "—"
                 }
               />
               <Result
                 label="最新完整轮 · 验证准确率"
                 value={
                   latest
-                    ? `${(latest.validation_accuracy * 100).toFixed(2)}%`
+                    ? <TweenNumber value={latest.validation_accuracy * 100} suffix="%" />
                     : "—"
                 }
               />

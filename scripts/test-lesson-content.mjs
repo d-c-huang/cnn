@@ -2,9 +2,18 @@ import assert from "node:assert/strict";
 import { renderToString } from "katex";
 import { lessonInsights } from "../src/lib/lessonInsights.ts";
 import { lessonDeepDives } from "../src/lib/lessonDeepDives.ts";
+import { recallFeedback, transferQuestions, predictionPrompts } from "../src/lib/studyQuestions.ts";
 
 assert.deepEqual(Object.keys(lessonDeepDives).sort(), Object.keys(lessonInsights).sort(), "Every existing course needs matching enrichment");
 for (const [id, content] of Object.entries(lessonDeepDives)) {
+  const recall = lessonInsights[id].quiz;
+  const transfer = transferQuestions[id];
+  assert.ok(transfer && transfer.question !== recall.question, `${id}: add a distinct transfer question`);
+  for (const [quiz, feedback] of [[recall, recallFeedback[id]], [transfer, transfer.whyWrong]]) {
+    assert.equal(quiz.options.length, 3);
+    quiz.options.forEach((_, index) => { if (index !== quiz.answer) assert.ok(feedback[index]?.trim().length > 0, `${id}: explain each distractor`); });
+  }
+  assert.ok(predictionPrompts[id] || ["gradient", "neuron"].includes(id), `${id}: prediction before observation`);
   assert.ok(content.example.steps.length >= 3, `${id}: provide a worked sequence`);
   assert.ok(content.observations.length >= 2 && content.terms.length >= 2, `${id}: provide observation prompts and definitions`);
   assert.ok(content.next === "overview" || lessonDeepDives[content.next], `${id}: next course must exist`);
@@ -22,4 +31,4 @@ close(-Math.log(0.9), 0.1054);
 close(Math.exp(4) / (Math.exp(4) + 9), 0.8585);
 assert.equal(Math.ceil(1000 / 64), 16);
 assert.equal(1000 - 15 * 64, 40);
-console.log("Lesson content: 13 courses, working navigation, valid TeX and numerical examples passed.");
+console.log(`Lesson content: ${Object.keys(lessonInsights).length} courses, working navigation, valid TeX and numerical examples passed.`);

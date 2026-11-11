@@ -282,7 +282,7 @@ export default function BackpropExperiment({
             </p>
             <p>
               本节 L = ½(a − y)²；系数 ½ 让 ∂L/∂a = a −
-              y，和第一期没有系数的平方误差相差一倍。
+              y，和第一阶段没有系数的平方误差相差一倍。
             </p>
           </div>
         </div>

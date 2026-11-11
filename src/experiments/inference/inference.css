@@ -11,14 +11,14 @@
 }
 .if-model {
   padding: 17px 19px;
-  border: 1px solid #e0e6d7;
-  border-radius: 8px;
-  background: #f8faf4;
+  border: 1px solid var(--text-1);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
   min-width: 0;
 }
 .if-model.selected {
-  border-color: #abc683;
-  background: #edf4e2;
+  border-color: var(--fwd);
+  background: var(--surface-2);
 }
 .if-model-toggle {
   display: flex;
@@ -39,28 +39,28 @@
 .if-model-toggle strong {
   font-size: 24px;
   font-weight: 500;
-  color: #4d6936;
+  color: var(--fwd);
 }
 .if-model-toggle small {
   font-size: 12px;
-  color: #82966e;
+  color: var(--fwd);
 }
 .if-check {
   font-size: 10px;
-  color: #8c9f78;
+  color: var(--fwd);
   white-space: nowrap;
 }
 .if-model.selected .if-check {
-  color: #668b3d;
+  color: var(--fwd);
 }
 .if-model > p {
   font-size: 11px;
   line-height: 1.9;
-  color: #6f8758;
+  color: var(--fwd);
   margin-top: 13px;
 }
 .if-model > p > span {
-  color: #96a58b;
+  color: var(--text-2);
 }
 .if-model > code {
   display: block;
@@ -69,7 +69,7 @@
     10px "Cascadia Code",
     Consolas,
     monospace;
-  color: #a0ad93;
+  color: var(--text-2);
   overflow-wrap: anywhere;
 }
 .if-model > label {
@@ -78,17 +78,17 @@
   gap: 9px;
   margin-top: 16px;
   font-size: 11px;
-  color: #81966b;
+  color: var(--fwd);
 }
 .if-model select {
   min-width: 0;
   max-width: 100%;
   font-size: 11px;
-  border: 1px solid #dce6cf;
-  background: #fff;
-  border-radius: 4px;
+  border: 1px solid var(--text-1);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
   padding: 8px;
-  color: #5e7945;
+  color: var(--fwd);
 }
 .if-workbench {
   display: grid;
@@ -109,15 +109,15 @@
   flex-direction: column;
   gap: 8px;
   font-size: 11px;
-  color: #8c9d7c;
+  color: var(--fwd);
 }
 .if-example-loader select {
   padding: 9px 11px;
-  border: 1px solid #dce5d1;
-  border-radius: 5px;
-  background: #fbfdf6;
+  border: 1px solid var(--text-1);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
   font-size: 12px;
-  color: #5f7b43;
+  color: var(--fwd);
 }
 .if-identify-row {
   display: flex;
@@ -128,7 +128,7 @@
 }
 .if-identify-row > span {
   font-size: 11px;
-  color: #91a080;
+  color: var(--fwd);
   line-height: 1.8;
   text-align: center;
 }
@@ -139,12 +139,12 @@
   justify-content: center;
   align-items: center;
   gap: 16px;
-  color: #9cac8d;
+  color: var(--fwd);
 }
 .if-input-placeholder > span {
   font-size: 35px;
   letter-spacing: -1px;
-  color: #c0ccb1;
+  color: var(--text-2);
   font-weight: 400;
 }
 .if-input-placeholder > p {
@@ -166,7 +166,7 @@
 .if-processed-image strong {
   display: block;
   font-size: 15px;
-  color: #617c46;
+  color: var(--fwd);
   font-weight: 500;
   line-height: 1.8;
   margin-top: 10px;
@@ -174,7 +174,7 @@
 .if-processed-image p {
   font-size: 11px;
   line-height: 2;
-  color: #91a57b;
+  color: var(--fwd);
   margin-top: 12px;
 }
 .if-prediction-grid {
@@ -187,12 +187,12 @@
 }
 .if-example-check {
   font-size: 12px;
-  color: #bc9167;
+  color: var(--fwd);
   line-height: 1.9;
   margin-top: 16px;
 }
 .if-example-check.correct {
-  color: #7d9d56;
+  color: var(--ok);
 }
 .if-results-empty {
   min-height: 180px;
@@ -201,7 +201,7 @@
   justify-content: center;
   align-items: center;
   gap: 18px;
-  color: #a3b191;
+  color: var(--fwd);
 }
 .if-results-empty p {
   font-size: 12px;
@@ -214,23 +214,23 @@
   gap: 17px;
   flex-wrap: wrap;
   margin: 12px 0 22px;
-  color: #95a381;
+  color: var(--fwd);
 }
 .if-serving-flow > span {
   display: inline-flex;
   align-items: center;
   gap: 9px;
   font-size: 13px;
-  color: #67804c;
+  color: var(--fwd);
 }
 .if-code {
   font:
     12px/1.9 "Cascadia Code",
     Consolas,
     monospace;
-  color: #d9e5c8;
-  background: #2c3525;
-  border-radius: 7px;
+  color: var(--fwd);
+  background: var(--surface-3);
+  border-radius: var(--radius-sm);
   padding: 19px;
   margin: 19px 0;
   white-space: pre-wrap;
@@ -242,7 +242,7 @@
   flex-direction: column;
   gap: 15px;
   margin: 24px 0;
-  color: #8b9f77;
+  color: var(--fwd);
   font-size: 12px;
   line-height: 1.9;
 }
@@ -254,7 +254,7 @@
 .if-deploy-steps strong {
   font-weight: 500;
   min-width: 32px;
-  color: #5d7a42;
+  color: var(--fwd);
 }
 .if-deploy-steps code {
   overflow-wrap: anywhere;
@@ -262,12 +262,12 @@
 .if-experiment .text-button + a.text-button {
   margin-left: 20px;
 }
-@media (max-width: 1150px) {
+@media (max-width: 1200px) {
   .if-workbench {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-@media (max-width: 650px) {
+@media (max-width: 640px) {
   .if-model-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 13px;

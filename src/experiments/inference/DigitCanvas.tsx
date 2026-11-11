@@ -83,7 +83,7 @@ export default function DigitCanvas({
   useEffect(() => {
     const ctx = context();
     if (!ctx) return;
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "rgb(0, 0, 0)";
     ctx.fillRect(0, 0, side, side);
     snapshots.current = [];
     setUndoCount(0);
@@ -177,8 +177,9 @@ export default function DigitCanvas({
     setDrawing(true);
     setEmpty(false);
     setMode("canvas");
-    ctx.strokeStyle = "#fff";
-    ctx.fillStyle = "#fff";
+    // Canvas paint is grayscale input data; Canvas 2D cannot resolve CSS variables.
+    ctx.strokeStyle = "rgb(255, 255, 255)";
+    ctx.fillStyle = "rgb(255, 255, 255)";
     ctx.lineWidth = brush;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -223,7 +224,7 @@ export default function DigitCanvas({
     remember();
     const ctx = context();
     if (!ctx) return;
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "rgb(0, 0, 0)";
     ctx.fillRect(0, 0, side, side);
     emit(readCanvas());
   }

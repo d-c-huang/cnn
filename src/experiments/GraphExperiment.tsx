@@ -110,7 +110,7 @@ export default function GraphExperiment({
             </p>
             <p>
               本节使用 L = ½(a − y)²，系数 ½ 让导数简化为 a −
-              y；第一期使用的平方误差没有这个系数。
+              y；第一阶段使用的平方误差没有这个系数。
             </p>
           </div>
         </div>

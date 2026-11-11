@@ -1,3 +1,4 @@
+import { overlayLabelColor } from "../../lib/colorContrast";
 import { useState } from "react";
 import type { Evaluation } from "../../lib/mnist";
 import "./mnist-visuals.css";
@@ -83,6 +84,7 @@ export default function ConfusionMatrix({
                         <button
                           className={`${truth === predicted ? "mv-diagonal" : "mv-off-diagonal"} ${active ? "mv-cell-selected" : ""}`}
                           style={{
+                            color: strength ? overlayLabelColor(truth === predicted ? [117, 153, 77] : [200, 149, 108], strength) : "var(--text-2)",
                             backgroundColor: strength
                               ? truth === predicted
                                 ? `rgba(117, 153, 77, ${strength})`

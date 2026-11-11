@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUpRight, Check, Cpu, Grid3X3, Layers3, Network, Play, ScanLine, Trophy } from "lucide-react";
+import NeuralScene from "./NeuralScene";
 import "./learning-overview.css";
 
 type Tool = "convolution" | "network-builder" | "challenges";
@@ -19,6 +20,12 @@ const stages = [
   { name: "连接网络", description: "串起计算图、反向传播与 XOR", start: 5, end: 8, icon: Network },
   { name: "训练模型", description: "用 MNIST 数据训练 MLP 与 CNN", start: 8, end: 11, icon: Cpu },
   { name: "创造应用", description: "手写识别、模型推理与部署", start: 11, end: 13, icon: ScanLine },
+  { name: "学习语言", description: "字符分词、语言模型训练与文本生成", start: 13, end: 16, icon: Network },
+  { name: "训练 Transformer", description: "因果注意力、真实训练、检查点与文本生成", start: 16, end: 19, icon: Cpu },
+  { name: "LoRA 微调", description: "公开预训练模型、真实低秩微调与生成对比", start: 19, end: 22, icon: Layers3 },
+  { name: "指令微调 SFT", description: "自定义问答、回答监督、真实微调与多轮对话", start: 22, end: 25, icon: Network },
+  { name: "偏好优化 DPO", description: "自定义偏好对、固定参考、真实优化与对话对照", start: 25, end: 28, icon: Layers3 },
+  { name: "强化学习 GRPO", description: "自定义奖励、在线采样、真实 LoRA 更新与生成对照", start: 28, end: 31, icon: Cpu },
 ];
 
 const tools = [
@@ -36,18 +43,18 @@ export default function LearningOverview({ currentLesson, phase, completed, less
     <div className="learning-overview" data-effects={effects ? "on" : "off"}>
       <div className="lo-welcome-grid">
         <section className="lo-welcome" aria-labelledby="lo-title">
-          <span className="lo-eyebrow"><span aria-hidden="true" />LEARNING WORKSPACE</span>
+          <NeuralScene phase={phase} effects={effects} />
           <h1 id="lo-title">让每一次动手，<br />都离理解 AI 更近一步。</h1>
           <p>沿着学习路径逐步探索，或进入工坊自由实验。<br className="lo-desktop-break" />从一个像素开始，把模型的计算看清楚。</p>
           <div className="lo-facts" aria-label="课程概览">
             <span><strong>{lessonIds.length}</strong> 交互实验</span>
-            <span><strong>4</strong> 学习阶段</span>
+            <span><strong>{stages.length}</strong> 学习阶段</span>
             <span><strong>3</strong> 探索工具</span>
           </div>
         </section>
 
         <section className="lo-resume" aria-labelledby="lo-resume-title">
-          <div className="lo-resume-top"><span className="lo-eyebrow">YOUR NEXT STEP</span><span className="lo-lesson-number">{String(currentLesson.index + 1).padStart(2, "0")} / {lessonIds.length}</span></div>
+          <div className="lo-resume-top"><span>当前该做什么</span><span className="lo-lesson-number">{String(currentLesson.index + 1).padStart(2, "0")} / {lessonIds.length}</span></div>
           <span className="lo-current-lesson">{currentComplete ? "再次探索" : "当前实验"} · {currentLesson.name}</span>
           <h2 id="lo-resume-title">{currentLesson.title}</h2>
           <p>{currentLesson.description}</p>
@@ -58,7 +65,7 @@ export default function LearningOverview({ currentLesson, phase, completed, less
       </div>
 
       <section className="lo-section" aria-labelledby="lo-path-title">
-        <div className="lo-section-heading"><div><span className="lo-eyebrow">LEARNING PATH</span><h2 id="lo-path-title">循序渐进，连接每一块知识</h2></div><span className="lo-section-note">选择阶段，进入对应实验</span></div>
+        <div className="lo-section-heading"><div><h2 id="lo-path-title">循序渐进，连接每一块知识</h2></div><span className="lo-section-note">选择阶段，进入对应实验</span></div>
         <div className="lo-stage-grid">
           {stages.map((stage, index) => {
             const Icon = stage.icon;
@@ -66,7 +73,7 @@ export default function LearningOverview({ currentLesson, phase, completed, less
             const done = ids.filter(id => completed.includes(id)).length;
             const finished = ids.length > 0 && done === ids.length;
             return <button key={stage.name} type="button" className={`lo-stage ${phase === index + 1 ? "is-current" : ""}`} onClick={() => onSelectPhase(stage.start)} aria-label={`${stage.name}，已完成 ${done} / ${ids.length} 个实验`}>
-              <div className="lo-stage-top"><span className="lo-stage-icon"><Icon size={20} /></span><span className="lo-stage-index">0{index + 1}</span>{finished ? <Check size={17} className="lo-stage-state" aria-label="已完成" /> : phase === index + 1 ? <span className="lo-stage-current">当前阶段</span> : <ArrowUpRight size={16} className="lo-stage-state" />}</div>
+              <div className="lo-stage-top"><span className="lo-stage-icon"><Icon size={20} /></span><span className="lo-stage-index">{String(index + 1).padStart(2, "0")}</span>{finished ? <Check size={17} className="lo-stage-state" aria-label="已完成" /> : phase === index + 1 ? <span className="lo-stage-current">当前阶段</span> : <ArrowUpRight size={16} className="lo-stage-state" />}</div>
               <h3>{stage.name}</h3><p>{stage.description}</p>
               <div className="lo-stage-footer"><span>{done} / {ids.length} 已完成</span><ArrowRight size={15} /></div>
               <div className="lo-stage-progress" aria-hidden="true"><span style={{ width: `${ids.length ? done / ids.length * 100 : 0}%` }} /></div>
@@ -76,7 +83,7 @@ export default function LearningOverview({ currentLesson, phase, completed, less
       </section>
 
       <section className="lo-section" aria-labelledby="lo-tools-title">
-        <div className="lo-section-heading"><div><span className="lo-eyebrow">EXPLORATION STUDIO</span><h2 id="lo-tools-title">把好奇心，变成自己的实验</h2></div><span className="lo-section-note">从观察到创造</span></div>
+        <div className="lo-section-heading"><div><h2 id="lo-tools-title">把好奇心，变成自己的实验</h2></div><span className="lo-section-note">从观察到创造</span></div>
         <div className="lo-tool-grid">{tools.map(tool => {
           const Icon = tool.icon;
           return <button key={tool.id} type="button" className="lo-tool" onClick={() => onOpenTool(tool.id)}>

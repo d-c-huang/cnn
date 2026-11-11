@@ -45,7 +45,7 @@ export default function XorBoundary({
           role="img"
           aria-label="XOR 二维输出概率图，横轴输入 x1，纵轴输入 x2；四个训练样本可通过下方按钮选择"
         >
-          <rect x={left} y={top} width={side} height={side} fill="#f2f5e9" />
+          <rect x={left} y={top} width={side} height={side} fill="var(--boundary-paper)" />
           {grid.probabilities.map((probability, index) => {
             const row = Math.floor(index / grid.size),
               column = index % grid.size;
@@ -69,7 +69,7 @@ export default function XorBoundary({
                 x2={x(value)}
                 y1={top}
                 y2={top + side}
-                stroke="#fff"
+                stroke="var(--data-white)"
                 strokeOpacity=".3"
                 strokeDasharray="3 4"
               />
@@ -78,7 +78,7 @@ export default function XorBoundary({
                 x2={left + side}
                 y1={y(value)}
                 y2={y(value)}
-                stroke="#fff"
+                stroke="var(--data-white)"
                 strokeOpacity=".3"
                 strokeDasharray="3 4"
               />
@@ -106,8 +106,8 @@ export default function XorBoundary({
                 cx={x(sample.inputs[0])}
                 cy={y(sample.inputs[1])}
                 r={snapshot.selected.index === index ? 12 : 9}
-                fill={sample.target ? "#ecf8d7" : "#31594e"}
-                stroke={snapshot.selected.index === index ? "#26351c" : "#fff"}
+                fill={sample.target ? "var(--boundary-light)" : "var(--boundary-dark)"}
+                stroke={snapshot.selected.index === index ? "var(--boundary-outline)" : "var(--data-white)"}
                 strokeWidth={snapshot.selected.index === index ? 3 : 2}
               />
               <text

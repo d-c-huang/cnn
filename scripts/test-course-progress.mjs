@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { phaseCompletion } from "../src/lib/courseProgress.ts";
 
-const ids = ["data", "linear", "neuron", "loss", "gradient", "graph", "backprop", "xor", "mnist-data", "mnist-train", "mnist-evaluation", "handwriting", "deployment"];
-for (const phase of [[0,1,2,3,4], [5,6,7], [8,9,10], [11,12]]) {
+const ids = ["data", "linear", "neuron", "loss", "gradient", "graph", "backprop", "xor", "mnist-data", "mnist-train", "mnist-evaluation", "handwriting", "deployment", "language-data", "language-train", "language-generate", "transformer-architecture", "transformer-train", "transformer-generate", "lora-basics", "lora-train", "lora-generate", "sft-data", "sft-train", "sft-chat", "dpo-data", "dpo-train", "dpo-compare", "grpo-rewards", "grpo-train", "grpo-compare"];
+for (const phase of [[0,1,2,3,4], [5,6,7], [8,9,10], [11,12], [13,14,15], [16,17,18], [19,20,21], [22,23,24], [25,26,27], [28,29,30]]) {
   const last = phase.at(-1);
   const unrelated = ids.filter((_, index) => !phase.includes(index));
   const skipped = phaseCompletion(last, unrelated, ids, phase);
@@ -20,4 +20,4 @@ assert.equal(phaseCompletion(0, ids, ids, []).ready, false);
 assert.equal(phaseCompletion(99, ids, ids, [99]).ready, false);
 assert.equal(phaseCompletion(0, ids, ids, [0, 99]).ready, false);
 assert.equal(phaseCompletion(0, ids, ids, [5, 6, 7]).ready, false);
-console.log("Course progress: skipped last lessons, all four phases, existing records, invalid phases and immutable evidence passed.");
+console.log("Course progress: skipped last lessons, all ten phases, existing records, invalid phases and immutable evidence passed.");

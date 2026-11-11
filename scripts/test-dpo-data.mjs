@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import { parsePreferences, preferenceQuestion, readDPODraft, dpoDefaults } from "../src/lib/dpo.ts";
+const row = {prompt:"Question?",chosen:"Preferred answer.",rejected:"Another answer."};
+assert.deepEqual(parsePreferences(JSON.stringify([row])),[row]);
+assert.deepEqual(parsePreferences("\uFEFF"+JSON.stringify(row)+"\r\n\n"+JSON.stringify({...row,prompt:"Second?"})),[row,{...row,prompt:"Second?"}]);
+const multi = {...row,prompt:[{role:"user",content:"First?"},{role:"assistant",content:"Reply."},{role:"user",content:"Last?"}]};
+assert.equal(preferenceQuestion(parsePreferences(JSON.stringify([multi]))[0]),"Last?");
+for(const value of [[],[{...row,chosen:" "}],[{...row,rejected:row.chosen}],[{...row,prompt:[]}],[{...row,prompt:[{role:"assistant",content:"Wrong"}]}],[{...row,unknown:true}],Array(65).fill(row)]) assert.throws(()=>parsePreferences(JSON.stringify(value)));
+assert.throws(()=>parsePreferences(JSON.stringify(row)+"\ninvalid"),/第 2 行/);
+assert.throws(()=>parsePreferences("x".repeat(200001)));
+let saved = JSON.stringify({...dpoDefaults,dataset_text:JSON.stringify([row]),beta:999,source_sft_id:"../../bad",source_checkpoint:"bad",learning_rate:0});
+globalThis.localStorage={getItem:()=>saved};
+const restored=readDPODraft();
+assert.equal(restored.beta,.1); assert.equal(restored.source_sft_id,null); assert.equal(restored.learning_rate,.0001); assert.equal(restored.source_checkpoint,"latest");
+saved="invalid";assert.equal(readDPODraft(),null);
+console.log("DPO data: JSON/JSONL/BOM, conversational prompts, invalid pairs, limits and bounded draft restoration passed.");

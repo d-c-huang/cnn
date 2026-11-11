@@ -41,6 +41,8 @@ function signed(value: number): string {
 }
 
 export default function NeuronExperiment({ onInteract }: ExperimentProps) {
+  const [prediction, setPrediction] = useState<string | null>(null);
+  const [comparison, setComparison] = useState<string | null>(null);
   const [inputs, setInputs] = useState<[number, number]>([0.6, 0.9]);
   const [weights, setWeights] = useState<[number, number]>([0.8, -0.4]);
   const [bias, setBias] = useState(0.2);
@@ -105,6 +107,12 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
   return (
     <div className="experiment-layout neuron-workspace">
       <div className="neuron-interactive">
+        <aside className="prediction-prompt"><strong>先预判，再运行</strong><p>保留当前输入和偏置，选择 Sigmoid 并把 w₁ 设为 −0.8。与当前权重下的 Sigmoid 输出相比会怎样？</p><div role="group" aria-label="预判神经元输出">{["下降", "上升", "不变"].map(option => <button key={option} className="secondary-button" aria-pressed={prediction === option} onClick={() => { setPrediction(option); setComparison(null); }}>{option}</button>)}</div><button className="primary-button" disabled={!prediction} onClick={() => {
+          const before = neuronValue(inputs, weights, bias, "sigmoid").output;
+          const after = neuronValue(inputs, [-0.8, weights[1]], bias, "sigmoid").output;
+          setActivation("sigmoid"); setWeights([-0.8, weights[1]]); onInteract();
+          setComparison(`你的预判：${prediction}；本次教学计算：${Math.abs(after - before) < 1e-10 ? "不变" : after < before ? "下降" : "上升"}，${before.toFixed(4)} → ${after.toFixed(4)}。注意结果还取决于当前输入的符号。`);
+        }}>验证这组参数</button>{comparison && <p role="status">{comparison}</p>}</aside>
         <ExperimentPanel title="参数如何改变输出曲线" eyebrow="01 / OBSERVE" className="neuron-output-panel" action={<span className="live-tag" title={calculationStatus(error, pending)}><i />实时预览</span>}>
           <div className="neuron-curve-toolbar">
             <div className="segmented" role="group" aria-label="输出曲线横轴">
@@ -128,13 +136,13 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
             <span><i className="legend-dot" />当前输出</span>
           </div>
           <Chart
-            series={[{ points: outputCurve, color: "#7ed2c4" }, { points: referenceCurve, color: "#c89974", dashed: true }]}
+            series={[{ points: outputCurve, color: "var(--fwd)" }, { points: referenceCurve, color: "var(--bwd)", dashed: true }]}
             xLabel={`输入 x${curveAxis === 0 ? "₁" : "₂"}`}
             yLabel="输出 a"
             xDomain={[-3, 3]}
             height={240}
             yDomain={activation === "sigmoid" ? [-0.08, 1.08] : activation === "tanh" ? [-1.12, 1.12] : undefined}
-            markers={[{ x: inputs[curveAxis], y: current.output, label: "当前输入的输出", color: "#c2eaa1" }]}
+            markers={[{ x: inputs[curveAxis], y: current.output, label: "当前输入的输出", color: "var(--fwd)" }]}
             ariaLabel={`神经元输出曲线，横轴为输入 ${curveAxis + 1}，固定输入 ${fixedAxis + 1} 为 ${inputs[fixedAxis]}，激活函数 ${ACTIVATION_LABELS[activation]}，当前输出 ${display(current.output)}`}
           />
           <div className="neuron-curve-metrics" aria-live="polite">
@@ -287,7 +295,7 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
                     <path
                       d={`M 122 ${y} L 285 135`}
                       fill="none"
-                      stroke={weight < 0 ? "#858b7d" : "#252a23"}
+                      stroke={weight < 0 ? "var(--bwd)" : "var(--fwd)"}
                       strokeWidth={1.5 + Math.abs(weight) * 2}
                       strokeDasharray={weight < 0 ? "6 5" : undefined}
                     />
@@ -295,8 +303,8 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
                       cx="80"
                       cy={y}
                       r="40"
-                      fill="#f1efe8"
-                      stroke="#bfc3b6"
+                      fill="var(--surface-3)"
+                      stroke="var(--border)"
                     />
                     <text
                       x="80"
@@ -334,9 +342,9 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
                   </g>
                 );
               })}
-              <path d="M 345 135 L 413 135" stroke="#252a23" strokeWidth="2" />
-              <path d="M 535 135 L 592 135" stroke="#252a23" strokeWidth="2" />
-              <circle cx="315" cy="135" r="35" fill="#c9ef6b" />
+              <path d="M 345 135 L 413 135" stroke="var(--text-2)" strokeWidth="2" />
+              <path d="M 535 135 L 592 135" stroke="var(--text-2)" strokeWidth="2" />
+              <circle cx="315" cy="135" r="35" fill="var(--fwd)" />
               <text x="315" y="144" textAnchor="middle" className="diagram-sum">
                 Σ
               </text>
@@ -370,7 +378,7 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
                 width="122"
                 height="78"
                 rx="12"
-                fill="#252a23"
+                fill="var(--text-2)"
               />
               <text
                 x="474"
@@ -388,7 +396,7 @@ export default function NeuronExperiment({ onInteract }: ExperimentProps) {
               >
                 激活函数
               </text>
-              <circle cx="635" cy="135" r="43" fill="#c9ef6b" />
+              <circle cx="635" cy="135" r="43" fill="var(--output-node)" />
               <text
                 x="635"
                 y="125"

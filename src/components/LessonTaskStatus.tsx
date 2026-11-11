@@ -13,7 +13,7 @@ export default function LessonTaskStatus({ lessonId, historicalCompleted = false
   const passed = Number(taskDone) + Number(quizDone);
 
   return (
-    <section className={`lesson-task-status ${passed === 2 ? "is-ready" : ""}`} aria-labelledby={headingId}>
+    <section id={`lesson-task-${lessonId}`} tabIndex={-1} className={`lesson-task-status ${passed === 2 ? "is-ready" : ""}`} aria-labelledby={headingId}>
       <div className="lesson-task-heading">
         <h2 id={headingId}><ClipboardCheck size={17} aria-hidden="true" />本节完成条件</h2>
         <span className="lesson-task-count" role="status" aria-live="polite" aria-atomic="true">{passed === 2 ? "两项均已通过" : `${passed} / 2 已通过`}</span>
@@ -27,12 +27,12 @@ export default function LessonTaskStatus({ lessonId, historicalCompleted = false
           {quizDone ? <CheckCircle2 size={18} aria-hidden="true" /> : <Circle size={18} aria-hidden="true" />}
           <div>
             <strong>通过本节自测<span>{quizDone ? "已通过" : "待作答"}</span></strong>
-            <p>答对下方「本节自测」，验证对本节原理的理解。</p>
+            <p>答对下方两道「本节自测」，验证对本节原理的理解。</p>
             <button className="lesson-task-quiz-link" type="button" onClick={() => {
               const target = document.getElementById(`lesson-quiz-${lessonId}`);
               if (!target) return;
               target.focus({ preventScroll: true });
-              target.scrollIntoView({ block: "start", behavior: !window.matchMedia("(prefers-reduced-motion: reduce)").matches && !target.closest(".effects-off") ? "smooth" : "instant" });
+              target.scrollIntoView({ block: "start", behavior: document.documentElement.dataset.motion === "full" ? "smooth" : "instant" });
             }}>{quizDone ? "重新查看自测" : "前往本节自测"}<ArrowRight size={13} aria-hidden="true" /></button>
           </div>
         </li>

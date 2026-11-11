@@ -3,7 +3,7 @@
   min-width: 0;
   width: 100%;
   container-type: inline-size;
-  color: #425337;
+  color: var(--text-3);
   font-variant-numeric: tabular-nums;
 }
 .xv-network-caption {
@@ -13,11 +13,11 @@
   flex-wrap: wrap;
   font-size: 11px;
   line-height: 1.8;
-  color: #859773;
+  color: var(--fwd);
   margin-bottom: 12px;
 }
 .xv-network-caption > span:first-child {
-  color: #53683e;
+  color: var(--fwd);
   font-weight: 550;
 }
 .xv-network-svg {
@@ -28,7 +28,7 @@
 }
 .xv-network-svg text {
   font-family: inherit;
-  fill: #435638;
+  fill: var(--fwd);
 }
 .xv-node-label {
   font-size: 14px;
@@ -40,25 +40,25 @@
 .xv-bias-label,
 .xv-layer-label {
   font-size: 13px;
-  fill: #8c9d7d !important;
+  fill: var(--fwd) !important;
 }
 .xv-input-circle {
-  fill: #f4f5ed;
-  stroke: #d3dbc7;
+  fill: var(--text-1);
+  stroke: var(--text-1);
   stroke-width: 1.5;
 }
 .xv-hidden-circle {
-  fill: #edf2e3;
-  stroke: #c5d5af;
+  fill: var(--text-1);
+  stroke: var(--fwd);
   stroke-width: 1.5;
 }
 .xv-output-circle {
-  fill: #d8efaf;
-  stroke: #a3bd7f;
+  fill: var(--fwd);
+  stroke: var(--fwd);
   stroke-width: 1.5;
 }
 .xv-selected-bias {
-  stroke: #577d27;
+  stroke: var(--fwd);
   stroke-width: 4;
 }
 .xv-network-compact {
@@ -69,20 +69,20 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  border-top: 1px solid #e6ebdd;
+  border-top: 1px solid var(--text-1);
   margin-top: 18px;
   padding-top: 15px;
   font-size: 11px;
   line-height: 1.8;
-  color: #8a9b77;
+  color: var(--fwd);
 }
 .xv-selected-parameter > strong {
-  color: #536d37;
+  color: var(--fwd);
   font-size: 12px;
 }
 .xv-selected-parameter b {
   font-weight: 500;
-  color: #546b3d;
+  color: var(--fwd);
   margin-left: 5px;
 }
 .xv-parameter-picker {
@@ -94,21 +94,21 @@
 .xv-parameter-picker > button {
   font-size: 10px;
   font-family: inherit;
-  background: #f4f6ef;
-  border: 1px solid #e5ebdc;
-  border-radius: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--text-1);
+  border-radius: var(--radius-sm);
   padding: 6px 8px;
-  color: #8b997a;
+  color: var(--fwd);
 }
 .xv-parameter-picker > button[aria-pressed="true"] {
-  background: #e4efce;
-  border-color: #b1ca87;
-  color: #4f6a32;
+  background: var(--surface-3);
+  border-color: var(--fwd);
+  color: var(--fwd);
 }
 .xv-note {
   font-size: 11px;
   line-height: 1.85;
-  color: #8d9b7d;
+  color: var(--fwd);
   margin-top: 13px;
 }
 .xv-boundary-plot {
@@ -124,16 +124,16 @@
 }
 .xv-axis-label {
   font-family: inherit;
-  fill: #849674;
+  fill: var(--fwd);
   font-size: 12px;
 }
 .xv-point-label {
   font-family: inherit;
-  fill: #2a4c3c;
+  fill: var(--fwd);
   font-size: 12px;
   font-weight: 550;
   paint-order: stroke;
-  stroke: #f5f9ed;
+  stroke: var(--text-1);
   stroke-width: 3px;
   stroke-linejoin: round;
 }
@@ -153,7 +153,7 @@
   border-radius: 50%;
 }
 .xv-map-sample:focus-visible {
-  outline: 3px solid #354e27;
+  outline: 3px solid var(--border);
   outline-offset: 2px;
 }
 .xv-probability-legend {
@@ -162,13 +162,13 @@
   justify-content: center;
   gap: 11px;
   font-size: 11px;
-  color: #839671;
+  color: var(--fwd);
   margin-top: 3px;
 }
 .xv-probability-legend > div {
   height: 7px;
   width: 140px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 .xv-boundary-selection {
   display: flex;
@@ -177,14 +177,14 @@
   gap: 12px;
   flex-wrap: wrap;
   font-size: 11px;
-  color: #8b9b7b;
+  color: var(--fwd);
   margin-top: 17px;
   line-height: 1.8;
 }
 .xv-boundary-selection strong {
   font-size: 12px;
   font-weight: 500;
-  color: #566d3d;
+  color: var(--fwd);
 }
 @container (max-width:640px) {
   .xv-network-desktop {
@@ -200,7 +200,7 @@
     align-items: center;
     text-align: center;
     font-size: 11px;
-    color: #7d916a;
+    color: var(--fwd);
     margin-bottom: 15px;
   }
   .xv-compact-columns {
@@ -217,9 +217,9 @@
   }
   .xv-compact-node {
     padding: 10px 4px;
-    background: #f1f4e9;
-    border: 1px solid #dfe8d1;
-    border-radius: 7px;
+    background: var(--surface-2);
+    border: 1px solid var(--text-1);
+    border-radius: var(--radius-sm);
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -228,16 +228,16 @@
   }
   .xv-compact-node small {
     font-size: 11px;
-    color: #899a75;
+    color: var(--fwd);
   }
   .xv-compact-node strong {
     font-size: 15px;
     font-weight: 500;
-    color: #556d3c;
+    color: var(--fwd);
   }
   .xv-compact-output {
-    background: #e0efc7;
-    border-color: #c0d99a;
+    background: var(--fwd);
+    border-color: var(--fwd);
   }
   .xv-network-caption {
     font-size: 11px;
@@ -250,7 +250,7 @@
     gap: 7px 13px;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .xv-network-desktop {
     display: none;
   }

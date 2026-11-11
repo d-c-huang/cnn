@@ -1,3 +1,10 @@
+import { grpoInsights } from "./grpoContent.ts";
+import { dpoInsights } from "./dpoContent.ts";
+import { languageInsights } from "./languageContent.ts";
+import { transformerInsights } from "./transformerContent.ts";
+import { loraInsights } from "./loraContent.ts";
+import { sftInsights } from "./sftContent.ts";
+
 export interface LessonInsight {
   objective: string;
   steps: readonly [
@@ -17,6 +24,12 @@ export interface LessonInsight {
 }
 
 export const lessonInsights: Record<string, LessonInsight> = {
+  ...languageInsights,
+  ...transformerInsights,
+  ...loraInsights,
+  ...sftInsights,
+  ...dpoInsights,
+  ...grpoInsights,
   data: {
     objective: "把像素、矩阵与向量对应起来，理解归一化改变了什么。",
     steps: [

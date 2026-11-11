@@ -43,7 +43,7 @@ export default function DeploymentExperiment({
         <div className="if-serving-flow">
           <span>
             <Box size={17} />
-            第三期最佳权重
+            第三阶段最佳权重
           </span>
           <ArrowRight size={18} />
           <span>
@@ -112,7 +112,7 @@ export default function DeploymentExperiment({
           <p className="panel-note">
             响应包含处理后的 28×28
             图像、实际使用的标准化参数、预测类别、十类分数、最佳轮次和模型前向耗时。mode="mnist"
-            仅接收原始 28×28 图像，便于与第三期测试一致地核对结果。
+            仅接收原始 28×28 图像，便于与第三阶段测试一致地核对结果。
           </p>
           <a
             className="text-button"
@@ -158,7 +158,7 @@ export default function DeploymentExperiment({
             </p>
           </div>
           <p className="panel-note">
-            容器启动不需要重新训练。更新第三期模型后，先在宿主机导出模型包，再重新构建镜像：
+            容器启动不需要重新训练。更新第三阶段模型后，先在宿主机导出模型包，再重新构建镜像：
           </p>
           <pre className="if-code">
             <code>

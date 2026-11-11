@@ -1,3 +1,10 @@
+import { grpoDeepDives } from "./grpoContent.ts";
+import { dpoDeepDives } from "./dpoContent.ts";
+import { languageDeepDives } from "./languageContent.ts";
+import { transformerDeepDives } from "./transformerContent.ts";
+import { loraDeepDives } from "./loraContent.ts";
+import { sftDeepDives } from "./sftContent.ts";
+
 export interface LessonDeepDive {
   example: { title: string; steps: readonly string[]; tex: string; takeaway: string };
   observations: readonly { action: string; expected: string }[];
@@ -8,6 +15,12 @@ export interface LessonDeepDive {
 
 /** Worked examples are teaching calculations, not recorded model outputs. */
 export const lessonDeepDives: Record<string, LessonDeepDive> = {
+  ...languageDeepDives,
+  ...transformerDeepDives,
+  ...loraDeepDives,
+  ...sftDeepDives,
+  ...dpoDeepDives,
+  ...grpoDeepDives,
   data: {
     example: { title: "一个像素的两种表示", steps: ["选中第 3 行、第 4 列。采用从 0 开始的索引，它的位置是行 2、列 3。", "将灰度设为 128，除以 255 得到约 0.50196。亮度含义没有变，数值范围变了。", "行优先展平时，索引是 2 × 8 + 3 = 19；矩阵和向量中的高亮值应相同。"], tex: String.raw`x' = \frac{128}{255}\approx0.50196,\qquad i=2\times8+3=19`, takeaway: "先核对位置，再核对数值。形状转换与数值缩放是两件独立的事。" },
     observations: [{ action: "关闭归一化，再重新打开。", expected: "矩阵与向量同时在 128 和约 0.502 之间变化，元素数量始终是 64。" }, { action: "只修改一个像素。", expected: "只有对应位置的输入改变；均值会变化，其他像素不会被自动改写。" }],

@@ -30,6 +30,7 @@ const lessons = [
   "GraphExperiment", "BackpropExperiment", "XorExperiment",
   "mnist/MnistDataExperiment", "mnist/MnistTrainingExperiment", "mnist/MnistEvaluationExperiment",
   "inference/HandwritingExperiment", "inference/DeploymentExperiment",
+  "language/LanguageExperiment", "language/TransformerExperiment", "language/LoRAExperiment", "language/SFTExperiment", "language/DPOExperiment", "language/GRPOExperiment",
 ];
 for (const lesson of lessons) {
   const key = `src/experiments/${lesson}.tsx`;
@@ -37,4 +38,5 @@ for (const lesson of lessons) {
   assert.ok(!initial.has(key), `${lesson} must stay out of the initial import graph.`);
 }
 assert.ok(manifest["src/components/LessonInsights.tsx"]?.isDynamicEntry, "Theory and quiz content should also be deferred.");
+assert.ok(manifest["src/components/PredictionPrompt.tsx"]?.isDynamicEntry, "Prediction questions and enrichment should load with a lesson, not the overview.");
 console.log(`Bundle checks passed: ${lessons.length} deferred courses; initial JavaScript ${(initialBytes / 1024).toFixed(1)} KiB (${(initialGzip / 1024).toFixed(1)} KiB gzip); math stays deferred.`);

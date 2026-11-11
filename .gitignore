@@ -10,3 +10,4 @@ __pycache__/
 test-artifacts/
 data/
 runs/
+models/pretrained/

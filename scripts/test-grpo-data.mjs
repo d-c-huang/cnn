@@ -1,0 +1,17 @@
+import assert from "node:assert/strict";
+import {parseGRPOPrompts,parseRewardRules,readGRPODraft,grpoDefaults,grpoQuestion} from "../src/lib/grpo.ts";
+const row={prompt:"What is Zhiwei?",target:"lab"};
+assert.deepEqual(parseGRPOPrompts(JSON.stringify([row])),[row]);
+assert.deepEqual(parseGRPOPrompts("\uFEFF"+JSON.stringify(row)+"\r\n"),[row]);
+const multi={prompt:[{role:"user",content:"First?"},{role:"assistant",content:"Reply"},{role:"user",content:"Follow up?"}]};
+assert.equal(grpoQuestion(parseGRPOPrompts(JSON.stringify([multi]))[0]),"Follow up?");
+for(const rows of [[],Array(33).fill(row),[{prompt:" "}],[{...row,chosen:"not SFT"}],[{prompt:[{role:"assistant",content:"Wrong"}]}]])assert.throws(()=>parseGRPOPrompts(JSON.stringify(rows)));
+assert.throws(()=>parseGRPOPrompts(JSON.stringify(row)+"\nwrong"),/第 2 行/);
+assert.throws(()=>parseGRPOPrompts("x".repeat(100001)));
+assert.deepEqual(parseRewardRules('[{"type":"contains","text":"lab","weight":2}]'),[{type:"contains",text:"lab",weight:2}]);
+for(const value of [[],[{type:"python"}],[{type:"length",weight:0}],[{type:"nonempty",weight:99}],Array(9).fill({type:"nonempty"})])assert.throws(()=>parseRewardRules(JSON.stringify(value)));
+let saved=JSON.stringify({...grpoDefaults,dataset_text:JSON.stringify([row]),source_type:"dpo",source_run_id:"../../wrong",group_size:99,learning_rate:0,beta:-1});
+globalThis.localStorage={getItem:()=>saved};const restored=readGRPODraft();
+assert.equal(restored.source_type,"pretrained");assert.equal(restored.source_run_id,null);assert.equal(restored.group_size,4);assert.equal(restored.learning_rate,.00003);assert.equal(restored.beta,.02);
+saved="bad";assert.equal(readGRPODraft(),null);
+console.log("GRPO editor: JSON/JSONL/BOM prompts, conversational roles, reward schema, bounds and draft restoration passed.");

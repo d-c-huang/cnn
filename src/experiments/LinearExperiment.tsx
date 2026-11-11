@@ -81,14 +81,14 @@ export default function LinearExperiment({
                     { x: p.x, y: p.prediction },
                   ],
                   dashed: true,
-                  color: "var(--orange)",
+                  color: "var(--bwd)",
                 })),
               ]}
               markers={displayedData.points.map((p) => ({
                 x: p.x,
                 y: p.y,
                 label: `样本 x=${p.x}`,
-                color: "var(--teal-soft)",
+                color: "var(--fwd)",
               }))}
             />
           ) : (

@@ -1,0 +1,9 @@
+.lora-path { display: grid; gap: 12px; margin: 20px 0; }
+.lora-path > div { padding: 18px; display: grid; gap: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.lora-path span { color: var(--text-2); font-family: var(--font-mono); overflow-wrap: anywhere; }
+.lora-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 20px; }
+.lora-comparison > section { min-width: 0; }
+.lora-comparison .language-output { min-height: 160px; }
+.lora-comparison small { color: var(--text-2); }
+.lora-digest { overflow-wrap: anywhere; font-family: var(--font-mono); font-size: var(--fs12); }
+@media (max-width: 900px) { .lora-comparison { grid-template-columns: minmax(0, 1fr); } }

@@ -275,7 +275,7 @@ export default function HandwritingExperiment({
                         ·{" "}
                         {descriptor.source === "run"
                           ? architecture === "custom" ? "自定义结构训练记录" : "训练记录"
-                          : "第三期导出模型包"}
+                          : "第三阶段导出模型包"}
                       </span>
                     </p>
                     {descriptor.structure && <p>{descriptor.display_name ?? `自定义网络 · ${descriptor.structure.length} 层`} · 结构来自该次训练快照</p>}
@@ -340,7 +340,7 @@ export default function HandwritingExperiment({
         />
         {catalog && !catalog.models.length && (
           <a className="secondary-button" href="#mnist-train">
-            去第三期训练模型 <ArrowRight size={14} />
+            去第三阶段训练模型 <ArrowRight size={14} />
           </a>
         )}
       </ExperimentPanel>

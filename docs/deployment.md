@@ -66,3 +66,19 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8080 --workers 1
 另一个终端运行 `python scripts/smoke_test.py --base-url http://127.0.0.1:8080`。开发模式仍使用 `npm run dev` 和 <http://127.0.0.1:5173>。
 
 当前配置提供本机 HTTP 入口。对外域名、TLS、账号和公网访问控制应由部署环境的反向代理配置承担；本任务没有自动发布云服务。
+
+## LoRA 预训练基座缓存
+
+第七阶段首次准备会从 Hugging Face 下载固定版本 Pythia-14M。缓存写入 `/app/data/pretrained/`，微调适配器与续训状态写入 `/app/runs/lora/`，分别复用已有 data/runs 命名卷。发布目录 `/app/models` 仍保持只读；首次下载需要网络，缓存完整后 LoRA 可离线运行。完整说明见 [LoRA 微调教程](lora-finetuning-tutorial.md)。
+
+## SFT 指令微调与对话
+
+第八阶段复用上述预训练缓存，SFT 数据快照、适配器、回答指标与续训状态写入 `/app/runs/sft/`，使用已有 runs 卷。自定义 JSON/JSONL 数据经本机 API 校验和分词，问答草稿保存在当前浏览器。训练与对话使用同一版本模板，导出时附带模板与配置。参见 [SFT 教程](sft-instruction-tuning-tutorial.md)。
+
+## DPO 偏好优化与生成对照
+
+第九阶段沿用相同预训练缓存，偏好数据、固定参考适配器与分数、策略适配器和续训状态保存在 `/app/runs/dpo/`，复用 runs 卷。可从现有 SFT 快照初始化；创建完成后参考独立持久化，来源 SFT 的后续更新不会改变该参考。生成对照在本机 API 内运行，无需外部推理服务。仍使用默认单进程 API。参见 [DPO 教程](dpo-preference-optimization-tutorial.md)。
+
+## GRPO 在线强化学习微调
+
+第十阶段复用现有模型缓存和 runs 卷，问题、奖励规则、固定参考、策略适配器、AdamW、采样 RNG 与在线采样组保存到 `/app/runs/grpo/`。可从已训练 SFT / DPO 快照开始，创建后参考独立持久化。GRPO 在线采样与训练的 CPU 开销高于离线 DPO，页面逐轮提交；中断后先刷新再继续。保持默认单进程 API，无需外部奖励或推理服务。参见 [GRPO 教程](grpo-reinforcement-finetuning-tutorial.md)。

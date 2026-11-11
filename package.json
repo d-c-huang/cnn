@@ -19,11 +19,17 @@
     "test:learning": "node --experimental-strip-types scripts/test-advanced-task-checks.mjs",
     "test:progress": "node --experimental-strip-types scripts/test-course-progress.mjs",
     "test:content": "node --experimental-strip-types scripts/test-lesson-content.mjs",
-    "test:frontend": "npm run test:foundations && npm run test:neuron && npm run test:loss && npm run test:optimizers && npm run test:learning && npm run test:progress && npm run test:content && npm run test:playground",
-    "check": "npm run test:frontend && npm run build && npm run test:bundle",
+    "test:frontend": "npm run test:foundations && npm run test:neuron && npm run test:loss && npm run test:optimizers && npm run test:learning && npm run test:progress && npm run test:content && npm run test:records && npm run test:display && npm run test:sft && npm run test:dpo && npm run test:grpo && npm run test:playground",
+    "check": "npm run test:frontend && npm run build && npm run test:bundle && npm run test:design",
     "lint:py": "ruff check backend scripts",
     "format:py": "ruff format backend scripts",
-    "lint:web": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint:web": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "test:records": "node --experimental-strip-types scripts/test-learning-records.mjs",
+    "test:design": "node scripts/test-design-system.mjs",
+    "test:display": "node --experimental-strip-types scripts/test-display-preferences.mjs",
+    "test:sft": "node --experimental-strip-types scripts/test-sft-data.mjs",
+    "test:dpo": "node --experimental-strip-types scripts/test-dpo-data.mjs",
+    "test:grpo": "node --experimental-strip-types scripts/test-grpo-data.mjs"
   },
   "dependencies": {
     "katex": "^0.19.1",
@@ -35,6 +41,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "lightningcss": "^1.33.0",
     "typescript": "~5.7.2",
     "vite": "^6.1.0"
   }

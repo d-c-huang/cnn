@@ -25,6 +25,6 @@ export const phase4Lessons = [
     task: "查看当前模型列表与接口文档，在项目根目录运行部署命令，再执行 smoke 检查真实推理链路。",
     concept: "FastAPI · 模型包 · Docker · 持久化",
     component: DeploymentExperiment,
-    code: '# 将第三期已完成训练的最佳权重导出到 models/\npython scripts/export_models.py\n\n# 构建并启动：前端、API、模型包使用同一个端口\ndocker compose up --build -d\n\n# 验证首页、资源、健康接口及两个模型的真实预测\npython scripts/smoke_test.py --base-url http://127.0.0.1:8080\n\n# GET  /api/inference/models\n# GET  /api/inference/examples?label=7\n# POST /api/inference/predict\n# {"model_ids": ["模型 ID"], "mode": "mnist", "pixels": [[...]]}',
+    code: '# 将第三阶段已完成训练的最佳权重导出到 models/\npython scripts/export_models.py\n\n# 构建并启动：前端、API、模型包使用同一个端口\ndocker compose up --build -d\n\n# 验证首页、资源、健康接口及两个模型的真实预测\npython scripts/smoke_test.py --base-url http://127.0.0.1:8080\n\n# GET  /api/inference/models\n# GET  /api/inference/examples?label=7\n# POST /api/inference/predict\n# {"model_ids": ["模型 ID"], "mode": "mnist", "pixels": [[...]]}',
   },
 ];

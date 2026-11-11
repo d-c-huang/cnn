@@ -10,7 +10,7 @@ import "./loss.css";
 
 const definitions = {
   mse: {
-    name: "MSE · 平方误差", short: "MSE", color: "#94dbbb",
+    name: "MSE · 平方误差", short: "MSE", color: "var(--series-green)",
     formula: String.raw`L=e^2,\quad \frac{\partial L}{\partial\hat y}=2e`,
     hint: "L = (ŷ − y)²", derivative: "∂L/∂ŷ = 2(ŷ − y)",
     title: "误差越大，惩罚增长越快",
@@ -18,7 +18,7 @@ const definitions = {
     task: "点击“大误差”，再打开曲线对比，观察 MSE 的损失和梯度如何超过另外两种函数。",
   },
   mae: {
-    name: "MAE · 绝对误差", short: "MAE", color: "#e2bc87",
+    name: "MAE · 绝对误差", short: "MAE", color: "var(--series-amber)",
     formula: String.raw`L=|e|,\quad \frac{\partial L}{\partial\hat y}=\operatorname{sign}(e)\ (e\ne0)`,
     hint: "L = |ŷ − y|", derivative: "非零误差处：∂L/∂ŷ = sign(ŷ − y)",
     title: "误差线性增长，对极端偏差更温和",
@@ -26,7 +26,7 @@ const definitions = {
     task: "从“小误差”切换到“大误差”：损失变大了，梯度大小是否也变大？再点击“预测准确”观察尖角。",
   },
   huber: {
-    name: "Huber · 平滑过渡", short: "Huber", color: "#8fbaed",
+    name: "Huber · 平滑过渡", short: "Huber", color: "var(--series-blue)",
     formula: String.raw`L=\begin{cases}\frac12e^2&|e|\le\delta\\\delta(|e|-\frac12\delta)&|e|>\delta\end{cases}`,
     hint: "小误差用 ½e²，大误差改为线性增长", derivative: "∂L/∂ŷ = clip(ŷ − y, −δ, δ)",
     title: "兼顾小误差的平滑与大误差的稳健",
@@ -34,7 +34,7 @@ const definitions = {
     task: "保持当前预测不变，拖动 δ，观察损失和梯度的变化。注意：二次区域是 ½e²，与这里的 MSE 相差一个系数。",
   },
   bce: {
-    name: "BCE · 二分类交叉熵", short: "BCE", color: "#c8afe9",
+    name: "BCE · 二分类交叉熵", short: "BCE", color: "var(--series-violet)",
     formula: String.raw`p=\sigma(z),\quad L=-y\ln p-(1-y)\ln(1-p)`,
     hint: "从 logits 稳定计算二分类交叉熵", derivative: "∂L/∂z = sigmoid(z) − y = p − y",
     title: "对自信却错误的预测施加更大惩罚",
@@ -88,7 +88,7 @@ export default function LossExperiment({ onInteract }: { onInteract: () => void 
             ariaLabel={`${definition.name}随${binary ? "原始分数 z" : "预测值"}变化的曲线${compare && !binary ? "，同时对比三种回归损失" : ""}`}
             series={[{ points: current.curve, color: definition.color }, ...(compare && !binary ? comparisons.filter(item => item.kind !== kind).map(item => ({ points: item.curve, color: definitions[item.kind].color, dashed: true })) : [])]}
             xLabel={binary ? "原始分数 z（不是概率）" : "预测值 ŷ"} yLabel="损失 L"
-            markers={[{ x: input, y: current.loss, label: "当前预测" }, ...(!binary ? [{ x: target, y: 0, label: "损失最低点", color: "var(--teal-soft)" }] : [])]}
+            markers={[{ x: input, y: current.loss, label: "当前预测" }, ...(!binary ? [{ x: target, y: 0, label: "损失最低点", color: "var(--fwd)" }] : [])]}
           />
           <div className="result-grid" aria-live="polite">
             <Result label={definition.name} value={format(current.loss, 4)} hint={definition.hint} />

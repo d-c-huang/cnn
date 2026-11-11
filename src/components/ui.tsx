@@ -48,7 +48,6 @@ export function Slider({
 
 export function ExperimentPanel({
   title,
-  eyebrow,
   children,
   action,
   className = "",
@@ -63,7 +62,6 @@ export function ExperimentPanel({
     <section className={`experiment-panel ${className}`}>
       <div className="panel-heading">
         <div>
-          {eyebrow && <span className="eyebrow">{eyebrow}</span>}
           <h2>{title}</h2>
         </div>
         {action}
@@ -79,7 +77,7 @@ export function Result({
   hint,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   hint?: string;
 }) {
   return (
@@ -280,7 +278,7 @@ export function Chart({
               key={i}
               d={path(s.points)}
               fill="none"
-              stroke={s.color || "var(--ink)"}
+              stroke={s.color || "var(--text-1)"}
               strokeWidth="2.5"
               strokeDasharray={s.dashed ? "5 5" : undefined}
               strokeLinejoin="round"
@@ -293,8 +291,8 @@ export function Chart({
                 cx={sx(p.x)}
                 cy={sy(p.y)}
                 r={7}
-                fill={p.color || "var(--lime)"}
-                stroke="var(--ink)"
+                fill={p.color || "var(--fwd)"}
+                stroke="var(--text-1)"
                 strokeWidth={1.5}
               >
                 <title>
@@ -316,7 +314,7 @@ export function Chart({
                 cx={sx(hover.x)}
                 cy={sy(hover.y)}
                 r={4}
-                fill="var(--ink)"
+                fill="var(--text-1)"
               />
             </>
           )}

@@ -1,0 +1,20 @@
+import assert from "node:assert/strict";
+import { parseSFTDataset, recordQuestion, readSFTDraft } from "../src/lib/sft.ts";
+
+const qa = { question: "What is Zhiwei?", answer: "A learning lab." };
+const followup = { messages: [{ role: "user", content: "What is LoRA?" }, { role: "assistant", content: "A low-rank adapter." }, { role: "user", content: "And SFT?" }, { role: "assistant", content: "Supervised fine-tuning." }] };
+assert.deepEqual(parseSFTDataset(JSON.stringify([qa, followup])), [qa, followup]);
+assert.deepEqual(parseSFTDataset(`\uFEFF${JSON.stringify(qa)}\r\n\r\n${JSON.stringify(followup)}\n`), [qa, followup]);
+assert.equal(recordQuestion(qa), qa.question);
+assert.equal(recordQuestion(followup), "And SFT?");
+for (const text of ["", "[bad JSON]", JSON.stringify([null]), JSON.stringify([{ question: "Only a question" }]), JSON.stringify([{ messages: [{ role: "assistant", content: "Wrong start" }, { role: "user", content: "Wrong end" }] }]), JSON.stringify(Array(65).fill(qa))]) assert.throws(() => parseSFTDataset(text));
+assert.throws(() => parseSFTDataset(`${JSON.stringify(qa)}\nnot-json`), /第 2 行/);
+let saved = JSON.stringify({ dataset_text: JSON.stringify([qa]), rank: 999, seed: -1, max_length: 2048, system_prompt: "Be concise.", learning_rate: "unsafe" });
+globalThis.localStorage = { getItem: () => saved };
+assert.equal(readSFTDraft().rank, 8);
+assert.equal(readSFTDraft().seed, 7);
+assert.equal(readSFTDraft().max_length, 128);
+assert.equal(readSFTDraft().system_prompt, "Be concise.");
+saved = "invalid";
+assert.equal(readSFTDraft(), null);
+console.log("SFT data: JSON/JSONL/BOM import, multi-turn roles, malformed input, limits, last questions and bounded draft restoration passed.");

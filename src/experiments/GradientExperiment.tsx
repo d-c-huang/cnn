@@ -12,6 +12,7 @@ import {
 import { calculate, calculationStatus, format, useCalculation } from "../lib/api";
 import { gradientPreview } from "../lib/foundationPreviews";
 import { useLessonTask } from "../lib/learningProgress";
+import TweenNumber from "../components/TweenNumber";
 import OptimizerComparison from "./OptimizerComparison";
 
 type GradientResponse = {
@@ -35,6 +36,8 @@ export default function GradientExperiment({
 }: {
   onInteract: () => void;
 }) {
+  const [prediction, setPrediction] = useState<string | null>(null);
+  const [comparison, setComparison] = useState<string | null>(null);
   const [start, setStart] = useState(-2);
   const [rate, setRate] = useState(0.1);
   const [history, setHistory] = useState<Step[]>([]);
@@ -68,7 +71,7 @@ export default function GradientExperiment({
   );
 
   async function step() {
-    if (inFlight.current || stopped) return;
+    if (inFlight.current || stopped || !prediction) return;
     inFlight.current = true;
     const currentVersion = version.current;
     const controller = new AbortController();
@@ -104,6 +107,8 @@ export default function GradientExperiment({
         ];
       });
       setLastUpdate(result);
+      const actual = Math.abs(result.loss_after - result.loss_before) < 1e-10 ? "不变 / 等幅振荡" : result.loss_after < result.loss_before ? "下降" : "上升";
+      setComparison(`你的预判：${prediction}；本次实际：${actual}。损失 ${result.loss_before.toFixed(4)} → ${result.loss_after.toFixed(4)}。`);
       onInteract();
       if (result.converged) {
         setRunning(false);
@@ -154,6 +159,7 @@ export default function GradientExperiment({
     setRunning(false);
     setBusy(false);
     setHistory([]);
+    setPrediction(null); setComparison(null);
     setLastUpdate(null);
     setStepError(null);
     setStatus("准备好，迈出第一步。");
@@ -228,15 +234,16 @@ export default function GradientExperiment({
                       x: 2,
                       y: 0,
                       label: "最优权重",
-                      color: "var(--teal-soft)",
+                      color: "var(--fwd)",
                     },
                   ]
             }
           />
+          <aside className="prediction-prompt"><strong>更新前先预判</strong><p>当前学习率下，下一步更新后的损失会怎样？</p><div role="group" aria-label="预判下一步损失">{["下降", "上升", "不变 / 等幅振荡"].map(option => <button className="secondary-button" disabled={running || busy} key={option} aria-pressed={prediction === option} onClick={() => setPrediction(option)}>{option}</button>)}</div>{!prediction && <p>先选择预判，再执行单步更新或自动运行。</p>}{comparison && <p role="status">{comparison}</p>}</aside>
           <div className="playback-bar">
             <button
               className="primary-button"
-              disabled={stopped || (!running && busy)}
+              disabled={stopped || (!running && busy) || !prediction}
               onClick={() => {
                 setRunning(!running);
                 onInteract();
@@ -247,7 +254,7 @@ export default function GradientExperiment({
             </button>
             <button
               className="secondary-button"
-              disabled={running || busy || stopped}
+              disabled={running || busy || stopped || !prediction}
               onClick={() => void step()}
             >
               <SkipForward size={16} />
@@ -274,10 +281,10 @@ export default function GradientExperiment({
             {status}
           </p>
           <div className="result-grid three-results">
-            <Result label="当前权重 w" value={format(weight, 5)} />
+            <Result label="当前权重 w" value={<TweenNumber value={weight} />} />
             <Result
               label="当前损失 L"
-              value={loss === undefined ? "—" : format(loss, 5)}
+              value={loss === undefined ? "—" : <TweenNumber value={loss} />}
             />
             <Result
               label="当前位置的梯度"

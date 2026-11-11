@@ -65,15 +65,15 @@ export default function XorNetwork({
         </span>
       </div>
       <div className="xv-network-desktop">
-        <svg
+        <svg key={`${snapshot.iteration}-${mode}-${flowPaused}`}
           className="xv-network-svg"
           viewBox="0 0 720 440"
           role="group"
           aria-label={`XOR 两个输入、四个隐藏单元、一个输出的神经网络，当前输出 ${format(snapshot.selected.output)}`}
         >
           <defs>
-            <pattern id={`${markerId}-grid`} width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#73c2a9" strokeOpacity=".08" strokeWidth=".6" /></pattern>
-            <radialGradient id={`${markerId}-halo`}><stop stopColor="#7fe1bd" stopOpacity=".12" /><stop offset="1" stopColor="#7fe1bd" stopOpacity="0" /></radialGradient>
+            <pattern id={`${markerId}-grid`} width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="var(--fwd)" strokeOpacity=".08" strokeWidth=".6" /></pattern>
+            <radialGradient id={`${markerId}-halo`}><stop stopColor="var(--fwd)" stopOpacity=".12" /><stop offset="1" stopColor="var(--fwd)" stopOpacity="0" /></radialGradient>
             <marker
               id={markerId}
               markerWidth="7"
@@ -83,12 +83,12 @@ export default function XorNetwork({
               orient="auto-start-reverse"
               markerUnits="userSpaceOnUse"
             >
-              <path d="M0 0L7 3.5L0 7Z" fill="#a4d3ad" />
+              <path d="M0 0L7 3.5L0 7Z" fill="var(--fwd)" />
             </marker>
           </defs>
           <rect x="1" y="1" width="718" height="438" rx="12" fill={`url(#${markerId}-grid)`} />
           <ellipse cx="360" cy="196" rx="310" ry="195" fill={`url(#${markerId}-halo)`} />
-          <g fill="#81bc9e" fillOpacity=".025" stroke="#7eb892" strokeOpacity=".14"><rect x="14" y="70" width="99" height="246" rx="15" /><rect x="302" y="7" width="116" height="391" rx="15" /><rect x="600" y="122" width="107" height="157" rx="15" /></g>
+          <g fill="var(--fwd)" fillOpacity=".025" stroke="var(--fwd)" strokeOpacity=".14"><rect x="14" y="70" width="99" height="246" rx="15" /><rect x="302" y="7" width="116" height="391" rx="15" /><rect x="600" y="122" width="107" height="157" rx="15" /></g>
           {edges.map((edge) => {
             const value =
               mode === "forward"
@@ -103,7 +103,7 @@ export default function XorNetwork({
                     y1={edge.from[1]}
                     x2={edge.to[0]}
                     y2={edge.to[1]}
-                    stroke="#c9ef6b"
+                    stroke="var(--fwd)"
                     strokeWidth="9"
                     opacity=".65"
                   />
@@ -113,7 +113,7 @@ export default function XorNetwork({
                   y1={edge.from[1]}
                   x2={edge.to[0]}
                   y2={edge.to[1]}
-                  stroke={value < 0 ? "#80a79b" : "#4e5f41"}
+                  stroke={value < 0 ? "var(--fwd)" : "var(--text-3)"}
                   strokeWidth={
                     active
                       ? 3
@@ -132,7 +132,7 @@ export default function XorNetwork({
                     {format(value, 5)}
                   </title>
                 </line>
-                <line className="xv-signal-stream" x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} pathLength="100" stroke={value < 0 ? "#80cdbb" : "#c0e99a"} style={{ animationDelay: `${-edges.indexOf(edge) * .24}s` }} />
+                <line className="xv-signal-stream" x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} pathLength="100" stroke={value < 0 ? "var(--fwd)" : "var(--fwd)"} style={{ animationDelay: `${edges.indexOf(edge) * .008}s` }} />
                 <line className="xv-edge-hit" x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} stroke="transparent" strokeWidth="17" />
               </g>
             );
@@ -165,7 +165,7 @@ export default function XorNetwork({
           ))}
           {snapshot.selected.a1.map((value, j) => (
             <g key={`hidden-${j}`} className="xv-neuron-select" role="button" tabIndex={0} aria-label={`选择隐藏单元 ${j + 1} 偏置 b1[${j}]`} aria-pressed={selectedParameter === `b1[${j}]`} onClick={() => onSelectParameter(`b1[${j}]`)} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelectParameter(`b1[${j}]`); } }}>
-              <circle cx="360" cy={hiddenY[j]} r="43" fill="none" stroke={value < 0 ? "#7ed2c4" : "#c2eaa1"} strokeOpacity=".5" strokeWidth="2" strokeDasharray={`${Math.abs(value) * 270} 270`} transform={`rotate(-90 360 ${hiddenY[j]})`} />
+              <circle cx="360" cy={hiddenY[j]} r="43" fill="none" stroke={value < 0 ? "var(--fwd)" : "var(--fwd)"} strokeOpacity=".5" strokeWidth="2" strokeDasharray={`${Math.abs(value) * 270} 270`} transform={`rotate(-90 360 ${hiddenY[j]})`} />
               <circle
                 cx="360"
                 cy={hiddenY[j]}

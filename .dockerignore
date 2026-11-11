@@ -4,6 +4,7 @@ node_modules
 dist
 data
 runs
+models/pretrained
 test-artifacts
 .codex
 **/__pycache__

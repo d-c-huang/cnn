@@ -1,0 +1,6 @@
+.sft-upload { position: relative; cursor: pointer; }
+.sft-upload input { position: absolute; opacity: 0; inset: 0; width: 100%; cursor: pointer; }
+.sft-upload:focus-within { outline: 2px solid var(--border-focus); }
+.sft-token-mask .is-supervised { color: var(--ok); border-color: var(--ok); }
+.sft-message p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.sft-message.is-assistant { border-left: 3px solid var(--fwd); }

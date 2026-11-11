@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Download, Pause, Play, RotateCcw, SkipForward } from "lucide-react";
+import TweenNumber from "../components/TweenNumber";
 import { Chart, ErrorMessage, ExperimentPanel, Result, Slider } from "../components/ui";
 import { MathFormula } from "../components/MathFormula";
 import { calculate, format } from "../lib/api";
@@ -72,7 +73,7 @@ export default function OptimizerComparison({ onInteract }: { onInteract: () => 
   const vector = (value: Vector | null) => value ? (objective === "quadratic" ? format(value[0], 5) : `(${value.map(x => format(x, 5)).join(", ")})`) : "—";
   const contours = objective === "valley" ? [1, 5, 20, 80].map(level => ({
     points: Array.from({ length: 101 }, (_, i) => ({ x: 2 + Math.sqrt(2 * level) * Math.cos(i * Math.PI / 50), y: -1 + Math.sqrt(level / 10) * Math.sin(i * Math.PI / 50) })),
-    color: "#294641", dashed: true,
+    color: "var(--surface-2)", dashed: true,
   })) : [];
   function trajectoryDomain(axis: 0 | 1): [number, number] {
     const values = ordered.flatMap(item => trace(item.optimizer).map(value => value.position[axis]));
@@ -132,8 +133,8 @@ export default function OptimizerComparison({ onInteract }: { onInteract: () => 
         <p className="panel-note">{logScale ? "−2 表示损失 0.01；−6 表示 0.000001。仅绘图时将小于 10⁻¹² 的值放在 −12，表格保留真实值。" : "线性坐标便于看绝对差距；某条轨迹发散时，可切回对数坐标观察其他方法。"}</p></div>
         <div><h3>{objective === "quadratic" ? "权重怎样靠近最低点" : "在狭长谷底中怎样移动"}</h3><Chart height={270}
           series={[...ordered.map(item => ({ points: trace(item.optimizer).map(value => ({ x: objective === "quadratic" ? value.step : value.position[0], y: objective === "quadratic" ? value.position[0] : value.position[1] })), color: optimizerInfo[item.optimizer].color, dashed: item.optimizer !== selected })), ...contours,
-            ...(objective === "quadratic" ? [{ points: [{ x: 0, y: 2 }, { x: result.config.steps, y: 2 }], color: "#647d70", dashed: true }] : [])]}
-          markers={ordered.map(item => { const current = comparisonRow(item, cursor); return { x: objective === "quadratic" ? current.step : current.position[0], y: objective === "quadratic" ? current.position[0] : current.position[1], label: optimizerInfo[item.optimizer].label, color: optimizerInfo[item.optimizer].color }; }).concat(objective === "valley" ? [{ x: 2, y: -1, label: "最低点", color: "#ffffff" }] : [])}
+            ...(objective === "quadratic" ? [{ points: [{ x: 0, y: 2 }, { x: result.config.steps, y: 2 }], color: "var(--text-3)", dashed: true }] : [])]}
+          markers={ordered.map(item => { const current = comparisonRow(item, cursor); return { x: objective === "quadratic" ? current.step : current.position[0], y: objective === "quadratic" ? current.position[0] : current.position[1], label: optimizerInfo[item.optimizer].label, color: optimizerInfo[item.optimizer].color }; }).concat(objective === "valley" ? [{ x: 2, y: -1, label: "最低点", color: "var(--data-white)" }] : [])}
           xDomain={objective === "quadratic" ? [0, result.config.steps] : trajectoryDomain(0)} yDomain={objective === "valley" ? trajectoryDomain(1) : undefined} xLabel={objective === "quadratic" ? "实际更新步数" : "参数 u"} yLabel={objective === "quadratic" ? "权重 w" : "参数 v"} ariaLabel="五种优化器的真实参数轨迹" />
           <p className="panel-note">{objective === "quadratic" ? "水平参考线为最优权重 w = 2。越过参考线不一定意味着发散，应结合后续损失观察。" : "灰色椭圆表示损失等高线 L = 1、5、20、80；白点为最低点。图中两个坐标轴独立缩放。"}</p></div></div>
       <div className="optimizer-table-wrap"><table className="optimizer-table"><caption>第 {cursor} 步的记录 · 点击上方名称查看更新细节</caption><thead><tr><th>优化器</th><th>学习率</th><th>实际步数</th><th>当前参数</th><th>当前损失</th><th>首次 L ≤ 10⁻⁶</th><th>状态</th></tr></thead><tbody>{result.runs.map(item => {
@@ -151,7 +152,7 @@ export default function OptimizerComparison({ onInteract }: { onInteract: () => 
         <Result label={`第 ${row.step} 步 · 更新前参数`} value={vector(previous.position)} />
         <Result label="本次使用的梯度 gₜ" value={vector(row.gradient)} hint={row.step === 0 ? "第 0 步为初始状态，尚未更新" : "来自更新前的参数"} />
         <Result label="实际更新量 Δθ" value={vector(row.update)} hint="更新后参数 = 更新前参数 + Δθ" />
-        <Result label="更新后参数" value={vector(row.position)} />
+        <Result label="更新后参数" value={<span>{row.position.slice(0, objective === "quadratic" ? 1 : 2).map((value, index) => <span key={index}>{index > 0 ? ", " : ""}<TweenNumber value={value} /></span>)}</span>} />
       </div><p className="panel-note">{selected === "momentum" ? `动量缓冲 b = ${vector(row.first)}` : selected === "adagrad" ? `累计梯度平方 s = ${vector(row.second)}` : selected === "rmsprop" ? `滑动平均 v = ${vector(row.second)}` : selected === "adam" ? `未校正 m = ${vector(row.first)}；未校正 v = ${vector(row.second)}。实际更新使用公式中的偏差校正值。` : "SGD 不保存梯度历史；这里的 SGD 指基础更新规则，实验使用全量梯度。"}</p></>}
       <div className="optimizer-takeaways"><div><h3>看速度，也看稳定性</h3><p>先观察损失与参数是否稳定接近最低点，再比较达到同一阈值需要多少步。一步损失增加不一定是发散，短暂触及最低点也不代表已经稳定。</p></div><div><h3>步数不是耗时</h3><p>这里比较参数更新次数。不同优化器保存的状态和每步计算量不同，本实验不把浏览器播放速度当成训练耗时。</p></div></div>
     </ExperimentPanel>

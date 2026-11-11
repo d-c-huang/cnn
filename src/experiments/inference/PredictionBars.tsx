@@ -1,3 +1,4 @@
+import TweenNumber from "../../components/TweenNumber";
 import type { ModelPrediction } from "../../lib/inference";
 import { modelLabel } from "../../lib/mnist";
 import "./inference-visuals.css";
@@ -34,7 +35,7 @@ export default function PredictionBars({
         <strong>{prediction.predicted_label}</strong>
         <div>
           <span>模型预测数字</span>
-          <b>{(topScore * 100).toFixed(2)}%</b>
+          <b><TweenNumber value={topScore * 100} suffix="%" /></b>
           <small>该类别 softmax 分数</small>
         </div>
       </div>
@@ -56,7 +57,7 @@ export default function PredictionBars({
             >
               <i style={{ width: `${score * 100}%` }} />
             </div>
-            <strong>{(score * 100).toFixed(2)}%</strong>
+            <strong><TweenNumber value={score * 100} suffix="%" /></strong>
             {label === prediction.predicted_label && (
               <span className="iv-score-winner">预测</span>
             )}

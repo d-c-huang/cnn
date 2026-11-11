@@ -8,10 +8,10 @@
   width: min(100%, 280px);
   aspect-ratio: 1;
   margin: 0 auto;
-  border: 1px solid #35452d;
-  border-radius: 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  background: #000;
+  background: var(--surface-0);
 }
 .iv-canvas-surface > canvas {
   display: block;
@@ -20,7 +20,7 @@
   aspect-ratio: 1;
   touch-action: none;
   cursor: crosshair;
-  background: #000;
+  background: var(--surface-0);
 }
 .iv-canvas-hint {
   pointer-events: none;
@@ -31,23 +31,23 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  color: #6b7860;
+  color: var(--text-3);
 }
 .iv-canvas-hint > strong {
   font-size: 53px;
   font-weight: 400;
   letter-spacing: 4px;
-  color: #87967a;
+  color: var(--text-3);
 }
 .iv-canvas-hint > span {
   font-size: 12px;
-  color: #748465;
+  color: var(--fwd);
 }
 .iv-canvas-status {
   font-size: 11px;
   line-height: 1.9;
   text-align: center;
-  color: #8b9b7a;
+  color: var(--fwd);
   min-height: 23px;
   margin: 13px 0 20px;
 }
@@ -75,7 +75,7 @@
 .iv-canvas-note {
   font-size: 11px;
   line-height: 1.9;
-  color: #94a284;
+  color: var(--fwd);
   margin-top: 15px;
 }
 .iv-brush-control input[type="range"] {
@@ -86,9 +86,9 @@
 }
 .iv-prediction {
   padding: 22px;
-  border: 1px solid #dfe7d4;
-  background: #fbfcf8;
-  border-radius: 9px;
+  border: 1px solid var(--text-1);
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
 }
 .iv-prediction-heading {
   display: flex;
@@ -106,17 +106,17 @@
 .iv-architecture {
   font-size: 17px;
   font-weight: 550;
-  color: #4c6835;
+  color: var(--fwd);
   letter-spacing: 0.8px;
 }
 .iv-checkpoint {
   font-size: 11px;
-  color: #96a588;
+  color: var(--fwd);
   line-height: 1.7;
 }
 .iv-forward-latency {
   font-size: 11px;
-  color: #91a17f;
+  color: var(--fwd);
   white-space: nowrap;
 }
 .iv-predicted-digit {
@@ -125,13 +125,13 @@
   gap: 22px;
   margin: 20px 0 24px;
   padding-bottom: 19px;
-  border-bottom: 1px solid #e4eadc;
+  border-bottom: 1px solid var(--text-1);
 }
 .iv-predicted-digit > strong {
   font-size: 67px;
   font-weight: 450;
   line-height: 1;
-  color: #4c6635;
+  color: var(--fwd);
   min-width: 55px;
   text-align: center;
 }
@@ -143,18 +143,18 @@
 }
 .iv-predicted-digit span {
   font-size: 11px;
-  color: #8b9d79;
+  color: var(--fwd);
 }
 .iv-predicted-digit b {
   font-size: 24px;
   font-weight: 450;
   letter-spacing: -0.7px;
-  color: #657f48;
+  color: var(--fwd);
   font-variant-numeric: tabular-nums;
 }
 .iv-predicted-digit small {
   font-size: 11px;
-  color: #a1ae92;
+  color: var(--text-2);
 }
 .iv-class-scores {
   display: flex;
@@ -171,37 +171,37 @@
 }
 .iv-score-label {
   font-size: 12px;
-  color: #8a9e77;
+  color: var(--fwd);
   text-align: center;
 }
 .iv-score-track {
   height: 8px;
-  background: #edf1e6;
-  border-radius: 4px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
   overflow: hidden;
   min-width: 0;
 }
 .iv-score-track > i {
   display: block;
   height: 100%;
-  background: #a8b996;
+  background: var(--fwd);
 }
 .iv-is-predicted .iv-score-track > i {
-  background: #b4cf7d;
+  background: var(--fwd);
 }
 .iv-score-row > strong {
   font-size: 11px;
   font-weight: 500;
   text-align: right;
-  color: #8b9d79;
+  color: var(--fwd);
 }
 .iv-is-predicted .iv-score-label,
 .iv-is-predicted > strong {
-  color: #506f31;
+  color: var(--fwd);
 }
 .iv-score-winner {
   font-size: 11px;
-  color: #779551;
+  color: var(--fwd);
   white-space: nowrap;
 }
 .iv-top-three {
@@ -210,10 +210,10 @@
   gap: 13px;
   flex-wrap: wrap;
   padding-top: 17px;
-  border-top: 1px solid #e5ebdd;
+  border-top: 1px solid var(--text-1);
   margin-top: 21px;
   font-size: 11px;
-  color: #7e9469;
+  color: var(--fwd);
   line-height: 1.8;
 }
 .iv-top-three > span {
@@ -224,19 +224,19 @@
 .iv-top-three b {
   font-size: 11px;
   font-weight: 400;
-  color: #a3b194;
+  color: var(--fwd);
 }
 .iv-top-three small {
   font-size: 11px;
-  color: #a1ae92;
+  color: var(--text-2);
 }
 .iv-prediction-note {
   margin-top: 15px;
   font-size: 11px;
   line-height: 1.9;
-  color: #9ba98d;
+  color: var(--text-2);
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .iv-canvas-controls {
     gap: 16px;
   }

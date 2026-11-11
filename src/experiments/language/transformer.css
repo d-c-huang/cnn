@@ -1,0 +1,18 @@
+.transformer-pipeline { display: grid; gap: 12px; padding-left: 24px; }
+.transformer-pipeline li { padding: 12px; border-bottom: 1px solid var(--border); }
+.transformer-pipeline strong, .transformer-pipeline span { display: block; line-height: 1.8; }
+.transformer-pipeline span { color: var(--text-2); }
+.transformer-token-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 16px 0; }
+.transformer-token-row button[aria-pressed="true"] { border-color: var(--fwd); background: var(--surface-3); }
+.transformer-mask { margin: 20px 0; overflow-x: auto; }
+.transformer-mask > div { display: grid; grid-template-columns: repeat(8, minmax(36px, 1fr)); min-width: 320px; }
+.transformer-mask span { text-align: center; padding: 7px 2px; border: 1px solid var(--border); font-size: var(--fs12); }
+.transformer-mask .is-visible { background: var(--surface-3); color: var(--fwd); }
+.transformer-mask .is-masked { color: var(--text-3); background: var(--surface-0); }
+.transformer-mask .is-inspected { border-top-color: var(--fwd); border-bottom-color: var(--fwd); }
+.transformer-attention { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border); }
+.transformer-attention-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.transformer-attention-row > div { display: grid; gap: 8px; padding: 14px; min-width: 76px; text-align: center; border: 1px solid var(--border); border-radius: 8px; background: color-mix(in srgb, var(--fwd) var(--attention-strength), var(--surface-1)); }
+.transformer-attention-row > div:not(.is-masked) { color: var(--text-1); background: linear-gradient(to top, color-mix(in srgb, var(--fwd) 18%, var(--surface-1)) var(--attention-strength), var(--surface-1) var(--attention-strength)); }
+.transformer-attention-row > .is-masked { color: var(--text-3); background: var(--surface-0); }
+.transformer-attention-row small { font-size: var(--fs11); }

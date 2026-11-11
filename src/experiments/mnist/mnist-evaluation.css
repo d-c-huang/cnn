@@ -9,7 +9,7 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  color: #839572;
+  color: var(--fwd);
   font-size: 11px;
 }
 .me-select-run select {
@@ -17,12 +17,12 @@
   flex: 1;
   max-width: 650px;
   padding: 11px 10px;
-  border: 1px solid #dce5d0;
-  background: #f9fbf4;
-  border-radius: 5px;
+  border: 1px solid var(--text-1);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
   font: inherit;
   font-size: 12px;
-  color: #58703e;
+  color: var(--fwd);
 }
 .me-select-run a {
   text-decoration: none;
@@ -46,21 +46,21 @@
 }
 .me-empty {
   font-size: 12px;
-  color: #99a98a;
+  color: var(--fwd);
   line-height: 2;
   padding: 23px 0;
 }
 .me-pending-evaluation {
-  background: #f0f5e7;
-  border-radius: 7px;
-  color: #859974;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  color: var(--fwd);
   padding: 20px;
   margin-top: 23px;
 }
 .me-pending-evaluation strong {
   font-size: 15px;
   font-weight: 500;
-  color: #69874c;
+  color: var(--fwd);
 }
 .me-pending-evaluation p {
   font-size: 12px;
@@ -72,19 +72,18 @@
   white-space: nowrap;
 }
 .me-error-dialog {
-  border: 1px solid #dce5d1;
-  background: #fcfdf9;
-  border-radius: 12px;
+  border: 1px solid var(--text-1);
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
   padding: 25px;
-  color: var(--ink);
+  color: var(--text-1);
   width: calc(100% - 34px);
   max-width: 540px;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
-  box-shadow: 0 20px 90px #26371c33;
 }
 .me-error-dialog::backdrop {
-  background: #25311b66;
+  background: color-mix(in srgb, var(--surface-3) 40%, transparent);
   backdrop-filter: blur(3px);
 }
 .me-error-overview {
@@ -102,11 +101,11 @@
 .me-error-overview strong {
   font-size: 20px;
   font-weight: 500;
-  color: #5a753f;
+  color: var(--fwd);
 }
 .me-error-overview p {
   font-size: 12px;
-  color: #91a47b;
+  color: var(--fwd);
   line-height: 1.9;
 }
 .me-probabilities {
@@ -124,39 +123,39 @@
 }
 .me-probabilities > div > span {
   width: 14px;
-  color: #7d9368;
+  color: var(--fwd);
 }
 .me-probabilities > div > div {
   flex: 1;
   height: 7px;
-  border-radius: 3px;
-  background: #edf2e5;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
   overflow: hidden;
 }
 .me-probabilities i {
   display: block;
   height: 100%;
-  background: #b6c6a0;
+  background: var(--fwd);
 }
 .me-probabilities i.predicted {
-  background: #b8d480;
+  background: var(--fwd);
 }
 .me-probabilities i.truth {
-  background: #7ca99e;
+  background: var(--fwd);
 }
 .me-probabilities strong {
   font-size: 11px;
   font-weight: 500;
   min-width: 53px;
   text-align: right;
-  color: #879c73;
+  color: var(--fwd);
 }
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
   .me-results {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .me-select-run {
     align-items: flex-start;
     flex-direction: column;

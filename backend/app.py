@@ -24,6 +24,12 @@ from backend.mnist import router as mnist_router, service as mnist_service
 from backend.inference import router as inference_router
 from backend.static_site import mount_static_site
 from backend.optimizers import router as optimizers_router
+from backend.language import router as language_router
+from backend.transformer import router as transformer_router
+from backend.lora import router as lora_router
+from backend.sft import router as sft_router
+from backend.dpo import router as dpo_router
+from backend.grpo import router as grpo_router
 
 
 Number = Annotated[
@@ -105,6 +111,12 @@ app.include_router(phase2_router)
 app.include_router(mnist_router)
 app.include_router(inference_router)
 app.include_router(optimizers_router)
+app.include_router(language_router)
+app.include_router(transformer_router)
+app.include_router(lora_router)
+app.include_router(sft_router)
+app.include_router(dpo_router)
+app.include_router(grpo_router)
 
 origins = [
     origin.strip()
